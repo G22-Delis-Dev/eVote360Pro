@@ -1,66 +1,56 @@
 ﻿using Tesseract;
-using eVote360Pro.Domain.Interfaces;
+using eVote360Pro.Application.Interfaces;
 
 namespace eVote360Pro.Infrastructure.Services;
 
 public class OcrService : IOcrService
 {
-    private readonly string _tessDataPath;
+    private readonly TesseractEngine _engine;
 
     public OcrService(string tessDataPath = "tessdata")
     {
-        _tessDataPath = tessDataPath;
+        // El motor es pesado, lo instanciamos una vez al crear el servicio
+        _engine = new TesseractEngine(tessDataPath, "spa", EngineMode.Default);
     }
 
-    public Task<string?> ExtraerNumeroDocumentoAsync(Stream imagenStream)
+    public async Task<string?> ExtraerNumeroDocumentoAsync(Stream imagenStream)
     {
         try
         {
-            using var engine = new TesseractEngine(_tessDataPath, "spa", EngineMode.Default);
             using var memoryStream = new MemoryStream();
-
-            imagenStream.CopyTo(memoryStream);
-            var imageBytes = memoryStream.ToArray();
-
-            using var img = Pix.LoadFromMemory(imageBytes);
-            using var page = engine.Process(img);
-
+            await imagenStream.CopyToAsync(memoryStream);
+            
+            using var img = Pix.LoadFromMemory(memoryStream.ToArray());
+            using var page = _engine.Process(img);
+            
             var textoExtraido = page.GetText();
 
-            if (string.IsNullOrWhiteSpace(textoExtraido))
-                return Task.FromResult<string?>(null);
-
-            var numeroDocumento = ExtraerNumeroDocumento(textoExtraido);
-            return Task.FromResult(numeroDocumento);
+            return !string.IsNullOrWhiteSpace(textoExtraido) 
+                ? ExtraerNumeroDocumento(textoExtraido) 
+                : null;
         }
         catch
         {
-            return Task.FromResult<string?>(null);
+            return null;
         }
     }
 
     private static string? ExtraerNumeroDocumento(string texto)
     {
-        var lineas = texto
-            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Select(l => l.Trim())
-            .Where(l => !string.IsNullOrWhiteSpace(l));
+        var lineas = texto.Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                          .Select(l => l.Trim())
+                          .Where(l => !string.IsNullOrWhiteSpace(l));
 
         foreach (var linea in lineas)
         {
-            var conGuiones = System.Text.RegularExpressions.Regex.Match(
-                linea, @"\b\d{3}-\d{7}-\d{1}\b");
+            // Busca formato 000-0000000-0
+            var conGuiones = System.Text.RegularExpressions.Regex.Match(linea, @"\b\d{3}-\d{7}-\d{1}\b");
+            if (conGuiones.Success) return conGuiones.Value.Replace("-", "");
 
-            if (conGuiones.Success)
-                return conGuiones.Value.Replace("-", "");
-
-            var sinGuiones = System.Text.RegularExpressions.Regex.Match(
-                linea, @"\b\d{11}\b");
-
-            if (sinGuiones.Success)
-                return sinGuiones.Value;
+            // Busca formato 00000000000
+            var sinGuiones = System.Text.RegularExpressions.Regex.Match(linea, @"\b\d{11}\b");
+            if (sinGuiones.Success) return sinGuiones.Value;
         }
-
         return null;
     }
 }
