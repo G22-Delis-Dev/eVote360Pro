@@ -1,4 +1,4 @@
-﻿namespace eVote360Pro.Domain.Interfaces;
+﻿namespace eVote360Pro.Application.Interfaces;
 
 public interface IOcrService
 {
