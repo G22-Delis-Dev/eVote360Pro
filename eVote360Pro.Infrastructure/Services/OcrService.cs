@@ -1,18 +1,12 @@
 ﻿using Tesseract;
+using eVote360Pro.Domain.Interfaces;
 
 namespace eVote360Pro.Infrastructure.Services;
-
-public interface IOcrService
-{
-    Task<string?> ExtraerNumeroDocumentoAsync(Stream imagenStream);
-}
 
 public class OcrService : IOcrService
 {
     private readonly string _tessDataPath;
 
-    // tessDataPath apunta a la carpeta donde están los archivos .traineddata
-    // Por defecto Tesseract busca en ./tessdata
     public OcrService(string tessDataPath = "tessdata")
     {
         _tessDataPath = tessDataPath;
@@ -45,11 +39,8 @@ public class OcrService : IOcrService
         }
     }
 
-    // Intenta extraer el número de documento del texto OCR.
-    // Las cédulas dominicanas tienen el formato: 000-0000000-0
     private static string? ExtraerNumeroDocumento(string texto)
     {
-        // Limpia el texto
         var lineas = texto
             .Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(l => l.Trim())
@@ -57,17 +48,12 @@ public class OcrService : IOcrService
 
         foreach (var linea in lineas)
         {
-            // Patrón con guiones: 000-0000000-0
             var conGuiones = System.Text.RegularExpressions.Regex.Match(
                 linea, @"\b\d{3}-\d{7}-\d{1}\b");
 
             if (conGuiones.Success)
-            {
-                // Retorna sin guiones para comparar con NumeroDocumento del sistema
                 return conGuiones.Value.Replace("-", "");
-            }
 
-            // Patrón sin guiones: 00112345678 (11 dígitos)
             var sinGuiones = System.Text.RegularExpressions.Regex.Match(
                 linea, @"\b\d{11}\b");
 
