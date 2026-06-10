@@ -1,15 +1,29 @@
+using eVote360Pro.Application.Interfaces;
+using eVote360Pro.Shared.Services; 
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
+var emailSettings = new EmailSettings
+{
+    Host = "smtp.tu-servidor.com",
+    Puerto = 587,
+    CorreoRemitente = "tu-email@dominio.com",
+    NombreRemitente = "eVote360 Pro",
+    Password = "tu-contraseña"
+};
+
+
+builder.Services.AddSingleton(emailSettings);
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
