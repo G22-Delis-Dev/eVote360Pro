@@ -203,7 +203,7 @@ Update-Database -Project eVote360Pro.Infrastructure -StartupProject eVote360Pro.
 
 ## Equipo
 
-| Integrante | Módulos |
+| Integrante | Matricula |
 |---|---|
-| **Delis** | Auth, HomeAdmin, Ciudadanos, Usuarios, Partidos, Puestos Electivos, infraestructura base |
-| **Sky** | Elecciones, AsignacionDirigentes, HomeDirigente, Candidatos, Alianzas, AsignacionCandidatos, flujo Elector |
+| **Delis Manuel De La Cruz Castillo** | 2025-1074 |
+| **Sky Luisahanie Andujar Victorino** | 2025-1063 |
