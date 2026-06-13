@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\eVote360Pro.Application\eVote360Pro.Application.csproj" />
+    <ProjectReference Include="..\eVote360Pro.Domain\eVote360Pro.Domain.csproj" />
   </ItemGroup>
 
 </Project>
