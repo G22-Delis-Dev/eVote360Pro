@@ -1,6 +1,6 @@
-﻿using eVote360Pro.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using eVote360Pro.Domain.Entities;
 
 namespace eVote360Pro.Infrastructure.Data.Configurations;
 
@@ -8,6 +8,7 @@ public class CodigoVerificacionConfiguration : IEntityTypeConfiguration<CodigoVe
 {
     public void Configure(EntityTypeBuilder<CodigoVerificacion> builder)
     {
+        builder.ToTable("CodigosVerificacion");
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.Codigo)

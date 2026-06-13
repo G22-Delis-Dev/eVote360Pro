@@ -1,6 +1,6 @@
-﻿using eVote360Pro.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using eVote360Pro.Domain.Entities;
 
 namespace eVote360Pro.Infrastructure.Data.Configurations;
 
@@ -8,6 +8,7 @@ public class AsignacionCandidatoPuestoConfiguration : IEntityTypeConfiguration<A
 {
     public void Configure(EntityTypeBuilder<AsignacionCandidatoPuesto> builder)
     {
+        builder.ToTable("AsignacionesCandidatoPuesto");
         builder.HasKey(a => a.Id);
 
         builder.HasIndex(a => new { a.CandidatoId, a.PartidoPoliticoId }).IsUnique();

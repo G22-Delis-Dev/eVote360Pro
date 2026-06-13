@@ -1,21 +1,8 @@
-using eVote360Pro.Application.Interfaces;
-using eVote360Pro.Shared.Services; 
+using eVote360Pro.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-var emailSettings = new EmailSettings
-{
-    Host = "smtp.tu-servidor.com",
-    Puerto = 587,
-    CorreoRemitente = "tu-email@dominio.com",
-    NombreRemitente = "eVote360 Pro",
-    Password = "tu-contraseña"
-};
-
-
-builder.Services.AddSingleton(emailSettings);
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AgregarCapaInfraestructura(builder.Configuration);
 
 builder.Services.AddControllersWithViews();
 
