@@ -2,7 +2,7 @@
 
 namespace eVote360Pro.Application.ViewModels.Alianzas;
 
-public class AlianzaPoliticaCreateViewModel
+public class AlianzaCreateViewModel
 {
     [Required(ErrorMessage = "Debe seleccionar el partido político que solicita la alianza.")]
     [Display(Name = "Partido Solicitante")]

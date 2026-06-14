@@ -8,4 +8,3 @@ public class CandidatoListViewModel
     public string FotoUrl { get; set; } = string.Empty;
     public bool Activo { get; set; }
 }
-}

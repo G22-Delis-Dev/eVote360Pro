@@ -36,12 +36,12 @@ public class AlianzasController : Controller
     public async Task<IActionResult> Create()
     {
         await CargarDropdownsPartidosAsync();
-        return View(new AlianzaPoliticaCreateViewModel());
+        return View(new AlianzaCreateViewModel());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(AlianzaPoliticaCreateViewModel vm)
+    public async Task<IActionResult> Create(AlianzaCreateViewModel vm)
     {
         if (vm.PartidoSolicitanteId == vm.PartidoReceptorId)
         {

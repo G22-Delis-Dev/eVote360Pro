@@ -30,7 +30,7 @@ public class CandidatosController : Controller
     public async Task<IActionResult> Index()
     {
         var dtos = await _candidatoService.ObtenerTodosAsync();
-        // Cumplimos la regla: La vista Index solo recibe su ListViewModel específico
+        // La vista Index solo recibe su ListViewModel específico
         var listaVms = _mapper.Map<IEnumerable<CandidatoListViewModel>>(dtos);
         return View(listaVms);
     }
@@ -109,8 +109,6 @@ public class CandidatosController : Controller
         await _candidatoService.CambiarEstadoAsync(id);
         return RedirectToAction(nameof(Index));
     }
-
-    // --- MÉTODOS PRIVADOS DE APOYO ---
 
     private async Task CargarDropdownPartidosAsync(int? partidoSeleccionado = null)
     {

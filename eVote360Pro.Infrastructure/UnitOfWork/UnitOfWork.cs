@@ -1,12 +1,14 @@
 ﻿using eVote360Pro.Domain.Interfaces.Repositories;
 using eVote360Pro.Infrastructure.Data;
 using eVote360Pro.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore.Storage; // Necesario para las transacciones
 
 namespace eVote360Pro.Infrastructure.UnitOfWork;
 
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
+    private IDbContextTransaction? _transaction; // Variable para controlar la transacción
 
     // Campos privados para los repositorios
     private ICiudadanoRepository? _ciudadanos;
@@ -43,13 +45,56 @@ public class UnitOfWork : IUnitOfWork
     public IAlianzaPoliticaRepository AlianzasPoliticas => _alianzasPoliticas ??= new AlianzaPoliticaRepository(_context);
     public IParticipacionElectoralRepository ParticipacionesElectorales => _participacionesElectorales ??= new ParticipacionElectoralRepository(_context);
 
+    // Guarda los cambios normales
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();
     }
 
+    public async Task BeginTransactionAsync()
+    {
+        _transaction = await _context.Database.BeginTransactionAsync();
+    }
+
+    public async Task CommitTransactionAsync()
+    {
+        try
+        {
+            await SaveChangesAsync();
+            if (_transaction != null)
+            {
+                await _transaction.CommitAsync();
+            }
+        }
+        catch
+        {
+            await RollbackTransactionAsync();
+            throw;
+        }
+        finally
+        {
+            if (_transaction != null)
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+    }
+
+    public async Task RollbackTransactionAsync()
+    {
+        if (_transaction != null)
+        {
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
+            _transaction = null;
+        }
+    }
+
     public void Dispose()
     {
+        _transaction?.Dispose();
         _context.Dispose();
+        GC.SuppressFinalize(this); // Esto es para optimizar el Garbage Collector
     }
 }
