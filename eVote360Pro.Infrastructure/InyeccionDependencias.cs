@@ -40,6 +40,7 @@ public static class InyeccionDependencias
 
         // Servicios
         services.AddScoped<ICandidatoService, CandidatoService>();
+        services.AddScoped<IAlianzaPoliticaService, AlianzaPoliticaService>(); // <-- Añadir esta línea
 
 
         // Registrar Configuración y Servicio de Email (MailKit)
