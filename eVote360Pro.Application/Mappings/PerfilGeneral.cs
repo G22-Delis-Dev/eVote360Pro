@@ -3,6 +3,7 @@ using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.ViewModels.Alianzas;
 using eVote360Pro.Application.ViewModels.AsignacionCandidatos;
 using eVote360Pro.Application.ViewModels.Candidatos;
+using eVote360Pro.Application.ViewModels.Votacion;
 using eVote360Pro.Domain.Entities;
 
 namespace eVote360Pro.Application.Mappings;
@@ -22,6 +23,8 @@ public class PerfilGeneral : Profile
         CreateMap<PartidoPolitico, PartidoPoliticoDto>().ReverseMap();
         CreateMap<AlianzaPolitica, AlianzaPoliticaDto>().ReverseMap();
         CreateMap<PuestoElectivo, PuestoElectivoDto>().ReverseMap();
+        CreateMap<Ciudadano, CiudadanoDto>().ReverseMap();
+        CreateMap<Eleccion, EleccionDto>().ReverseMap();
 
         // =========================================================
         // MAPEOS COMPLEJOS (Con lógica o relaciones)
@@ -56,5 +59,11 @@ public class PerfilGeneral : Profile
         CreateMap<AsignacionCandidatoPuestoDto, AsignacionCandidatoListViewModel>();
         CreateMap<AsignacionCandidatoCreateViewModel, AsignacionCandidatoPuestoDto>().ReverseMap();
         CreateMap<AsignacionCandidatoEditViewModel, AsignacionCandidatoPuestoDto>().ReverseMap();
+
+        // --- Módulo: Proceso de Votación (Ciudadano) ---
+        CreateMap<VotoDto, SeleccionVotoViewModel>().ReverseMap();
+
+        // esto es opcional, pero lo puse para que no haya problemas si pasan objetos complejos
+        CreateMap<EleccionDto, InicioVotacionViewModel>().ReverseMap();
     }
 }

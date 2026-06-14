@@ -1,4 +1,4 @@
-﻿namespace eVote360Pro.Domain.Entities;
+﻿namespace eVote360Pro.Domain.Entities; 
 
 public abstract class BaseEntity
 {
