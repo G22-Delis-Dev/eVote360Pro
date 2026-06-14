@@ -16,5 +16,8 @@ public interface IUnitOfWork : IDisposable
     IAlianzaPoliticaRepository AlianzasPoliticas { get; }
     IParticipacionElectoralRepository ParticipacionesElectorales { get; }
 
+    Task BeginTransactionAsync();
+    Task CommitTransactionAsync();
+    Task RollbackTransactionAsync();
     Task<int> SaveChangesAsync();
 }

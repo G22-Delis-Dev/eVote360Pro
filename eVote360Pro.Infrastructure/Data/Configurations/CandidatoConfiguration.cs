@@ -8,6 +8,7 @@ public class CandidatoConfiguration : IEntityTypeConfiguration<Candidato>
 {
     public void Configure(EntityTypeBuilder<Candidato> builder)
     {
+        builder.ToTable("Candidatos");
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.Nombre)
@@ -23,6 +24,11 @@ public class CandidatoConfiguration : IEntityTypeConfiguration<Candidato>
 
         builder.Property(c => c.Activo)
                .IsRequired();
+
+        builder.HasOne(c => c.PartidoPolitico)
+               .WithMany(p => p.Candidatos)
+               .HasForeignKey(c => c.PartidoPoliticoId)
+               .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(c => c.PartidoPolitico)
                .WithMany(p => p.Candidatos)

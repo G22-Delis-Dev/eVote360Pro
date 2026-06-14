@@ -8,6 +8,7 @@ public class ParticipacionElectoralConfiguration : IEntityTypeConfiguration<Part
 {
     public void Configure(EntityTypeBuilder<ParticipacionElectoral> builder)
     {
+        builder.ToTable("ParticipacionesElectorales");
         builder.HasKey(p => p.Id);
 
         // Un ciudadano solo puede tener una participación por elección
