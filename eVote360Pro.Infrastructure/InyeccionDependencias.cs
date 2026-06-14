@@ -1,12 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using eVote360Pro.Application.Interfaces;
+using eVote360Pro.Application.Mappings;
+using eVote360Pro.Application.Services;
+using eVote360Pro.Domain.Interfaces.Repositories;
+using eVote360Pro.Infrastructure.Data;
+using eVote360Pro.Infrastructure.Repositories;
+using eVote360Pro.Shared.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using eVote360Pro.Domain.Interfaces.Repositories;
-using eVote360Pro.Infrastructure.Repositories;
-using eVote360Pro.Infrastructure.Data;
-using eVote360Pro.Application.Interfaces;
-using eVote360Pro.Shared.Services;
-using eVote360Pro.Application.Mappings;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace eVote360Pro.Infrastructure;
 
@@ -14,13 +15,14 @@ public static class InyeccionDependencias
 {
     public static IServiceCollection AgregarCapaInfraestructura(this IServiceCollection services, IConfiguration configuration)
     {
-        // 1. Configurar Base de Datos
+        // Configurar Base de Datos
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-        // 2. Registrar el Repositorio Genérico y los Específicos
+        // Registrar el Repositorio Genérico y los Específicos
         services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 
+        // Repositorios
         services.AddScoped<ICiudadanoRepository, CiudadanoRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IPartidoPoliticoRepository, PartidoPoliticoRepository>();
@@ -34,14 +36,19 @@ public static class InyeccionDependencias
         services.AddScoped<IVotoRepository, VotoRepository>();
         services.AddScoped<IParticipacionElectoralRepository, ParticipacionElectoralRepository>();
         services.AddScoped<ICodigoVerificacionRepository, CodigoVerificacionRepository>();
+        services.AddScoped<IUnitOfWork, eVote360Pro.Infrastructure.UnitOfWork.UnitOfWork>();
 
-        // 3. Registrar Configuración y Servicio de Email (MailKit)
+        // Servicios
+        services.AddScoped<ICandidatoService, CandidatoService>();
+
+
+        // Registrar Configuración y Servicio de Email (MailKit)
         var emailSettings = new EmailSettings();
         configuration.GetSection("EmailSettings").Bind(emailSettings);
         services.AddSingleton(emailSettings);
         services.AddTransient<IEmailService, EmailService>();
 
-        // 4. Registrar Mapeo Automático (AutoMapper)
+        // Registrar Mapeo Automático (AutoMapper)
         services.AddAutoMapper(config =>
         {
             config.AddProfile<PerfilGeneral>();
