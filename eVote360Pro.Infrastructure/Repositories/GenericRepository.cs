@@ -80,12 +80,20 @@ namespace eVote360Pro.Infrastructure.Repositories
 
         public virtual void Remove(T entity)
         {
-            _dbSet.Remove(entity);
+            // Lógica de eliminación lógica
+            entity.Activo = false;
+            entity.FechaModificacion = DateTime.UtcNow;
+            _dbSet.Update(entity);
         }
 
         public virtual void RemoveRange(IEnumerable<T> entities)
         {
-            _dbSet.RemoveRange(entities);
+            foreach (var entity in entities)
+            {
+                entity.Activo = false;
+                entity.FechaModificacion = DateTime.UtcNow;
+            }
+            _dbSet.UpdateRange(entities);
         }
     }
 }

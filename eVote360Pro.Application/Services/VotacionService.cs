@@ -5,6 +5,7 @@ using eVote360Pro.Domain.Entities;
 using eVote360Pro.Domain.Enums;
 using eVote360Pro.Domain.Exceptions;
 using eVote360Pro.Domain.Interfaces.Repositories;
+using eVote360Pro.Shared.Interfaces;
 
 namespace eVote360Pro.Application.Services;
 

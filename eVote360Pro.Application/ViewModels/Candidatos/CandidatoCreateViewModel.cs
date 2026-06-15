@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http; // Aquí sí es correcto usarlo
 using System.ComponentModel.DataAnnotations;
 
-namespace eVote360Pro.Application.ViewModels.Candidatos;
+namespace eVote360Pro.Application.ViewModels.Candidatos; // CAMBIA EL NAMESPACE
 
 public class CandidatoCreateViewModel
 {
@@ -13,11 +13,8 @@ public class CandidatoCreateViewModel
     [Required(ErrorMessage = "El apellido es obligatorio")]
     public string Apellido { get; set; } = string.Empty;
 
-    // El PartidoPoliticoId ya no es seleccionable, se toma automáticamente del dirigente autenticado
-
-    // Propiedad para recibir el archivo físico de la vista
     [Display(Name = "Foto del Candidato")]
     public IFormFile? FotoArchivo { get; set; }
 
-    public string FotoUrlExistente { get; set; } = string.Empty; // Para guardar la foto si estamos editando
+    public string FotoUrlExistente { get; set; } = string.Empty;
 }

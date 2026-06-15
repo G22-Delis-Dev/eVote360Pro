@@ -6,7 +6,6 @@ using eVote360Pro.Domain.Settings;
 using eVote360Pro.Infrastructure.Data;
 using eVote360Pro.Infrastructure.Repositories;
 using eVote360Pro.Infrastructure.Services;
-using eVote360Pro.Shared.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

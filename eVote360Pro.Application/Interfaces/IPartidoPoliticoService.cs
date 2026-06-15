@@ -2,15 +2,13 @@
 
 namespace eVote360Pro.Application.Interfaces;
 
-public interface IPartidoPoliticoService
+public interface IPartidoPoliticoService : IGenericService<PartidoPoliticoDto>
 {
-    // El método el dropdown
-    Task<IEnumerable<PartidoPoliticoDto>> ObtenerTodosAsync();
+    // Métodos específicos de negocio que retornan DTOs
+    Task<IEnumerable<PartidoPoliticoDto>> ObtenerActivosAsync();
 
-    // Los demás métodos se implementaran despues, estos son solo para terminar el servicio de Candidato
-    Task<PartidoPoliticoDto?> ObtenerPorIdAsync(int id);
-    Task<PartidoPoliticoDto> CrearAsync(PartidoPoliticoDto partidoDto);
-    Task ActualizarAsync(int id, PartidoPoliticoDto partidoDto);
-    Task EliminarAsync(int id);
+    // Operaciones usando DTOs (el controlador mapea de/hacia ViewModel)
+    Task CrearAsync(PartidoPoliticoDto dto, string rutaLogo);
+    Task EditarAsync(PartidoPoliticoDto dto, string? rutaLogo);
     Task CambiarEstadoAsync(int id);
 }

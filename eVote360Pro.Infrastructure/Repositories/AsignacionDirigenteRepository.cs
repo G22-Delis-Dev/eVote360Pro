@@ -13,7 +13,6 @@ public class AsignacionDirigenteRepository : GenericRepository<AsignacionDirigen
 
     public async Task<AsignacionDirigente?> GetByUsuarioAsync(int usuarioId)
     {
-        // Buscamos si el usuario dirige algún partido y traemos la info de ese partido.
         return await _dbSet
             .Include(a => a.PartidoPolitico)
             .FirstOrDefaultAsync(a => a.UsuarioId == usuarioId);
@@ -21,9 +20,19 @@ public class AsignacionDirigenteRepository : GenericRepository<AsignacionDirigen
 
     public async Task<AsignacionDirigente?> GetByPartidoAsync(int partidoId)
     {
-        // Buscamos quién es el dirigente actual de un partido y traemos su información de Usuario (Nombre, Apellido).
         return await _dbSet
             .Include(a => a.Usuario)
             .FirstOrDefaultAsync(a => a.PartidoPoliticoId == partidoId);
+    }
+
+    // Implementación de los nuevos métodos requeridos por la interfaz
+    public async Task<bool> DirigenteTienePartidoAsync(int usuarioId)
+    {
+        return await _dbSet.AnyAsync(a => a.UsuarioId == usuarioId);
+    }
+
+    public async Task<bool> PartidoTieneDirigenteAsync(int partidoId)
+    {
+        return await _dbSet.AnyAsync(a => a.PartidoPoliticoId == partidoId);
     }
 }
