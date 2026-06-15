@@ -1,44 +1,47 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Candidatos;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 
 namespace eVote360Pro.Web.Controllers.Dirigente;
 
 public class CandidatosController : Controller
 {
     private readonly ICandidatoService _candidatoService;
-    private readonly IPartidoPoliticoService _partidoService;
     private readonly IMapper _mapper;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     public CandidatosController(
         ICandidatoService candidatoService,
-        IPartidoPoliticoService partidoService,
         IMapper mapper,
         IWebHostEnvironment webHostEnvironment)
     {
         _candidatoService = candidatoService;
-        _partidoService = partidoService;
         _mapper = mapper;
         _webHostEnvironment = webHostEnvironment;
     }
 
+    // TODO: Reemplazar con el ID real del partido del dirigente autenticado
+    // cuando se implemente el sistema de autenticación (Claims/Session).
+    private int ObtenerPartidoIdDirigente() => 1;
+
     public async Task<IActionResult> Index()
     {
-        var dtos = await _candidatoService.ObtenerTodosAsync();
-        // La vista Index solo recibe su ListViewModel específico
+        int partidoId = ObtenerPartidoIdDirigente();
+
+        // Solo se muestran los candidatos del partido del dirigente autenticado
+        var dtos = await _candidatoService.ObtenerPorPartidoAsync(partidoId);
         var listaVms = _mapper.Map<IEnumerable<CandidatoListViewModel>>(dtos);
         return View(listaVms);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create()
+    public IActionResult Create()
     {
-        await CargarDropdownPartidosAsync();
+        // Ya no se carga dropdown de partidos; el partido se asigna automáticamente
         return View(new CandidatoCreateViewModel());
     }
 
@@ -48,11 +51,13 @@ public class CandidatosController : Controller
     {
         if (!ModelState.IsValid)
         {
-            await CargarDropdownPartidosAsync();
             return View(vm);
         }
 
         var dto = _mapper.Map<CandidatoDto>(vm);
+
+        // El partido se toma automáticamente del dirigente autenticado
+        dto.PartidoPoliticoId = ObtenerPartidoIdDirigente();
 
         if (vm.FotoArchivo != null)
         {
@@ -69,11 +74,14 @@ public class CandidatosController : Controller
         var candidatoDto = await _candidatoService.ObtenerPorIdAsync(id);
         if (candidatoDto == null) return NotFound();
 
+        // Validar que el candidato pertenece al partido del dirigente
+        if (candidatoDto.PartidoPoliticoId != ObtenerPartidoIdDirigente())
+            return Forbid();
+
         // Usamos el ViewModel específico para la edición
         var vm = _mapper.Map<CandidatoEditViewModel>(candidatoDto);
         vm.FotoUrlExistente = candidatoDto.FotoUrl;
 
-        await CargarDropdownPartidosAsync(vm.PartidoPoliticoId);
         return View(vm);
     }
 
@@ -83,11 +91,13 @@ public class CandidatosController : Controller
     {
         if (!ModelState.IsValid)
         {
-            await CargarDropdownPartidosAsync(vm.PartidoPoliticoId);
             return View(vm);
         }
 
         var dto = _mapper.Map<CandidatoDto>(vm);
+
+        // El partido se toma automáticamente del dirigente autenticado
+        dto.PartidoPoliticoId = ObtenerPartidoIdDirigente();
 
         if (vm.FotoArchivo != null)
         {
@@ -106,15 +116,15 @@ public class CandidatosController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CambiarEstado(int id)
     {
+        // Validar que el candidato pertenece al partido del dirigente antes de cambiar estado
+        var candidatoDto = await _candidatoService.ObtenerPorIdAsync(id);
+        if (candidatoDto == null) return NotFound();
+
+        if (candidatoDto.PartidoPoliticoId != ObtenerPartidoIdDirigente())
+            return Forbid();
+
         await _candidatoService.CambiarEstadoAsync(id);
         return RedirectToAction(nameof(Index));
-    }
-
-    private async Task CargarDropdownPartidosAsync(int? partidoSeleccionado = null)
-    {
-        var todosPartidos = await _partidoService.ObtenerTodosAsync();
-        var partidosActivos = todosPartidos.Where(p => p.Activo).ToList();
-        ViewBag.Partidos = new SelectList(partidosActivos, "Id", "Nombre", partidoSeleccionado);
     }
 
     private async Task<string> GuardarFotoAsync(IFormFile foto)

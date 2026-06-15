@@ -18,4 +18,8 @@
     <ProjectReference Include="..\eVote360Pro.Domain\eVote360Pro.Domain.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
 </Project>

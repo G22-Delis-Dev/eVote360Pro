@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Domain.Exceptions;
 using eVote360Pro.Application.Interfaces;
@@ -21,9 +21,15 @@ public class AlianzaPoliticaService : IAlianzaPoliticaService
 
     public async Task<IEnumerable<AlianzaPoliticaDto>> ObtenerTodasAsync()
     {
-        // En un escenario real, aquí podrías necesitar un "Include" en el repositorio 
-        // para traer los nombres de los partidos
         var alianzas = await _unitOfWork.AlianzasPoliticas.GetAllAsync();
+        return _mapper.Map<IEnumerable<AlianzaPoliticaDto>>(alianzas);
+    }
+
+    public async Task<IEnumerable<AlianzaPoliticaDto>> ObtenerPorPartidoAsync(int partidoId)
+    {
+        // Solo devuelve las alianzas donde el partido es solicitante o receptor
+        var alianzas = await _unitOfWork.AlianzasPoliticas
+            .FindAsync(a => a.PartidoSolicitanteId == partidoId || a.PartidoReceptorId == partidoId);
         return _mapper.Map<IEnumerable<AlianzaPoliticaDto>>(alianzas);
     }
 

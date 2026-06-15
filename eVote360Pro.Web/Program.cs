@@ -1,4 +1,8 @@
 using eVote360Pro.Infrastructure;
+using eVote360Pro.Application.Interfaces;
+using eVote360Pro.Domain.Settings;         
+using eVote360Pro.Shared.Services;
+using eVote360Pro.Infrastructure.Services; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +20,6 @@ var emailSettings = new EmailSettings
 builder.Services.AddSingleton(emailSettings);
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-// Registro de OcrService: Como usa Tesseract (pesado), Singleton es vital
 builder.Services.AddSingleton<IOcrService>(provider =>
     new OcrService(Path.Combine(builder.Environment.ContentRootPath, "tessdata")));
 

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Alianzas;
@@ -24,10 +24,16 @@ public class AlianzasController : Controller
         _mapper = mapper;
     }
 
+    // TODO: Reemplazar con el ID real del partido del dirigente autenticado
+    // cuando se implemente el sistema de autenticación (Claims/Session).
+    private int ObtenerPartidoIdDirigente() => 1;
+
     public async Task<IActionResult> Index()
     {
-        var dtos = await _alianzaService.ObtenerTodasAsync();
-        // Mapeamos los DTOs de la base de datos hacia el ListViewModel que requiere la tabla HTML
+        int partidoId = ObtenerPartidoIdDirigente();
+
+        // Solo se muestran las alianzas donde el partido del dirigente es solicitante o receptor
+        var dtos = await _alianzaService.ObtenerPorPartidoAsync(partidoId);
         var listaVms = _mapper.Map<IEnumerable<AlianzaListViewModel>>(dtos);
         return View(listaVms);
     }
@@ -35,7 +41,8 @@ public class AlianzasController : Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        await CargarDropdownsPartidosAsync();
+        // Solo se carga el dropdown de partidos receptores (excluye el partido del dirigente)
+        await CargarDropdownPartidosReceptoresAsync();
         return View(new AlianzaCreateViewModel());
     }
 
@@ -43,18 +50,24 @@ public class AlianzasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(AlianzaCreateViewModel vm)
     {
-        if (vm.PartidoSolicitanteId == vm.PartidoReceptorId)
+        int partidoIdDirigente = ObtenerPartidoIdDirigente();
+
+        if (partidoIdDirigente == vm.PartidoReceptorId)
         {
             ModelState.AddModelError(string.Empty, "Un partido político no puede realizar una alianza consigo mismo.");
         }
 
         if (!ModelState.IsValid)
         {
-            await CargarDropdownsPartidosAsync(vm.PartidoSolicitanteId, vm.PartidoReceptorId);
+            await CargarDropdownPartidosReceptoresAsync(vm.PartidoReceptorId);
             return View(vm);
         }
 
         var dto = _mapper.Map<AlianzaPoliticaDto>(vm);
+
+        // El partido solicitante se toma automáticamente del dirigente autenticado
+        dto.PartidoSolicitanteId = partidoIdDirigente;
+
         await _alianzaService.CrearAsync(dto);
 
         return RedirectToAction(nameof(Index));
@@ -68,12 +81,16 @@ public class AlianzasController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task CargarDropdownsPartidosAsync(int? solicitanteId = null, int? receptorId = null)
+    private async Task CargarDropdownPartidosReceptoresAsync(int? receptorId = null)
     {
+        int partidoIdDirigente = ObtenerPartidoIdDirigente();
         var todosPartidos = await _partidoService.ObtenerTodosAsync();
-        var partidosActivos = todosPartidos.Where(p => p.Activo).ToList();
 
-        ViewBag.PartidosSolicitantes = new SelectList(partidosActivos, "Id", "Nombre", solicitanteId);
-        ViewBag.PartidosReceptores = new SelectList(partidosActivos, "Id", "Nombre", receptorId);
+        // Se excluye el partido del dirigente del dropdown de receptores
+        var partidosReceptores = todosPartidos
+            .Where(p => p.Activo && p.Id != partidoIdDirigente)
+            .ToList();
+
+        ViewBag.PartidosReceptores = new SelectList(partidosReceptores, "Id", "Nombre", receptorId);
     }
 }

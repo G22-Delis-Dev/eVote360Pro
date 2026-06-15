@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Domain.Exceptions;
 using eVote360Pro.Application.Interfaces;
@@ -21,6 +21,14 @@ public class AsignacionCandidatoPuestoService : IAsignacionCandidatoPuestoServic
     public async Task<IEnumerable<AsignacionCandidatoPuestoDto>> ObtenerTodasAsync()
     {
         var asignaciones = await _unitOfWork.AsignacionesCandidatos.GetAllAsync();
+        return _mapper.Map<IEnumerable<AsignacionCandidatoPuestoDto>>(asignaciones);
+    }
+
+    public async Task<IEnumerable<AsignacionCandidatoPuestoDto>> ObtenerPorPartidoAsync(int partidoId)
+    {
+        // Solo devuelve las asignaciones donde el partido político coincide con el del dirigente
+        var asignaciones = await _unitOfWork.AsignacionesCandidatos
+            .FindAsync(a => a.PartidoPoliticoId == partidoId);
         return _mapper.Map<IEnumerable<AsignacionCandidatoPuestoDto>>(asignaciones);
     }
 

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace eVote360Pro.Application.ViewModels.AsignacionCandidatos;
 
@@ -14,9 +14,7 @@ public class AsignacionCandidatoEditViewModel
     [Display(Name = "Puesto Electivo")]
     public int PuestoElectivoId { get; set; }
 
-    [Required(ErrorMessage = "Debe seleccionar el partido político.")]
-    [Display(Name = "Partido Político")]
-    public int PartidoPoliticoId { get; set; }
+    // El PartidoPoliticoId ya no es seleccionable, se toma automáticamente del dirigente autenticado
 
     [Display(Name = "¿Va como aliado?")]
     public bool EsAliado { get; set; }
