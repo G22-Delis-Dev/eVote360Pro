@@ -1,9 +1,4 @@
 namespace eVote360Pro.Application.Interfaces;
-
-/// <summary>
-/// Interfaz genérica que define las operaciones CRUD estándar para cualquier servicio.
-/// Los servicios específicos heredan de esta interfaz y solo agregan sus métodos propios.
-/// </summary>
 public interface IGenericService<TDto> where TDto : class
 {
     Task<IEnumerable<TDto>> ObtenerTodosAsync();
