@@ -1,4 +1,4 @@
-﻿using eVote360Pro.Application.DTOs;
+using eVote360Pro.Application.DTOs;
 
 namespace eVote360Pro.Application.Interfaces;
 
@@ -21,4 +21,7 @@ public interface IVotacionService
 
     // Paso 6: Guardar los votos de forma anónima y registrar que el ciudadano ya participó (Esto lo hacemos usando transacciones)
     Task ProcesarVotacionAsync(int ciudadanoId, int eleccionId, IEnumerable<VotoDto> votos);
+
+    // Paso 7: Enviar notificación con el resumen de votación al ciudadano por correo
+    Task EnviarNotificacionVotoAsync(string email, string nombre, ResumenVotacionDto resumen);
 }

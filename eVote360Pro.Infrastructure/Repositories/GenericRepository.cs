@@ -1,4 +1,4 @@
-﻿using eVote360Pro.Domain.Entities;
+using eVote360Pro.Domain.Entities;
 using eVote360Pro.Domain.Interfaces.Repositories; 
 using eVote360Pro.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +30,6 @@ namespace eVote360Pro.Infrastructure.Repositories
         public virtual async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
         }
 
         public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>>? predicate = null)
@@ -72,25 +71,21 @@ namespace eVote360Pro.Infrastructure.Repositories
         public virtual async Task AddRangeAsync(IEnumerable<T> entities)
         {
             await _dbSet.AddRangeAsync(entities);
-            await _context.SaveChangesAsync();
         }
 
         public virtual void Update(T entity)
         {
             _dbSet.Update(entity);
-            _context.SaveChanges();
         }
 
         public virtual void Remove(T entity)
         {
             _dbSet.Remove(entity);
-            _context.SaveChanges();
         }
 
         public virtual void RemoveRange(IEnumerable<T> entities)
         {
             _dbSet.RemoveRange(entities);
-            _context.SaveChanges();
         }
     }
 }

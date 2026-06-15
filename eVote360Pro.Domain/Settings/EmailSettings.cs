@@ -1,5 +1,4 @@
-﻿namespace eVote360Pro.Shared.Services;
-
+﻿namespace eVote360Pro.Domain.Settings;
 public class EmailSettings
 {
     public string Host { get; set; } = string.Empty;

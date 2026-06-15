@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace eVote360Pro.Application.ViewModels.Candidatos;
@@ -13,9 +13,7 @@ public class CandidatoCreateViewModel
     [Required(ErrorMessage = "El apellido es obligatorio")]
     public string Apellido { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Debe seleccionar un partido político")]
-    [Display(Name = "Partido Político")]
-    public int PartidoPoliticoId { get; set; }
+    // El PartidoPoliticoId ya no es seleccionable, se toma automáticamente del dirigente autenticado
 
     // Propiedad para recibir el archivo físico de la vista
     [Display(Name = "Foto del Candidato")]

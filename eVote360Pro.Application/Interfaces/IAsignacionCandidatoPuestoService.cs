@@ -1,12 +1,8 @@
-﻿using eVote360Pro.Application.DTOs;
+using eVote360Pro.Application.DTOs;
 
 namespace eVote360Pro.Application.Interfaces;
 
-public interface IAsignacionCandidatoPuestoService
+public interface IAsignacionCandidatoPuestoService : IGenericService<AsignacionCandidatoPuestoDto>
 {
-    Task<IEnumerable<AsignacionCandidatoPuestoDto>> ObtenerTodasAsync();
-    Task<AsignacionCandidatoPuestoDto?> ObtenerPorIdAsync(int id);
-    Task<AsignacionCandidatoPuestoDto> CrearAsync(AsignacionCandidatoPuestoDto dto);
-    Task ActualizarAsync(int id, AsignacionCandidatoPuestoDto dto);
-    Task EliminarAsync(int id);
+    Task<IEnumerable<AsignacionCandidatoPuestoDto>> ObtenerPorPartidoAsync(int partidoId);
 }

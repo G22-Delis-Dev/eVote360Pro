@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Domain.Entities;
@@ -12,11 +12,15 @@ public class VotacionService : IVotacionService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IEmailService _emailService;
+    private readonly IEmailTemplateService _templateService;
 
-    public VotacionService(IUnitOfWork unitOfWork, IMapper mapper)
+    public VotacionService(IUnitOfWork unitOfWork, IMapper mapper, IEmailService emailService, IEmailTemplateService templateService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _emailService = emailService;
+        _templateService = templateService;
     }
 
     public async Task<EleccionDto?> ObtenerEleccionActivaAsync()
@@ -63,7 +67,7 @@ public class VotacionService : IVotacionService
         }
 
         // 2. Generar un código nuevo
-        string nuevoCodigo = new Random().Next(100000, 999999).ToString();
+        string nuevoCodigo = new Random().Next(100000, 1000000).ToString();
 
         var codigoEntidad = new CodigoVerificacion
         {
@@ -71,7 +75,7 @@ public class VotacionService : IVotacionService
             EleccionId = eleccionId,
             Codigo = nuevoCodigo,
             FechaGeneracion = DateTime.UtcNow,
-            FechaExpiracion = DateTime.UtcNow.AddMinutes(15),
+            FechaExpiracion = DateTime.UtcNow.AddMinutes(5),
             Utilizado = false
         };
 
@@ -80,8 +84,8 @@ public class VotacionService : IVotacionService
 
         // 3. SIMULACIÓN DE CORREO
         Console.WriteLine("\n=======================================================");
-        Console.WriteLine($"📧 [SIMULACIÓN SMTP] ENVIANDO CORREO AL CIUDADANO...");
-        Console.WriteLine($"🔐 CÓDIGO SECRETO: {nuevoCodigo}");
+        Console.WriteLine($"[SIMULACIÓN SMTP] ENVIANDO CORREO AL CIUDADANO...");
+        Console.WriteLine($"CÓDIGO SECRETO: {nuevoCodigo}");
         Console.WriteLine("=======================================================\n");
     }
 
@@ -195,5 +199,14 @@ public class VotacionService : IVotacionService
             await _unitOfWork.RollbackTransactionAsync();
             throw new Exception("Ocurrió un error crítico al procesar la votación. Su voto no fue registrado.", ex);
         }
+    }
+
+    public async Task EnviarNotificacionVotoAsync(string email, string nombre, ResumenVotacionDto resumen)
+    {
+        // 1. Generar HTML usando el servicio de plantillas
+        var html = _templateService.GenerarResumenVotacionHtml(nombre, resumen);
+
+        // 2. Enviar usando el servicio de correo
+        await _emailService.EnviarAsync(email, "Resumen de Voto", html);
     }
 }

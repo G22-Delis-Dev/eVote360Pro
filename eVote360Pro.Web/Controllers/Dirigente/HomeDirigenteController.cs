@@ -1,4 +1,4 @@
-﻿using eVote360Pro.Application.Interfaces;
+using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Home;
 using eVote360Pro.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -33,8 +33,8 @@ public class HomeDirigenteController : Controller
         // Buscamos las listas de datos desde los servicios de aplicación
         var partidos = await _partidoService.ObtenerTodosAsync();
         var candidatos = await _candidatoService.ObtenerTodosAsync();
-        var alianzas = await _alianzaService.ObtenerTodasAsync();
-        var asignaciones = await _asignacionService.ObtenerTodasAsync();
+        var alianzas = await _alianzaService.ObtenerTodosAsync();
+        var asignaciones = await _asignacionService.ObtenerTodosAsync();
 
         // Construimos el ViewModel recolectando las estadísticas
         var viewModel = new HomeDirigenteViewModel
@@ -46,7 +46,7 @@ public class HomeDirigenteController : Controller
             TotalAsignaciones = asignaciones.Count()
         };
 
-        // 3. Si el servicio de elecciones ya está desarrollado, extraemos sus datos activos
+        // Si el servicio de elecciones ya está desarrollado, extraemos sus datos activos
         if (_eleccionService != null)
         {
             // TODO: Descomentar esto cuando Delis termine el IEleccionService

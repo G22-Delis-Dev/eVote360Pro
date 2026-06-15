@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Domain.Exceptions;
 using eVote360Pro.Application.Interfaces;
@@ -8,32 +8,14 @@ using eVote360Pro.Domain.Interfaces.Repositories;
 
 namespace eVote360Pro.Application.Services;
 
-public class AlianzaPoliticaService : IAlianzaPoliticaService
+public class AlianzaPoliticaService : GenericService<AlianzaPolitica, AlianzaPoliticaDto>, IAlianzaPoliticaService
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-
     public AlianzaPoliticaService(IUnitOfWork unitOfWork, IMapper mapper)
+        : base(unitOfWork, mapper, unitOfWork.AlianzasPoliticas)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
     }
 
-    public async Task<IEnumerable<AlianzaPoliticaDto>> ObtenerTodasAsync()
-    {
-        // En un escenario real, aquí podrías necesitar un "Include" en el repositorio 
-        // para traer los nombres de los partidos
-        var alianzas = await _unitOfWork.AlianzasPoliticas.GetAllAsync();
-        return _mapper.Map<IEnumerable<AlianzaPoliticaDto>>(alianzas);
-    }
-
-    public async Task<AlianzaPoliticaDto?> ObtenerPorIdAsync(int id)
-    {
-        var alianza = await _unitOfWork.AlianzasPoliticas.GetByIdAsync(id);
-        return _mapper.Map<AlianzaPoliticaDto>(alianza);
-    }
-
-    public async Task<AlianzaPoliticaDto> CrearAsync(AlianzaPoliticaDto dto)
+    public override async Task<AlianzaPoliticaDto> CrearAsync(AlianzaPoliticaDto dto)
     {
         // Un partido no puede aliarse consigo mismo
         if (dto.PartidoSolicitanteId == dto.PartidoReceptorId)
@@ -46,15 +28,25 @@ public class AlianzaPoliticaService : IAlianzaPoliticaService
         // Las nuevas alianzas siempre inician como pendientes
         alianza.Estado = EstadoAlianza.Pendiente;
 
-        await _unitOfWork.AlianzasPoliticas.AddAsync(alianza);
+        await _repository.AddAsync(alianza);
         await _unitOfWork.SaveChangesAsync();
 
         return _mapper.Map<AlianzaPoliticaDto>(alianza);
     }
 
+    // filtrar por partido
+    public async Task<IEnumerable<AlianzaPoliticaDto>> ObtenerPorPartidoAsync(int partidoId)
+    {
+        // Solo devuelve las alianzas donde el partido es solicitante o receptor
+        var alianzas = await _unitOfWork.AlianzasPoliticas
+            .FindAsync(a => a.PartidoSolicitanteId == partidoId || a.PartidoReceptorId == partidoId);
+        return _mapper.Map<IEnumerable<AlianzaPoliticaDto>>(alianzas);
+    }
+
+    // Aceptar o rechazar una solicitud de alianza
     public async Task ResponderSolicitudAsync(int id, EstadoAlianza nuevoEstado)
     {
-        var alianzaExistente = await _unitOfWork.AlianzasPoliticas.GetByIdAsync(id);
+        var alianzaExistente = await _repository.GetByIdAsync(id);
 
         if (alianzaExistente == null)
         {
@@ -64,22 +56,7 @@ public class AlianzaPoliticaService : IAlianzaPoliticaService
         alianzaExistente.Estado = nuevoEstado;
         alianzaExistente.FechaRespuesta = DateTime.UtcNow; // Registramos cuándo se respondió
 
-        _unitOfWork.AlianzasPoliticas.Update(alianzaExistente);
+        _repository.Update(alianzaExistente);
         await _unitOfWork.SaveChangesAsync();
-    }
-
-    public async Task EliminarAsync(int id)
-    {
-        var alianza = await _unitOfWork.AlianzasPoliticas.GetByIdAsync(id);
-
-        if (alianza != null)
-        {
-            _unitOfWork.AlianzasPoliticas.Remove(alianza);
-            await _unitOfWork.SaveChangesAsync();
-        }
-        else
-        {
-            throw new RegistroNoEncontradoException(nameof(AlianzaPolitica), id);
-        }
     }
 }
