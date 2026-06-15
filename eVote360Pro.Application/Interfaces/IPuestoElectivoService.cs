@@ -1,10 +1,9 @@
-﻿using eVote360Pro.Application.DTOs;
+using eVote360Pro.Application.DTOs;
 
 namespace eVote360Pro.Application.Interfaces;
 
-public interface IPuestoElectivoService
+public interface IPuestoElectivoService : IGenericService<PuestoElectivoDto>
 {
-    Task<IEnumerable<PuestoElectivoDto>> ObtenerTodosAsync();
-
-    // Hay que agg aquí los métodos Create, Update y Delete cuando te toque este módulo, solo vree esto pa que mi service de AsignacionCandidato funcione.
+    // Hereda todas las operaciones CRUD de IGenericService.
+    // Agregar aquí métodos específicos del módulo cuando sea necesario.
 }

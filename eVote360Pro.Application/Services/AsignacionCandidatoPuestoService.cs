@@ -7,38 +7,15 @@ using eVote360Pro.Domain.Interfaces.Repositories;
 
 namespace eVote360Pro.Application.Services;
 
-public class AsignacionCandidatoPuestoService : IAsignacionCandidatoPuestoService
+public class AsignacionCandidatoPuestoService : GenericService<AsignacionCandidatoPuesto, AsignacionCandidatoPuestoDto>, IAsignacionCandidatoPuestoService
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-
     public AsignacionCandidatoPuestoService(IUnitOfWork unitOfWork, IMapper mapper)
+        : base(unitOfWork, mapper, unitOfWork.AsignacionesCandidatos)
     {
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
     }
 
-    public async Task<IEnumerable<AsignacionCandidatoPuestoDto>> ObtenerTodasAsync()
-    {
-        var asignaciones = await _unitOfWork.AsignacionesCandidatos.GetAllAsync();
-        return _mapper.Map<IEnumerable<AsignacionCandidatoPuestoDto>>(asignaciones);
-    }
-
-    public async Task<IEnumerable<AsignacionCandidatoPuestoDto>> ObtenerPorPartidoAsync(int partidoId)
-    {
-        // Solo devuelve las asignaciones donde el partido político coincide con el del dirigente
-        var asignaciones = await _unitOfWork.AsignacionesCandidatos
-            .FindAsync(a => a.PartidoPoliticoId == partidoId);
-        return _mapper.Map<IEnumerable<AsignacionCandidatoPuestoDto>>(asignaciones);
-    }
-
-    public async Task<AsignacionCandidatoPuestoDto?> ObtenerPorIdAsync(int id)
-    {
-        var asignacion = await _unitOfWork.AsignacionesCandidatos.GetByIdAsync(id);
-        return _mapper.Map<AsignacionCandidatoPuestoDto>(asignacion);
-    }
-
-    public async Task<AsignacionCandidatoPuestoDto> CrearAsync(AsignacionCandidatoPuestoDto dto)
+    //  Validar que no exista duplicado antes de crear
+    public override async Task<AsignacionCandidatoPuestoDto> CrearAsync(AsignacionCandidatoPuestoDto dto)
     {
         if (dto.CandidatoId <= 0 || dto.PuestoElectivoId <= 0 || dto.PartidoPoliticoId <= 0)
         {
@@ -57,15 +34,16 @@ public class AsignacionCandidatoPuestoService : IAsignacionCandidatoPuestoServic
 
         var asignacion = _mapper.Map<AsignacionCandidatoPuesto>(dto);
 
-        await _unitOfWork.AsignacionesCandidatos.AddAsync(asignacion);
+        await _repository.AddAsync(asignacion);
         await _unitOfWork.SaveChangesAsync();
 
         return _mapper.Map<AsignacionCandidatoPuestoDto>(asignacion);
     }
 
-    public async Task ActualizarAsync(int id, AsignacionCandidatoPuestoDto dto)
+    // Validaciones específicas al actualizar
+    public override async Task ActualizarAsync(int id, AsignacionCandidatoPuestoDto dto)
     {
-        var asignacionExistente = await _unitOfWork.AsignacionesCandidatos.GetByIdAsync(id);
+        var asignacionExistente = await _repository.GetByIdAsync(id);
         if (asignacionExistente == null)
         {
             throw new RegistroNoEncontradoException(nameof(AsignacionCandidatoPuesto), id);
@@ -78,21 +56,16 @@ public class AsignacionCandidatoPuestoService : IAsignacionCandidatoPuestoServic
 
         _mapper.Map(dto, asignacionExistente);
 
-        _unitOfWork.AsignacionesCandidatos.Update(asignacionExistente);
+        _repository.Update(asignacionExistente);
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task EliminarAsync(int id)
+    // Filtrar por partido
+    public async Task<IEnumerable<AsignacionCandidatoPuestoDto>> ObtenerPorPartidoAsync(int partidoId)
     {
-        var asignacion = await _unitOfWork.AsignacionesCandidatos.GetByIdAsync(id);
-        if (asignacion != null)
-        {
-            _unitOfWork.AsignacionesCandidatos.Remove(asignacion);
-            await _unitOfWork.SaveChangesAsync();
-        }
-        else
-        {
-            throw new RegistroNoEncontradoException(nameof(AsignacionCandidatoPuesto), id);
-        }
+        // Solo devuelve las asignaciones donde el partido político coincide con el del dirigente
+        var asignaciones = await _unitOfWork.AsignacionesCandidatos
+            .FindAsync(a => a.PartidoPoliticoId == partidoId);
+        return _mapper.Map<IEnumerable<AsignacionCandidatoPuestoDto>>(asignaciones);
     }
 }
