@@ -1,5 +1,6 @@
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Home;
+using eVote360Pro.Shared.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eVote360Pro.Web.Controllers.Admin;
@@ -44,5 +45,24 @@ public class HomeAdminController : Controller
         };
 
         return View(viewModel);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> TestEmail(string destinatario, [FromServices] IEmailService emailService)
+    {
+        if (string.IsNullOrEmpty(destinatario))
+        {
+            return Content("Por favor, proporciona un correo de destino en la URL. Ejemplo: /HomeAdmin/TestEmail?destinatario=tu_correo@gmail.com");
+        }
+
+        try
+        {
+            await emailService.EnviarAsync(destinatario, "Prueba de eVote360 Pro", "<h3>¡Hola!</h3><p>Esta es una prueba de correo electrónico para verificar la configuración SMTP del sistema <strong>eVote360 Pro</strong>.</p>");
+            return Content($"Correo de prueba enviado con éxito a: {destinatario}");
+        }
+        catch (Exception ex)
+        {
+            return Content($"Error al enviar correo: {ex.Message}\n\nDetalles:\n{ex.ToString()}");
+        }
     }
 }

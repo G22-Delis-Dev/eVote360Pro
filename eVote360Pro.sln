@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36212.18
@@ -8,10 +8,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eVote360Pro.Web", "eVote360Pro.Web\eVote360Pro.Web.csproj", "{0826DCA5-F823-4E66-A2B7-39C1C6A1857B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eVote360Pro.Shared", "eVote360Pro.Shared\eVote360Pro.Shared.csproj", "{63861E80-FE70-442D-989E-AC2C16AD84E9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{878D652A-F883-4C56-A01D-250AA6EE5729} = {878D652A-F883-4C56-A01D-250AA6EE5729}
-		{CCCE7DE4-2523-4907-90C3-730EC3CFFC03} = {CCCE7DE4-2523-4907-90C3-730EC3CFFC03}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eVote360Pro.Infrastructure", "eVote360Pro.Infrastructure\eVote360Pro.Infrastructure.csproj", "{1769A534-79BF-4BE3-9CC0-7BAE918A1E85}"
 EndProject
