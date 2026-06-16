@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Domain.Entities;
@@ -109,7 +109,7 @@ public class EleccionService : GenericService<Eleccion, EleccionDto>, IEleccionS
 
             foreach (var ep in puestos)
             {
-                var asignaciones = await _unitOfWork.AsignacionesCandidatos.GetByPartidoAsync(ep.PuestoElectivoId);
+                var asignaciones = await _unitOfWork.AsignacionesCandidatos.FindAsync(a => a.PuestoElectivoId == ep.PuestoElectivoId);
                 foreach (var a in asignaciones)
                 {
                     partidosIds.Add(a.PartidoPoliticoId);
@@ -140,7 +140,7 @@ public class EleccionService : GenericService<Eleccion, EleccionDto>, IEleccionS
 
         foreach (var ep in puestos)
         {
-            var asignaciones = await _unitOfWork.AsignacionesCandidatos.GetByPartidoAsync(ep.PuestoElectivoId);
+            var asignaciones = await _unitOfWork.AsignacionesCandidatos.FindAsync(a => a.PuestoElectivoId == ep.PuestoElectivoId);
             if (!asignaciones.Any())
                 throw new InvalidOperationException($"El puesto '{ep.PuestoElectivo?.Nombre}' no tiene candidatos asignados.");
         }

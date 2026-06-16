@@ -82,11 +82,15 @@ public class VotacionService : IVotacionService
         await _unitOfWork.CodigosVerificacion.AddAsync(codigoEntidad);
         await _unitOfWork.SaveChangesAsync();
 
-        // 3. SIMULACIÓN DE CORREO
-        Console.WriteLine("\n=======================================================");
-        Console.WriteLine($"[SIMULACIÓN SMTP] ENVIANDO CORREO AL CIUDADANO...");
-        Console.WriteLine($"CÓDIGO SECRETO: {nuevoCodigo}");
-        Console.WriteLine("=======================================================\n");
+        // 3. Enviar correo real usando el servicio de email y plantillas
+        var ciudadano = await _unitOfWork.Ciudadanos.GetByIdAsync(ciudadanoId);
+        if (ciudadano == null)
+        {
+            throw new ValidacionException("No se encontró al ciudadano correspondiente para el envío del código.");
+        }
+
+        var cuerpoHtml = _templateService.GenerarCodigoVerificacionHtml($"{ciudadano.Nombre} {ciudadano.Apellido}", nuevoCodigo);
+        await _emailService.EnviarAsync(ciudadano.CorreoElectronico, "Código de verificación - eVote360 Pro", cuerpoHtml);
     }
 
     public async Task<bool> ValidarCodigoVerificacionAsync(int ciudadanoId, int eleccionId, string codigo)
