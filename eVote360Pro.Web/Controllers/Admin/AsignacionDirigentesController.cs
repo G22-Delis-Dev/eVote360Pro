@@ -1,0 +1,120 @@
+using AutoMapper;
+using eVote360Pro.Application.DTOs;
+using eVote360Pro.Application.Interfaces;
+using eVote360Pro.Application.ViewModels.AsignacionDirigentes;
+using eVote360Pro.Domain.Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace eVote360Pro.Web.Controllers.Admin;
+
+public class AsignacionDirigentesController : Controller
+{
+    private readonly IAsignacionDirigenteService _asignacionService;
+    private readonly IMapper _mapper;
+
+    public AsignacionDirigentesController(
+        IAsignacionDirigenteService asignacionService,
+        IMapper mapper)
+    {
+        _asignacionService = asignacionService;
+        _mapper = mapper;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var dtos = await _asignacionService.ObtenerListaAsync();
+        var items = _mapper.Map<IEnumerable<AsignacionDirigenteItemViewModel>>(dtos);
+
+        var vm = new AsignacionDirigenteListViewModel
+        {
+            Asignaciones = items
+        };
+
+        return View(vm);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        var vm = new AsignacionDirigenteCreateViewModel();
+        await CargarDropdownsAsync(vm);
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(AsignacionDirigenteCreateViewModel vm)
+    {
+        if (!ModelState.IsValid)
+        {
+            await CargarDropdownsAsync(vm);
+            return View(vm);
+        }
+
+        try
+        {
+            var dto = _mapper.Map<AsignacionDirigenteDto>(vm);
+            await _asignacionService.CrearAsync(dto);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (InvalidOperationException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            await CargarDropdownsAsync(vm);
+            return View(vm);
+        }
+        catch (ValidacionException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            await CargarDropdownsAsync(vm);
+            return View(vm);
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _asignacionService.EliminarAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (RegistroNoEncontradoException)
+        {
+            return NotFound();
+        }
+        catch (ValidacionException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
+    private async Task CargarDropdownsAsync(AsignacionDirigenteCreateViewModel vm)
+    {
+        var dirigentes = await _asignacionService.ObtenerDirigentesDisponiblesAsync();
+        var partidos = await _asignacionService.ObtenerPartidosDisponiblesAsync();
+
+        vm.DirigentesDisponibles = dirigentes.Select(d =>
+        {
+            var type = d.GetType();
+            return new SelectListItem
+            {
+                Value = type.GetProperty("Value")?.GetValue(d)?.ToString(),
+                Text = type.GetProperty("Text")?.GetValue(d)?.ToString()
+            };
+        });
+
+        vm.PartidosDisponibles = partidos.Select(p =>
+        {
+            var type = p.GetType();
+            return new SelectListItem
+            {
+                Value = type.GetProperty("Value")?.GetValue(p)?.ToString(),
+                Text = type.GetProperty("Text")?.GetValue(p)?.ToString()
+            };
+        });
+    }
+}
