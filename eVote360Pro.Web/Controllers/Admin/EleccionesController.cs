@@ -13,34 +13,29 @@ public class EleccionesController : Controller
 {
     private readonly IEleccionService _eleccionService;
     private readonly IPuestoElectivoService _puestoService;
-    private readonly IVotacionService _votacionService;
     private readonly IMapper _mapper;
 
     public EleccionesController(
         IEleccionService eleccionService,
         IPuestoElectivoService puestoService,
-        IVotacionService votacionService,
         IMapper mapper)
     {
         _eleccionService = eleccionService;
         _puestoService = puestoService;
-        _votacionService = votacionService;
         _mapper = mapper;
     }
 
     public async Task<IActionResult> Index()
     {
-        // TODO: Implementar cuando IEleccionService tenga los métodos del CRUD
-        // var dtos = await _eleccionService.ObtenerTodasAsync();
-        // var items = _mapper.Map<IEnumerable<EleccionItemViewModel>>(dtos);
-        // var vm = new EleccionListViewModel
-        // {
-        //     Elecciones = items,
-        //     HayEleccionActiva = items.Any(e => e.Estado == EstadoEleccion.Activa)
-        // };
-        // return View(vm);
+        var dtos = await _eleccionService.ObtenerTodosAsync();
+        var items = _mapper.Map<IEnumerable<EleccionItemViewModel>>(dtos);
 
-        var vm = new EleccionListViewModel();
+        var vm = new EleccionListViewModel
+        {
+            Elecciones = items,
+            HayEleccionActiva = items.Any(e => e.Estado == EstadoEleccion.Activa)
+        };
+
         return View(vm);
     }
 
@@ -64,12 +59,11 @@ public class EleccionesController : Controller
 
         try
         {
-            // TODO: Implementar cuando IEleccionService tenga el método CrearAsync
-            // var dto = _mapper.Map<EleccionDto>(vm);
-            // await _eleccionService.CrearAsync(dto, vm.PuestosSeleccionados);
+            var dto = _mapper.Map<EleccionDto>(vm);
+            await _eleccionService.CrearConPuestosAsync(dto, vm.PuestosSeleccionados);
             return RedirectToAction(nameof(Index));
         }
-        catch (ValidacionException ex)
+        catch (Exception ex)
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             await CargarDropdownPuestosAsync(vm);
@@ -77,12 +71,38 @@ public class EleccionesController : Controller
         }
     }
 
-    // TODO: Implementar acciones ActivarEleccion, FinalizarEleccion y Resultados
-    // cuando IEleccionService tenga los métodos correspondientes.
+    public async Task<IActionResult> Activar(int id)
+    {
+        try
+        {
+            await _eleccionService.ActivarAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+        catch
+        {
+            return RedirectToAction(nameof(Index)); // O manejar el error con un TempData
+        }
+    }
+
+    public async Task<IActionResult> Finalizar(int id)
+    {
+        await _eleccionService.FinalizarAsync(id);
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Resultados(int id)
+    {
+        var dto = await _eleccionService.ObtenerResultadosAsync(id);
+
+        // Mapeamos el DTO de resultados a tu ViewModel de Resultados
+        var vm = _mapper.Map<EleccionResultadoViewModel>(dto);
+
+        return View(vm);
+    }
 
     private async Task CargarDropdownPuestosAsync(EleccionCreateViewModel vm)
     {
-        var puestos = await _puestoService.ObtenerActivosAsync();
+        var puestos = await _puestoService.ObtenerTodosAsync(); // Ajusta según tu servicio
         vm.PuestosDisponibles = puestos.Select(p => new SelectListItem
         {
             Value = p.Id.ToString(),

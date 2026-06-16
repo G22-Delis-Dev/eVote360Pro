@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace eVote360Pro.Application.ViewModels.Votacion;
+﻿namespace eVote360Pro.Application.ViewModels.Votacion;
 
     public class SeleccionVotoViewModel
     {

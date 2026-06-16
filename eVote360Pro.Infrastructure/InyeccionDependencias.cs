@@ -6,6 +6,7 @@ using eVote360Pro.Domain.Settings;
 using eVote360Pro.Infrastructure.Data;
 using eVote360Pro.Infrastructure.Repositories;
 using eVote360Pro.Infrastructure.Services;
+using eVote360Pro.Shared.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,15 +41,22 @@ public static class InyeccionDependencias
         services.AddScoped<IUnitOfWork, eVote360Pro.Infrastructure.UnitOfWork.UnitOfWork>();
 
         // Servicios
-        services.AddScoped<ICandidatoService, CandidatoService>();
         services.AddScoped<IAlianzaPoliticaService, AlianzaPoliticaService>();
         services.AddScoped<IAsignacionCandidatoPuestoService, AsignacionCandidatoPuestoService>();
+        services.AddScoped<IAsignacionDirigenteService, AsignacionDirigenteService>();
+        services.AddScoped<ICandidatoService, CandidatoService>();
+        services.AddScoped<ICiudadanoService, CiudadanoService>();
+        services.AddScoped<IEleccionService, EleccionService>();
+        services.AddScoped<IPartidoPoliticoService, PartidoPoliticoService>();
         services.AddScoped<IPuestoElectivoService, PuestoElectivoService>();
+        services.AddScoped<IUsuarioService, UsuarioService>();
         services.AddScoped<IVotacionService, VotacionService>();
         services.AddScoped<IOcrService, OcrService>();
 
         // Registrar Configuración y Servicio de Email (MailKit)
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+
+       // services.AddScoped<IEmailService, EmailService>();
 
         // Registrar Mapeo Automático (AutoMapper)
         services.AddAutoMapper(config =>
