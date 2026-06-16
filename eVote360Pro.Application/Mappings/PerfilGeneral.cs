@@ -1,10 +1,17 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.ViewModels.Alianzas;
 using eVote360Pro.Application.ViewModels.AsignacionCandidatos;
+using eVote360Pro.Application.ViewModels.AsignacionDirigentes;
 using eVote360Pro.Application.ViewModels.Candidatos;
+using eVote360Pro.Application.ViewModels.Ciudadanos;
+using eVote360Pro.Application.ViewModels.Elecciones;
+using eVote360Pro.Application.ViewModels.Partidos;
+using eVote360Pro.Application.ViewModels.PuestosElectivos;
+using eVote360Pro.Application.ViewModels.Usuarios;
 using eVote360Pro.Application.ViewModels.Votacion;
 using eVote360Pro.Domain.Entities;
+using eVote360Pro.Domain.Enums;
 
 namespace eVote360Pro.Application.Mappings;
 
@@ -25,6 +32,11 @@ public class PerfilGeneral : Profile
         CreateMap<PuestoElectivo, PuestoElectivoDto>().ReverseMap();
         CreateMap<Ciudadano, CiudadanoDto>().ReverseMap();
         CreateMap<Eleccion, EleccionDto>().ReverseMap();
+        CreateMap<AsignacionDirigente, AsignacionDirigenteDto>()
+            .ForMember(dest => dest.NombreDirigente, opt => opt.MapFrom(src => $"{src.Usuario.Nombre} {src.Usuario.Apellido}"))
+            .ForMember(dest => dest.NombrePartido, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre))
+            .ForMember(dest => dest.SiglaPartido, opt => opt.MapFrom(src => src.PartidoPolitico.Siglas))
+            .ReverseMap();
 
         // =========================================================
         // MAPEOS COMPLEJOS (Con lógica o relaciones)
@@ -65,5 +77,49 @@ public class PerfilGeneral : Profile
 
         // esto es opcional, pero lo puse para que no haya problemas si pasan objetos complejos
         CreateMap<EleccionDto, InicioVotacionViewModel>().ReverseMap();
+
+        // =========================================================
+        // MAPEOS DE VISTAS ADMIN (ViewModels <-> DTO)
+        // =========================================================
+
+        // --- Módulo: Ciudadanos (Admin) ---
+        CreateMap<CiudadanoDto, CiudadanoItemViewModel>()
+            .ForMember(dest => dest.NombreCompleto, opt => opt.MapFrom(src => $"{src.Nombre} {src.Apellido}"));
+        CreateMap<CiudadanoCreateViewModel, CiudadanoDto>().ReverseMap();
+        CreateMap<CiudadanoEditViewModel, CiudadanoDto>().ReverseMap();
+
+        // --- Módulo: Partidos Políticos (Admin) ---
+        CreateMap<PartidoPoliticoDto, PartidoItemViewModel>();
+        CreateMap<PartidoCreateViewModel, PartidoPoliticoDto>().ReverseMap();
+        CreateMap<PartidoEditViewModel, PartidoPoliticoDto>()
+            .ForMember(dest => dest.LogoRuta, opt => opt.Ignore())
+            .ReverseMap()
+            .ForMember(dest => dest.LogoActualRuta, opt => opt.MapFrom(src => src.LogoRuta));
+
+        // --- Módulo: Puestos Electivos (Admin) ---
+        CreateMap<PuestoElectivoDto, PuestoElectivoItemViewModel>();
+        CreateMap<PuestoElectivoCreateViewModel, PuestoElectivoDto>().ReverseMap();
+        CreateMap<PuestoElectivoEditViewModel, PuestoElectivoDto>().ReverseMap();
+
+        // --- Módulo: Usuarios (Admin) ---
+        CreateMap<UsuarioDto, UsuarioItemViewModel>()
+            .ForMember(dest => dest.NombreCompleto, opt => opt.MapFrom(src => $"{src.Nombre} {src.Apellido}"))
+            .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => src.Rol == RolUsuario.Administrador ? "Administrador" : "Dirigente Político"));
+        CreateMap<UsuarioCreateViewModel, UsuarioDto>()
+            .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => (RolUsuario)src.Rol))
+            .ReverseMap()
+            .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => (int)src.Rol));
+        CreateMap<UsuarioEditViewModel, UsuarioDto>()
+            .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => (RolUsuario)src.Rol))
+            .ReverseMap()
+            .ForMember(dest => dest.Rol, opt => opt.MapFrom(src => (int)src.Rol));
+
+        // --- Módulo: Asignación de Dirigentes (Admin) ---
+        CreateMap<AsignacionDirigenteDto, AsignacionDirigenteItemViewModel>();
+        CreateMap<AsignacionDirigenteCreateViewModel, AsignacionDirigenteDto>().ReverseMap();
+
+        // --- Módulo: Elecciones (Admin) ---
+        CreateMap<EleccionDto, EleccionItemViewModel>();
+        CreateMap<EleccionCreateViewModel, EleccionDto>().ReverseMap();
     }
 }
