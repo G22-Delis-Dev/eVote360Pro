@@ -37,7 +37,6 @@ public class VotacionService : IVotacionService
         var ciudadanos = await _unitOfWork.Ciudadanos.FindAsync(c => c.NumeroDocumento == cedula);
         var ciudadano = ciudadanos.FirstOrDefault();
 
-        // Aquí sí usamos Activo porque la entidad Ciudadano lo tiene explícitamente
         if (ciudadano == null || !ciudadano.Activo)
         {
             throw new ValidacionException("La cédula ingresada no pertenece a un padrón electoral válido o está inactiva.");

@@ -1,4 +1,4 @@
-﻿using eVote360Pro.Application.Interfaces;
+using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.Mappings;
 using eVote360Pro.Application.Services;
 using eVote360Pro.Domain.Interfaces.Repositories;
@@ -52,11 +52,12 @@ public static class InyeccionDependencias
         services.AddScoped<IUsuarioService, UsuarioService>();
         services.AddScoped<IVotacionService, VotacionService>();
         services.AddScoped<IOcrService, OcrService>();
+        services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 
         // Registrar Configuración y Servicio de Email (MailKit)
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
 
-       // services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IEmailService, EmailService>();
 
         // Registrar Mapeo Automático (AutoMapper)
         services.AddAutoMapper(config =>

@@ -33,6 +33,5 @@ public class EmailTemplateService : IEmailTemplateService
 
         return html.Replace("{{Nombre}}", nombreCiudadano)
                    .Replace("{{NombreEleccion}}", resumen.NombreEleccion);
-        // Puedes agregar más reemplazos según los campos de tu DTO
     }
 }

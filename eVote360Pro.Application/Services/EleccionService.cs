@@ -92,8 +92,6 @@ public class EleccionService : GenericService<Eleccion, EleccionDto>, IEleccionS
         var eleccion = await ObtenerEntidadOExcepcionAsync(id);
         EleccionRules.ValidarPuedeVerResultados(eleccion.Estado);
 
-        // Aquí invocarías tu lógica de mapeo para generar el resultado
-        // ...
         return new ResultadoEleccionDto();
     }
 
@@ -111,7 +109,6 @@ public class EleccionService : GenericService<Eleccion, EleccionDto>, IEleccionS
 
             foreach (var ep in puestos)
             {
-                // CORRECCIÓN: Se utiliza ep.PuestoElectivoId en lugar de 0
                 var asignaciones = await _unitOfWork.AsignacionesCandidatos.GetByPartidoAsync(ep.PuestoElectivoId);
                 foreach (var a in asignaciones)
                 {

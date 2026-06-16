@@ -80,7 +80,7 @@ public class EleccionesController : Controller
         }
         catch
         {
-            return RedirectToAction(nameof(Index)); // O manejar el error con un TempData
+            return RedirectToAction(nameof(Index)); 
         }
     }
 
@@ -94,7 +94,7 @@ public class EleccionesController : Controller
     {
         var dto = await _eleccionService.ObtenerResultadosAsync(id);
 
-        // Mapeamos el DTO de resultados a tu ViewModel de Resultados
+        // Mapeamos el DTO de resultados al ViewModel de Resultados
         var vm = _mapper.Map<EleccionResultadoViewModel>(dto);
 
         return View(vm);
@@ -102,7 +102,7 @@ public class EleccionesController : Controller
 
     private async Task CargarDropdownPuestosAsync(EleccionCreateViewModel vm)
     {
-        var puestos = await _puestoService.ObtenerTodosAsync(); // Ajusta según tu servicio
+        var puestos = await _puestoService.ObtenerTodosAsync(); 
         vm.PuestosDisponibles = puestos.Select(p => new SelectListItem
         {
             Value = p.Id.ToString(),
