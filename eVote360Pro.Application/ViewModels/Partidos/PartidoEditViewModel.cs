@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
 namespace eVote360Pro.Application.ViewModels.Partidos;
@@ -16,6 +16,7 @@ public class PartidoEditViewModel
     public string Siglas { get; set; } = string.Empty;
 
     public string? LogoActualRuta { get; set; }
+    public string? LogoActual { get; set; }
 
     public IFormFile? NuevoLogoArchivo { get; set; }
 

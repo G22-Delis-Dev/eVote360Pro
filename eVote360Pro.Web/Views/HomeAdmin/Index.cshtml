@@ -1,2 +1,98 @@
-﻿<h1>¡Bienvenido al Panel Administrativo!</h1>
-<p>La vista se cargó correctamente.</p>
+@model eVote360Pro.Application.ViewModels.Home.HomeAdminViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Inicio Administrador";
+}
+
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Panel de Control</h1>
+        <nav class="flex mt-1" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
+                <li class="inline-flex items-center">
+                    <span class="text-admin-600 font-medium">Inicio</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Tarjetas de Resumen -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">
+            👤
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Usuarios</p>
+            <p class="text-2xl font-bold text-gray-900">@Model.TotalUsuarios</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-2xl">
+            👥
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Ciudadanos</p>
+            <p class="text-2xl font-bold text-gray-900">@Model.TotalCiudadanos</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-2xl">
+            🏛️
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Partidos</p>
+            <p class="text-2xl font-bold text-gray-900">@Model.TotalPartidosPoliticos</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center text-2xl">
+            📋
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Puestos Electivos</p>
+            <p class="text-2xl font-bold text-gray-900">@Model.TotalPuestosElectivos</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">
+            🔗
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Asignaciones</p>
+            <p class="text-2xl font-bold text-gray-900">@Model.TotalAsignacionesDirigentes</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Acciones Rápidas -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+    <div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
+        <h2 class="text-lg font-semibold text-gray-900">Acciones Rápidas</h2>
+    </div>
+    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <a asp-controller="Elecciones" asp-action="Index" class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-admin-50 hover:border-admin-200 transition-colors group">
+            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">🗳️</span>
+            <span class="text-sm font-medium text-gray-700 group-hover:text-admin-600">Gestionar Elecciones</span>
+        </a>
+        <a asp-controller="Ciudadanos" asp-action="Create" class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-admin-50 hover:border-admin-200 transition-colors group">
+            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">➕</span>
+            <span class="text-sm font-medium text-gray-700 group-hover:text-admin-600">Nuevo Ciudadano</span>
+        </a>
+        <a asp-controller="Partidos" asp-action="Create" class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-admin-50 hover:border-admin-200 transition-colors group">
+            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">🏛️</span>
+            <span class="text-sm font-medium text-gray-700 group-hover:text-admin-600">Nuevo Partido</span>
+        </a>
+        <a asp-controller="Usuarios" asp-action="Create" class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-admin-50 hover:border-admin-200 transition-colors group">
+            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">👤</span>
+            <span class="text-sm font-medium text-gray-700 group-hover:text-admin-600">Nuevo Usuario</span>
+        </a>
+    </div>
+</div>

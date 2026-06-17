@@ -1,0 +1,77 @@
+@model eVote360Pro.Application.ViewModels.AsignacionDirigentes.AsignacionDirigenteCreateViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Nueva Asignación de Dirigente";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Nueva Asignación</h1>
+    <nav class="flex mt-1" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
+            <li class="inline-flex items-center">
+                <a asp-controller="HomeAdmin" asp-action="Index" class="hover:text-admin-600">Inicio</a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
+                    <a asp-action="Index" class="ml-1 hover:text-admin-600 md:ml-2">Asignaciones</a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
+                    <span class="ml-1 text-gray-500 md:ml-2">Nueva</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden max-w-2xl">
+    <div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <span>🔗</span> Vincular Dirigente a Partido
+        </h2>
+    </div>
+
+    <form asp-action="Create" method="post" class="p-6">
+        @Html.AntiForgeryToken()
+        
+        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
+
+        <div class="space-y-6">
+            <!-- Usuario -->
+            <div>
+                <label asp-for="UsuarioId" class="block text-sm font-medium text-gray-700 mb-1">Dirigente Político <span class="text-red-500">*</span></label>
+                <select asp-for="UsuarioId" asp-items="Model.DirigentesDisponibles" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors">
+                    <option value="">-- Seleccione un dirigente --</option>
+                </select>
+                <span asp-validation-for="UsuarioId" class="text-xs text-red-500 mt-1 block"></span>
+                <p class="text-xs text-gray-500 mt-1">Solo se muestran usuarios activos con el rol "Dirigente Político" que no tengan un partido asignado.</p>
+            </div>
+
+            <!-- Partido -->
+            <div>
+                <label asp-for="PartidoPoliticoId" class="block text-sm font-medium text-gray-700 mb-1">Partido Político <span class="text-red-500">*</span></label>
+                <select asp-for="PartidoPoliticoId" asp-items="Model.PartidosDisponibles" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors">
+                    <option value="">-- Seleccione un partido --</option>
+                </select>
+                <span asp-validation-for="PartidoPoliticoId" class="text-xs text-red-500 mt-1 block"></span>
+                <p class="text-xs text-gray-500 mt-1">Solo se muestran partidos políticos activos.</p>
+            </div>
+        </div>
+
+        <div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-5">
+            <a asp-action="Index" class="px-4 py-2 text-gray-700 bg-gray-100 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                Cancelar
+            </a>
+            <button type="submit" class="px-4 py-2 bg-admin-600 text-white font-medium rounded-lg hover:bg-admin-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-admin-500">
+                Guardar Asignación
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

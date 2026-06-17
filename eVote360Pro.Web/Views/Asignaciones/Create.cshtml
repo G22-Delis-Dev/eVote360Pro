@@ -1,0 +1,106 @@
+@model eVote360Pro.Application.ViewModels.AsignacionCandidatos.AsignacionCandidatoCreateViewModel
+@{
+    Layout = "_LayoutDirigente";
+    ViewData["Title"] = "Asignar Candidato a Puesto";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Asignar Candidato</h1>
+    <nav class="flex mt-1" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
+            <li class="inline-flex items-center">
+                <a asp-controller="HomeDirigente" asp-action="Index" class="hover:text-dir-600">Inicio</a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
+                    <a asp-action="Index" class="ml-1 hover:text-dir-600 md:ml-2">Asignaciones</a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
+                    <span class="ml-1 text-gray-500 md:ml-2">Nueva</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden max-w-2xl">
+    <div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <span>📋</span> Seleccionar Candidato y Puesto
+        </h2>
+    </div>
+
+    <form asp-action="Create" method="post" class="p-6">
+        @Html.AntiForgeryToken()
+        
+        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
+
+        <div class="space-y-6">
+            
+            <!-- Checkbox de Alianza -->
+            <div class="flex items-center p-4 rounded-lg bg-gray-50 border border-gray-200 mb-2 cursor-pointer hover:bg-gray-100 transition-colors" onclick="document.getElementById('esAlianzaCheck').click()">
+                <div class="flex items-center h-5">
+                    <!-- Se invoca a la vista con reload o JS para recargar el ddlCandidatos, aquí usamos reload vía onchange -->
+                    <input asp-for="EsAliado" type="checkbox" id="esAlianzaCheck" onchange="this.form.submit()" class="w-4 h-4 text-dir-600 bg-white border-gray-300 rounded focus:ring-dir-500 focus:ring-2" />
+                </div>
+                <div class="ml-3 text-sm">
+                    <label for="esAlianzaCheck" class="font-medium text-gray-900 cursor-pointer">Postular candidato de un partido aliado</label>
+                    <p class="text-gray-500">Si activas esta opción, podrás seleccionar candidatos de los partidos con los que tienes alianzas vigentes.</p>
+                </div>
+            </div>
+
+            <!-- Candidato -->
+            <div>
+                <label asp-for="CandidatoId" class="block text-sm font-medium text-gray-700 mb-1">Candidato <span class="text-red-500">*</span></label>
+                <select asp-for="CandidatoId" asp-items="ViewBag.Candidatos" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-dir-500 focus:border-dir-500 transition-colors">
+                    <option value="">-- Seleccione un candidato --</option>
+                </select>
+                <span asp-validation-for="CandidatoId" class="text-xs text-red-500 mt-1 block"></span>
+            </div>
+
+            <!-- Puesto -->
+            <div>
+                <label asp-for="PuestoElectivoId" class="block text-sm font-medium text-gray-700 mb-1">Puesto Electivo <span class="text-red-500">*</span></label>
+                <select asp-for="PuestoElectivoId" asp-items="ViewBag.Puestos" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-dir-500 focus:border-dir-500 transition-colors">
+                    <option value="">-- Seleccione un puesto --</option>
+                </select>
+                <span asp-validation-for="PuestoElectivoId" class="text-xs text-red-500 mt-1 block"></span>
+                <p class="text-xs text-gray-500 mt-1">Solo puedes postular a un candidato por cada puesto disponible.</p>
+            </div>
+
+        </div>
+
+        <div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-5">
+            <a asp-action="Index" class="px-4 py-2 text-gray-700 bg-gray-100 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                Cancelar
+            </a>
+            <button type="submit" class="px-4 py-2 bg-dir-600 text-white font-medium rounded-lg hover:bg-dir-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-dir-500">
+                Asignar a Boleta
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Prevenir que el submit por el checkbox haga saltar validaciones en rojo antes de tiempo.
+        // Se logra haciendo un submit silencioso y saltando validaciones si fue el checkbox
+        document.getElementById('esAlianzaCheck').addEventListener('change', function() {
+            var form = this.form;
+            // Quitamos validaciones locales
+            $(form).validate().cancelSubmit = true;
+            
+            // Enviamos form via GET para recargar lista preservando estado (en MVC lo ideal sería con AJAX o un handler específico)
+            // Aquí MVC lo manejará porque el [HttpPost] Create revisará ModelState, pero en un diseño real se usa AJAX.
+            // Para eVote360Pro, dejaremos que ASP.NET maneje el reload del DTO si es necesario en el controlador GET/POST.
+            
+            // Redirigir a Create?esAlianza=true|false 
+            window.location.href = '@Url.Action("Create")' + '?esAlianza=' + this.checked;
+        });
+    </script>
+}

@@ -1,0 +1,105 @@
+@model eVote360Pro.Application.ViewModels.Partidos.PartidoCreateViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Nuevo Partido Político";
+}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Nuevo Partido Político</h1>
+    <nav class="flex mt-1" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
+            <li class="inline-flex items-center">
+                <a asp-controller="HomeAdmin" asp-action="Index" class="hover:text-admin-600">Inicio</a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
+                    <a asp-action="Index" class="ml-1 hover:text-admin-600 md:ml-2">Partidos</a>
+                </div>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
+                    <span class="ml-1 text-gray-500 md:ml-2">Nuevo</span>
+                </div>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden max-w-3xl">
+    <div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <span>🏛️</span> Información del Partido
+        </h2>
+    </div>
+
+    <!-- Se requiere enctype multipart/form-data para subir archivos -->
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="p-6">
+        @Html.AntiForgeryToken()
+        
+        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Logo Upload -->
+            <div class="md:col-span-2 flex flex-col items-center justify-center mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2 w-full text-center">Logo del Partido <span class="text-red-500">*</span></label>
+                
+                <div class="relative group cursor-pointer w-32 h-32 rounded-full border-2 border-dashed border-gray-300 hover:border-admin-500 flex items-center justify-center overflow-hidden bg-gray-50 transition-colors" onclick="document.getElementById('logoInput').click()">
+                    
+                    <img id="logoPreview" src="" class="absolute inset-0 w-full h-full object-contain bg-white hidden" />
+                    
+                    <div id="uploadPlaceholder" class="flex flex-col items-center justify-center text-gray-400 group-hover:text-admin-500">
+                        <svg class="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span class="text-xs font-medium">Subir Imagen</span>
+                    </div>
+                </div>
+                
+                <input asp-for="LogoFile" type="file" id="logoInput" class="hidden" accept="image/*" onchange="previewImage(this)" />
+                <span asp-validation-for="LogoFile" class="text-xs text-red-500 mt-2 block text-center"></span>
+                <p class="text-xs text-gray-500 mt-2 text-center">Formatos permitidos: JPG, PNG. Tamaño ideal: 200x200px.</p>
+            </div>
+
+            <!-- Nombre del Partido -->
+            <div class="md:col-span-2">
+                <label asp-for="Nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo del Partido <span class="text-red-500">*</span></label>
+                <input asp-for="Nombre" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors" placeholder="Ej. Partido de Innovación y Desarrollo" />
+                <span asp-validation-for="Nombre" class="text-xs text-red-500 mt-1 block"></span>
+            </div>
+
+            <!-- Siglas -->
+            <div class="md:col-span-2">
+                <label asp-for="Siglas" class="block text-sm font-medium text-gray-700 mb-1">Siglas <span class="text-red-500">*</span></label>
+                <input asp-for="Siglas" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors input-uppercase" placeholder="Ej. PID" />
+                <span asp-validation-for="Siglas" class="text-xs text-red-500 mt-1 block"></span>
+                <p class="text-xs text-gray-500 mt-1">Las siglas se convertirán a mayúsculas automáticamente.</p>
+            </div>
+        </div>
+
+        <div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-5">
+            <a asp-action="Index" class="px-4 py-2 text-gray-700 bg-gray-100 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                Cancelar
+            </a>
+            <button type="submit" class="px-4 py-2 bg-admin-600 text-white font-medium rounded-lg hover:bg-admin-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-admin-500">
+                Guardar Partido
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logoPreview').src = e.target.result;
+                    document.getElementById('logoPreview').classList.remove('hidden');
+                    document.getElementById('uploadPlaceholder').classList.add('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

@@ -1,0 +1,127 @@
+@model eVote360Pro.Application.ViewModels.Candidatos.CandidatoListViewModel
+@{
+    Layout = "_LayoutDirigente";
+    ViewData["Title"] = "Mis Candidatos";
+}
+
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Mis Candidatos</h1>
+        <nav class="flex mt-1" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
+                <li class="inline-flex items-center">
+                    <a asp-controller="HomeDirigente" asp-action="Index" class="hover:text-dir-600">Inicio</a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
+                        <span class="ml-1 text-gray-500 md:ml-2">Candidatos</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <!-- Buscador -->
+        <form method="get" asp-action="Index" class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                </svg>
+            </div>
+            <input type="text" name="filtro" value="@Model.Filtro" class="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-dir-500 focus:border-dir-500" placeholder="Buscar candidato...">
+        </form>
+
+        @if (ViewBag.HayEleccionActiva == true)
+        {
+            <button disabled class="inline-flex items-center gap-2 px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed" title="Acción bloqueada durante elección activa">
+                <span>➕</span> Nuevo Candidato
+            </button>
+        }
+        else
+        {
+            <a asp-action="Create" class="inline-flex items-center gap-2 px-4 py-2 bg-dir-600 hover:bg-dir-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
+                <span>➕</span> Nuevo Candidato
+            </a>
+        }
+    </div>
+</div>
+
+@if (!Model.Candidatos.Any())
+{
+    <partial name="_EmptyState" model="@(("👤", "No tienes candidatos registrados en tu partido. Haga clic en 'Nuevo Candidato' para registrar uno.", "Nuevo Candidato", "Create", "Candidatos", (bool)(ViewBag.HayEleccionActiva ?? false)))" />
+}
+else
+{
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        @foreach (var item in Model.Candidatos)
+        {
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                
+                <div class="p-6 text-center border-b border-gray-100 relative">
+                    <!-- Badge Estado -->
+                    <div class="absolute top-4 right-4">
+                        @if (item.Activo)
+                        {
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Inactivo</span>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(item.FotoUrl))
+                    {
+                        <img src="@item.FotoUrl" alt="Foto @item.NombreCompleto" class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-gray-50 shadow-sm mb-4" />
+                    }
+                    else
+                    {
+                        <div class="w-24 h-24 rounded-full mx-auto bg-gray-100 flex items-center justify-center text-gray-400 border-4 border-white shadow-sm mb-4 text-3xl font-bold">
+                            @item.NombreCompleto.Substring(0, 1)
+                        </div>
+                    }
+
+                    <h3 class="text-lg font-bold text-gray-900 truncate">@item.NombreCompleto</h3>
+                    <p class="text-sm text-gray-500 mb-2">@item.NumeroDocumento</p>
+
+                    @if (item.PuestosAsignados.Any())
+                    {
+                        <div class="flex flex-wrap justify-center gap-1 mt-3">
+                            @foreach (var puesto in item.PuestosAsignados)
+                            {
+                                <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded uppercase tracking-wider">@puesto</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="inline-block mt-3 px-2 py-1 bg-gray-50 text-gray-500 text-[10px] font-bold rounded uppercase tracking-wider border border-gray-200">Sin Puesto</span>
+                    }
+                </div>
+
+                <div class="flex divide-x divide-gray-100">
+                    @if (ViewBag.HayEleccionActiva == true && item.EnEleccionActiva)
+                    {
+                        <button disabled class="flex-1 py-3 text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed text-center" title="Bloqueado por participación en elección">✏️ Editar</button>
+                        <button disabled class="flex-1 py-3 text-sm font-medium text-gray-400 bg-gray-50 cursor-not-allowed text-center" title="Bloqueado por participación en elección">🔄 @(item.Activo ? "Desactivar" : "Activar")</button>
+                    }
+                    else
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="flex-1 py-3 text-sm font-medium text-blue-600 hover:text-blue-900 hover:bg-gray-50 transition-colors text-center">
+                            ✏️ Editar
+                        </a>
+                        <button type="button" 
+                                onclick="showConfirmModal('Cambiar Estado', '¿Estás seguro de que deseas @(item.Activo ? "desactivar" : "activar") a @item.NombreCompleto?', '@Url.Action("CambiarEstado", "Candidatos", new { id = item.Id })', '@(item.Activo ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700")')"
+                                class="flex-1 py-3 text-sm font-medium @(item.Activo ? "text-red-600 hover:text-red-900" : "text-green-600 hover:text-green-900") hover:bg-gray-50 transition-colors text-center">
+                            @(item.Activo ? "❌ Desactivar" : "✅ Activar")
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <partial name="_Paginacion" />
+}

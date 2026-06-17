@@ -1,0 +1,116 @@
+@model eVote360Pro.Application.ViewModels.Home.HomeDirigenteViewModel
+@{
+    Layout = "_LayoutDirigente";
+    ViewData["Title"] = "Inicio Dirigente";
+}
+
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Panel de Control</h1>
+        <nav class="flex mt-1" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
+                <li class="inline-flex items-center">
+                    <span class="text-dir-600 font-medium">Inicio</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Tarjetas de Resumen -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 hover:shadow-md transition-shadow">
+        <div class="w-14 h-14 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-3xl">
+            👤
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500 mb-1">Mis Candidatos</p>
+            <p class="text-3xl font-bold text-gray-900">@Model.TotalCandidatosPropios</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 hover:shadow-md transition-shadow">
+        <div class="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-3xl">
+            🤝
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500 mb-1">Alianzas Activas</p>
+            <p class="text-3xl font-bold text-gray-900">@Model.TotalAlianzasActivas</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 hover:shadow-md transition-shadow">
+        <div class="w-14 h-14 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center text-3xl">
+            ⏳
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500 mb-1">Solicitudes Pendientes</p>
+            <p class="text-3xl font-bold text-gray-900">@Model.TotalSolicitudesPendientes</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 hover:shadow-md transition-shadow">
+        <div class="w-14 h-14 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-3xl">
+            📋
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500 mb-1">Asignaciones en Boleta</p>
+            <p class="text-3xl font-bold text-gray-900">@Model.TotalCandidatosAsignadosPuesto</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Acciones Rápidas y Bienvenida -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-center p-8 text-center relative overflow-hidden group">
+        <!-- Decoración de fondo -->
+        <div class="absolute -right-10 -top-10 text-9xl opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">🏛️</div>
+        
+        <h2 class="text-2xl font-bold text-gray-900 mb-2 relative z-10">¡Bienvenido al Panel Dirigente!</h2>
+        <p class="text-gray-600 mb-6 relative z-10 max-w-md mx-auto">
+            Desde aquí puedes gestionar los candidatos de tu partido, establecer alianzas políticas con otros partidos y asignar candidatos a los puestos electivos para la boleta de votación.
+        </p>
+        <div class="relative z-10 flex justify-center gap-4">
+            <a asp-controller="Candidatos" asp-action="Index" class="px-5 py-2.5 bg-dir-600 text-white font-medium rounded-lg shadow-sm hover:bg-dir-900 transition-colors">
+                Ver Candidatos
+            </a>
+            <a asp-controller="Alianzas" asp-action="Index" class="px-5 py-2.5 bg-white text-gray-700 font-medium rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors">
+                Ver Alianzas
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2 flex items-center gap-2">
+            <span>🚀</span> Acciones Rápidas
+        </h3>
+        <div class="space-y-3">
+            <a asp-controller="Candidatos" asp-action="Create" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-dir-50 hover:text-dir-900 border border-transparent hover:border-dir-200 transition-colors group">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-xl group-hover:scale-110 transition-transform">➕</div>
+                    <span class="font-medium text-gray-700 group-hover:text-dir-900">Registrar Nuevo Candidato</span>
+                </div>
+                <svg class="w-5 h-5 text-gray-400 group-hover:text-dir-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </a>
+            
+            <a asp-controller="Alianzas" asp-action="Create" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-dir-50 hover:text-dir-900 border border-transparent hover:border-dir-200 transition-colors group">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🤝</div>
+                    <span class="font-medium text-gray-700 group-hover:text-dir-900">Proponer Alianza Política</span>
+                </div>
+                <svg class="w-5 h-5 text-gray-400 group-hover:text-dir-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </a>
+
+            <a asp-controller="Asignaciones" asp-action="Create" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-dir-50 hover:text-dir-900 border border-transparent hover:border-dir-200 transition-colors group">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📋</div>
+                    <span class="font-medium text-gray-700 group-hover:text-dir-900">Asignar Candidato a Puesto</span>
+                </div>
+                <svg class="w-5 h-5 text-gray-400 group-hover:text-dir-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </a>
+        </div>
+    </div>
+</div>

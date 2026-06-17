@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
 namespace eVote360Pro.Application.ViewModels.Partidos;
@@ -15,5 +15,6 @@ public class PartidoCreateViewModel
     public string Siglas { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El logo es obligatorio")]
-    public IFormFile LogoArchivo { get; set; } = null!;
+    public IFormFile LogoFile { get; set; } = null!;
+    public IFormFile LogoArchivo { get => LogoFile; set => LogoFile = value; }
 }

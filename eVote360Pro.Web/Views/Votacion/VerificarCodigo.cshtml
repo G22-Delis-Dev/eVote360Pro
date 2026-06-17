@@ -1,0 +1,53 @@
+@model eVote360Pro.Application.ViewModels.Votacion.VerificacionCodigoViewModel
+@{
+    Layout = "_LayoutElector";
+    ViewData["Title"] = "Verificar Código";
+    ViewData["PasoActivo"] = 3;
+}
+
+<div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 max-w-xl mx-auto w-full">
+    <div class="p-8 text-center border-b border-gray-100">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-elec-100 text-elec-600 mb-4 text-3xl">
+            ✉️
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Verificación de Código</h2>
+        <p class="text-gray-500 mt-2">Hemos enviado un código de 6 dígitos a tu correo electrónico registrado.</p>
+        
+        <div class="mt-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-100 inline-block">
+            Correo: @Model.CorreoElectronicoOculto
+        </div>
+    </div>
+
+    <form asp-action="VerificarCodigo" method="post" class="p-8">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="VotanteId" />
+        <input type="hidden" asp-for="CorreoElectronicoOculto" />
+        
+        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
+
+        <div class="mb-8 text-center">
+            <label asp-for="CodigoVerificacion" class="block text-sm font-bold text-gray-700 mb-4">Ingresa el código de 6 dígitos</label>
+            
+            <input asp-for="CodigoVerificacion" type="text" maxlength="6" class="block w-full sm:w-2/3 mx-auto px-4 py-4 text-3xl text-center border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-elec-500 focus:border-elec-500 transition-colors font-mono tracking-[0.5em] uppercase" placeholder="000000" autocomplete="off" />
+            
+            <span asp-validation-for="CodigoVerificacion" class="text-xs text-red-500 mt-2 block"></span>
+            
+            <p class="text-xs text-gray-400 mt-4">
+                ¿No recibiste el código? <button type="button" class="text-elec-600 hover:text-elec-800 font-medium">Reenviar código</button>
+            </p>
+        </div>
+
+        <div class="flex flex-col-reverse sm:flex-row justify-between items-center gap-4 pt-4 border-t border-gray-100">
+            <a asp-action="ValidarIdentidad" class="w-full sm:w-auto text-center px-6 py-3 text-gray-500 bg-gray-100 hover:bg-gray-200 hover:text-gray-700 font-medium rounded-xl transition-colors">
+                Cancelar
+            </a>
+            <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-elec-600 text-white font-bold rounded-xl hover:bg-elec-900 transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-elec-500 flex items-center justify-center gap-2">
+                Verificar Código ➡️
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,4 +1,4 @@
-﻿namespace eVote360Pro.Application.ViewModels.PuestosElectivos;
+namespace eVote360Pro.Application.ViewModels.PuestosElectivos;
 
 public class PuestoElectivoListViewModel
 {
@@ -11,4 +11,5 @@ public class PuestoElectivoItemViewModel
     public string Nombre { get; set; } = string.Empty;
     public string Descripcion { get; set; } = string.Empty;
     public bool Activo { get; set; }
+    public bool EnEleccionActiva { get; set; }
 }

@@ -1,0 +1,26 @@
+<!-- Modal de Confirmación Genérico (Oculto por defecto) -->
+<div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900 bg-opacity-50 transition-opacity backdrop-blur-sm">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden transform transition-all">
+        <div class="p-6">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 id="confirmModalTitle" class="text-lg font-bold text-center text-gray-900 mb-2">Confirmar Acción</h3>
+            <p id="confirmModalMessage" class="text-sm text-center text-gray-500 mb-6">¿Estás seguro de que deseas realizar esta acción?</p>
+            
+            <form id="confirmModalForm" method="post" action="">
+                @Html.AntiForgeryToken()
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button type="button" onclick="closeConfirmModal()" class="px-4 py-2 text-gray-700 bg-gray-100 font-medium rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 sm:flex-1">
+                        Cancelar
+                    </button>
+                    <button id="confirmModalBtn" type="submit" class="px-4 py-2 text-white bg-red-600 font-medium rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 sm:flex-1">
+                        Confirmar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

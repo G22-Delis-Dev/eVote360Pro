@@ -1,4 +1,4 @@
-﻿using eVote360Pro.Domain.Enums;
+using eVote360Pro.Domain.Enums;
 
 namespace eVote360Pro.Application.ViewModels.Elecciones;
 
@@ -23,4 +23,7 @@ public class EleccionItemViewModel
     };
     public DateTime? FechaActivacion { get; set; }
     public DateTime? FechaFinalizacion { get; set; }
+
+    public DateTime FechaEleccion => FechaRealizacion;
+    public IEnumerable<dynamic> PuestosElectivos { get; set; } = [];
 }

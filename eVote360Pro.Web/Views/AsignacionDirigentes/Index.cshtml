@@ -1,0 +1,98 @@
+@model eVote360Pro.Application.ViewModels.AsignacionDirigentes.AsignacionDirigenteListViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Gestión de Asignaciones de Dirigentes";
+}
+
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Asignaciones de Dirigentes</h1>
+        <nav class="flex mt-1" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
+                <li class="inline-flex items-center">
+                    <a asp-controller="HomeAdmin" asp-action="Index" class="hover:text-admin-600">Inicio</a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
+                        <span class="ml-1 text-gray-500 md:ml-2">Asignaciones</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+    </div>
+    
+    <div>
+        @if (ViewBag.HayEleccionActiva == true)
+        {
+            <button disabled class="inline-flex items-center gap-2 px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed" title="Acción bloqueada durante elección activa">
+                <span>➕</span> Nueva Asignación
+            </button>
+        }
+        else
+        {
+            <a asp-action="Create" class="inline-flex items-center gap-2 px-4 py-2 bg-admin-600 hover:bg-admin-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
+                <span>➕</span> Nueva Asignación
+            </a>
+        }
+    </div>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    @if (!Model.Asignaciones.Any())
+    {
+        <partial name="_EmptyState" model="@(("🔗", "No hay dirigentes asignados a partidos políticos. Haga clic en 'Nueva Asignación' para registrar uno.", "Nueva Asignación", "Create", "AsignacionDirigentes", (bool)(ViewBag.HayEleccionActiva ?? false)))" />
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 font-semibold">Dirigente Político</th>
+                        <th scope="col" class="px-6 py-3 font-semibold">Partido Político</th>
+                        <th scope="col" class="px-6 py-3 font-semibold">Sigla</th>
+                        <th scope="col" class="px-6 py-3 font-semibold text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Asignaciones)
+                    {
+                        <tr class="bg-white border-b hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-admin-100 text-admin-600 flex items-center justify-center font-bold text-xs">
+                                    @item.NombreDirigente.Substring(0, 1)
+                                </div>
+                                @item.NombreDirigente
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                                    @item.NombrePartido
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                @item.SiglaPartido
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                @if (Model.HayEleccionActiva)
+                                {
+                                    <button disabled class="text-gray-400 cursor-not-allowed hover:text-gray-400" title="Bloqueado por participación del partido en elección">🗑️ Eliminar</button>
+                                }
+                                else
+                                {
+                                    <button type="button" 
+                                            onclick="showConfirmModal('Eliminar Asignación', '¿Estás seguro de que deseas eliminar la asignación de @item.NombreDirigente al partido @item.NombrePartido?', '@Url.Action("Delete", "AsignacionDirigentes", new { id = item.Id })')"
+                                            class="text-red-600 hover:text-red-900 transition-colors font-medium">
+                                        🗑️ Eliminar
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <partial name="_Paginacion" />
+    }
+</div>
