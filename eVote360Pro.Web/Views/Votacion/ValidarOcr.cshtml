@@ -1,0 +1,133 @@
+@model eVote360Pro.Application.ViewModels.Votacion.ValidacionOcrViewModel
+@{
+    Layout = "_LayoutElector";
+    ViewData["Title"] = "Validación de Identidad - Imagen de Cédula";
+    ViewData["PasoActivo"] = 2;
+}
+
+<div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 max-w-2xl mx-auto w-full">
+
+    @* Cabecera *@
+    <div class="p-8 text-center border-b border-gray-100">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-elec-100 text-elec-600 mb-4 text-3xl">
+            📷
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Validación de Identidad</h2>
+        <p class="text-gray-500 mt-2">Suba una foto clara de la parte frontal de su cédula para verificar su identidad.</p>
+    </div>
+
+    @* Formulario *@
+    <form asp-action="ValidarOcr" method="post" enctype="multipart/form-data" class="p-8">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="CiudadanoId" />
+        <input type="hidden" asp-for="EleccionId" />
+        <input type="hidden" asp-for="CedulaIngresada" />
+
+        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-4 rounded-xl border border-red-200"></div>
+
+        @* Zona de carga de imagen *@
+        <div class="mb-6">
+            <label asp-for="ImagenCedula" class="block text-sm font-bold text-gray-700 mb-2">
+                Imagen frontal de la cédula <span class="text-red-500">*</span>
+            </label>
+
+            <div id="drop-zone"
+                 class="relative flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-elec-50 hover:border-elec-400 transition-all cursor-pointer p-8 text-center"
+                 onclick="document.getElementById('ImagenCedula').click()">
+
+                @* Ícono y texto por defecto *@
+                <div id="upload-placeholder">
+                    <div class="text-5xl mb-3">🪪</div>
+                    <p class="text-base font-semibold text-gray-700">Haga clic o arrastre la imagen aquí</p>
+                    <p class="text-sm text-gray-400 mt-1">Formatos aceptados: JPG, JPEG, PNG</p>
+                </div>
+
+                @* Vista previa de la imagen *@
+                <img id="preview-img"
+                     src="#"
+                     alt="Vista previa de la cédula"
+                     class="hidden max-h-64 rounded-lg shadow-md object-contain border border-gray-200" />
+
+                <input asp-for="ImagenCedula"
+                       type="file"
+                       id="ImagenCedula"
+                       accept=".jpg,.jpeg,.png"
+                       class="hidden"
+                       onchange="mostrarPreview(this)" />
+            </div>
+
+            <span asp-validation-for="ImagenCedula" class="text-xs text-red-500 mt-2 block"></span>
+
+            @* Indicaciones *@
+            <div class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-700 space-y-1">
+                <p class="font-semibold text-blue-800 mb-2">📋 La imagen debe cumplir las siguientes condiciones:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Mostrar únicamente la parte <strong>frontal</strong> de la cédula.</li>
+                    <li>Tener buena iluminación y no estar borrosa.</li>
+                    <li>Permitir leer claramente el número de documento.</li>
+                    <li>No estar cortada ni demasiado oscura.</li>
+                </ul>
+            </div>
+        </div>
+
+        @* Botones *@
+        <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+            <a asp-action="ValidarIdentidad"
+               class="text-gray-500 hover:text-gray-700 font-medium text-sm transition-colors flex items-center gap-1">
+                ⬅️ Atrás
+            </a>
+            <button type="submit"
+                    id="btn-validar"
+                    class="px-6 py-3 bg-elec-600 text-white font-bold rounded-xl hover:bg-elec-900 transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-elec-500 flex items-center gap-2">
+                <span id="btn-texto">Validar identidad</span>
+                <svg id="btn-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function mostrarPreview(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var preview = document.getElementById('preview-img');
+                    var placeholder = document.getElementById('upload-placeholder');
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Soporte para drag & drop
+        var dropZone = document.getElementById('drop-zone');
+        dropZone.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            dropZone.classList.add('border-elec-500', 'bg-elec-50');
+        });
+        dropZone.addEventListener('dragleave', function () {
+            dropZone.classList.remove('border-elec-500', 'bg-elec-50');
+        });
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dropZone.classList.remove('border-elec-500', 'bg-elec-50');
+            var fileInput = document.getElementById('ImagenCedula');
+            fileInput.files = e.dataTransfer.files;
+            mostrarPreview(fileInput);
+        });
+
+        // Spinner al enviar
+        document.querySelector('form').addEventListener('submit', function () {
+            document.getElementById('btn-texto').textContent = 'Procesando OCR...';
+            document.getElementById('btn-spinner').classList.remove('hidden');
+            document.getElementById('btn-validar').disabled = true;
+        });
+    </script>
+}
