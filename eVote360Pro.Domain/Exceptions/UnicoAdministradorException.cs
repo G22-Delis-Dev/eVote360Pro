@@ -1,9 +1,9 @@
-﻿namespace eVote360Pro.Domain.Exceptions;
+namespace eVote360Pro.Domain.Exceptions;
 
-public class UnicoAdministradorException : Exception
+public class UnicoAdministradorException : ValidacionException
 {
     public UnicoAdministradorException()
-        : base("No se puede modificar este usuario porque es el único administrador activo del sistema.") { }
+        : base("No se puede desactivar ni eliminar el único administrador del sistema.") { }
 
     public UnicoAdministradorException(string mensaje) : base(mensaje) { }
 }

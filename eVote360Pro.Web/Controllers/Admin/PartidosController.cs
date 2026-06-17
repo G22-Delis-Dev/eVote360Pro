@@ -1,12 +1,14 @@
-using AutoMapper;
+﻿using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Partidos;
 using eVote360Pro.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using eVote360Pro.Web.Helpers;
 
 namespace eVote360Pro.Web.Controllers.Admin;
 
+[eVote360Pro.Web.Filters.ValidarSesion("Administrador")]
 public class PartidosController : Controller
 {
     private readonly IPartidoPoliticoService _partidoService;
@@ -54,7 +56,7 @@ public class PartidosController : Controller
         try
         {
             var dto = _mapper.Map<PartidoPoliticoDto>(vm);
-            string rutaLogo = await GuardarLogoAsync(vm.LogoArchivo);
+            string rutaLogo = SubidaArchivo.Subir(vm.LogoArchivo, "partidos")!;
 
             await _partidoService.CrearAsync(dto, rutaLogo);
             return RedirectToAction(nameof(Index));
@@ -72,8 +74,12 @@ public class PartidosController : Controller
         var dto = await _partidoService.ObtenerPorIdAsync(id);
         if (dto == null) return NotFound();
 
+        var participoEnEleccion = await _partidoService.ParticipoEnEleccionAsync(id);
+
         var vm = _mapper.Map<PartidoEditViewModel>(dto);
         vm.LogoActualRuta = dto.LogoRuta;
+        vm.CamposCriticosEditables = !participoEnEleccion;
+        
         return View(vm);
     }
 
@@ -89,12 +95,7 @@ public class PartidosController : Controller
         try
         {
             var dto = _mapper.Map<PartidoPoliticoDto>(vm);
-            string? rutaLogo = null;
-
-            if (vm.NuevoLogoArchivo != null)
-            {
-                rutaLogo = await GuardarLogoAsync(vm.NuevoLogoArchivo);
-            }
+            string? rutaLogo = SubidaArchivo.Subir(vm.NuevoLogoArchivo, "partidos", isEditMode: true, imagePath: vm.LogoActualRuta);
 
             await _partidoService.EditarAsync(dto, rutaLogo);
             return RedirectToAction(nameof(Index));
@@ -130,19 +131,4 @@ public class PartidosController : Controller
         }
     }
 
-    private async Task<string> GuardarLogoAsync(IFormFile logo)
-    {
-        string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "img", "partidos");
-        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-        string uniqueFileName = Guid.NewGuid().ToString() + "_" + logo.FileName;
-        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        {
-            await logo.CopyToAsync(fileStream);
-        }
-
-        return $"/img/partidos/{uniqueFileName}";
-    }
 }

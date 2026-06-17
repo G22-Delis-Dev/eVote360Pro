@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Domain.Entities;
@@ -26,6 +26,7 @@ public class PartidoPoliticoService : GenericService<PartidoPolitico, PartidoPol
         var partido = _mapper.Map<PartidoPolitico>(dto);
         partido.LogoRuta = rutaLogo;
         partido.Siglas = dto.Siglas.ToUpper();
+        partido.Activo = true;
 
         await _unitOfWork.PartidosPoliticos.AddAsync(partido);
         await _unitOfWork.SaveChangesAsync();
@@ -78,5 +79,10 @@ public class PartidoPoliticoService : GenericService<PartidoPolitico, PartidoPol
 
         _unitOfWork.PartidosPoliticos.Update(partido);
         await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<bool> ParticipoEnEleccionAsync(int id)
+    {
+        return await _unitOfWork.PartidosPoliticos.ParticipoEnEleccionAsync(id);
     }
 }

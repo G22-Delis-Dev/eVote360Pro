@@ -1,10 +1,11 @@
-using eVote360Pro.Application.Interfaces;
+﻿using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Home;
 using eVote360Pro.Shared.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eVote360Pro.Web.Controllers.Admin;
 
+[eVote360Pro.Web.Filters.ValidarSesion("Administrador")]
 public class HomeAdminController : Controller
 {
     private readonly IUsuarioService _usuarioService;

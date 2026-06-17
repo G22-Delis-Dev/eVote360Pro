@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+@using eVote360Pro.Application.Interfaces
+@inject ISesionUsuario sesionUsuario
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -21,11 +23,35 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    @{
+                        var usuarioActual = sesionUsuario.ObtenerUsuarioSesion();
+                    }
+                    @if (usuarioActual != null)
+                    {
+                        <ul class="navbar-nav align-items-center">
+                            <li class="nav-item me-3">
+                                <span class="text-secondary fw-bold">@usuarioActual.NombreUsuario</span>
+                                <span class="badge bg-info text-dark ms-1">@usuarioActual.Rol.ToString()</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Cerrar sesión</button>
+                                </form>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Acceder</a>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>

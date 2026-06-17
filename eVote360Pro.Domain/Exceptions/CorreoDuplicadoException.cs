@@ -1,6 +1,6 @@
-﻿namespace eVote360Pro.Domain.Exceptions;
+namespace eVote360Pro.Domain.Exceptions;
 
-public class CorreoDuplicadoException : Exception
+public class CorreoDuplicadoException : ValidacionException
 {
     public CorreoDuplicadoException()
         : base("Ya existe un registro con este correo electrónico.") { }

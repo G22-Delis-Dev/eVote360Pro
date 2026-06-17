@@ -8,28 +8,32 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eVote360Pro.Web.Controllers.Dirigente;
 
+[eVote360Pro.Web.Filters.ValidarSesion("DirigentePolitico")]
 public class AsignacionesController : Controller
 {
     private readonly IAsignacionCandidatoPuestoService _asignacionService;
     private readonly ICandidatoService _candidatoService;
     private readonly IPuestoElectivoService _puestoService;
     private readonly IMapper _mapper;
+    private readonly eVote360Pro.Application.Interfaces.ISesionUsuario _sesionUsuario;
 
     public AsignacionesController(
         IAsignacionCandidatoPuestoService asignacionService,
         ICandidatoService candidatoService,
         IPuestoElectivoService puestoService,
-        IMapper mapper)
+        IMapper mapper,
+        eVote360Pro.Application.Interfaces.ISesionUsuario sesionUsuario)
     {
         _asignacionService = asignacionService;
         _candidatoService = candidatoService;
         _puestoService = puestoService;
         _mapper = mapper;
+        _sesionUsuario = sesionUsuario;
     }
 
     // TODO: Reemplazar con el ID real del partido del dirigente autenticado
     // cuando se implemente el sistema de autenticación (Claims/Session).
-    private int ObtenerPartidoIdDirigente() => 1;
+    private int ObtenerPartidoIdDirigente() => _sesionUsuario.ObtenerPartidoId() ?? 0;
 
     public async Task<IActionResult> Index()
     {

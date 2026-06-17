@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Ciudadanos;
@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eVote360Pro.Web.Controllers.Admin;
 
+[eVote360Pro.Web.Filters.ValidarSesion("Administrador")]
 public class CiudadanosController : Controller
 {
     private readonly ICiudadanoService _ciudadanoService;

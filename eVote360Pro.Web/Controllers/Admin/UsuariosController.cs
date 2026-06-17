@@ -9,22 +9,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eVote360Pro.Web.Controllers.Admin;
 
+[eVote360Pro.Web.Filters.ValidarSesion("Administrador")]
 public class UsuariosController : Controller
 {
     private readonly IUsuarioService _usuarioService;
     private readonly IMapper _mapper;
+    private readonly eVote360Pro.Application.Interfaces.ISesionUsuario _sesionUsuario;
 
     public UsuariosController(
         IUsuarioService usuarioService,
-        IMapper mapper)
+        IMapper mapper,
+        eVote360Pro.Application.Interfaces.ISesionUsuario sesionUsuario)
     {
         _usuarioService = usuarioService;
         _mapper = mapper;
+        _sesionUsuario = sesionUsuario;
     }
 
     // TODO: Reemplazar con el ID real del administrador autenticado
     // cuando se implemente el sistema de autenticación (Claims/Session).
-    private int ObtenerUsuarioIdActual() => 1;
+    private int ObtenerUsuarioIdActual() => _sesionUsuario.ObtenerUsuarioSesion()?.Id ?? 0;
 
     public async Task<IActionResult> Index()
     {

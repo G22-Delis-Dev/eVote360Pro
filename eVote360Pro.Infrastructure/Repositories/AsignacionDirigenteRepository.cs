@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using eVote360Pro.Domain.Entities;
 using eVote360Pro.Domain.Interfaces.Repositories;
 using eVote360Pro.Infrastructure.Data;
@@ -9,6 +9,14 @@ public class AsignacionDirigenteRepository : GenericRepository<AsignacionDirigen
 {
     public AsignacionDirigenteRepository(AppDbContext context) : base(context)
     {
+    }
+
+    public override async Task<IEnumerable<AsignacionDirigente>> GetAllAsync()
+    {
+        return await _dbSet
+            .Include(a => a.Usuario)
+            .Include(a => a.PartidoPolitico)
+            .ToListAsync();
     }
 
     public async Task<AsignacionDirigente?> GetByUsuarioAsync(int usuarioId)

@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 
-                <input asp-for="LogoFile" type="file" id="logoInput" class="hidden" accept="image/*" onchange="previewImage(this)" />
+                <input asp-for="LogoFile" type="file" id="logoInput" class="hidden" onchange="previewImage(this)" />
                 <span asp-validation-for="LogoFile" class="text-xs text-red-500 mt-2 block text-center"></span>
                 <p class="text-xs text-gray-500 mt-2 text-center">Formatos permitidos: JPG, PNG. Tamaño ideal: 200x200px.</p>
             </div>

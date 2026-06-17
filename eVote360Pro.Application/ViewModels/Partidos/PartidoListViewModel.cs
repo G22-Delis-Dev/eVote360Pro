@@ -11,7 +11,7 @@ public class PartidoItemViewModel
     public string Nombre { get; set; } = string.Empty;
     public string Siglas { get; set; } = string.Empty;
     public string? LogoRuta { get; set; }
-    public string? LogoUrl { get; set; }
+    public string? LogoUrl { get => LogoRuta; set => LogoRuta = value; }
     public bool Activo { get; set; }
     public bool EnEleccionActiva { get; set; }
 }
