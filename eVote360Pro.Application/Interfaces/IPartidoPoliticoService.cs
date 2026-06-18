@@ -1,4 +1,4 @@
-﻿using eVote360Pro.Application.DTOs;
+using eVote360Pro.Application.DTOs;
 
 namespace eVote360Pro.Application.Interfaces;
 
@@ -11,4 +11,5 @@ public interface IPartidoPoliticoService : IGenericService<PartidoPoliticoDto>
     Task CrearAsync(PartidoPoliticoDto dto, string rutaLogo);
     Task EditarAsync(PartidoPoliticoDto dto, string? rutaLogo);
     Task CambiarEstadoAsync(int id);
+    Task<bool> ParticipoEnEleccionAsync(int id);
 }

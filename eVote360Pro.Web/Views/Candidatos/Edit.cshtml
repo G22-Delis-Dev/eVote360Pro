@@ -91,7 +91,7 @@
                     }
                 </div>
                 
-                <input asp-for="NuevaFoto" type="file" id="fotoInput" class="hidden" accept="image/*" onchange="previewImage(this)" />
+                <input asp-for="NuevaFoto" type="file" id="fotoInput" class="hidden" onchange="previewImage(this)" />
                 <span asp-validation-for="NuevaFoto" class="text-xs text-red-500 mt-2 block text-center"></span>
                 <p class="text-xs text-gray-500 mt-2 text-center">Dejar en blanco para conservar la foto actual.</p>
             </div>

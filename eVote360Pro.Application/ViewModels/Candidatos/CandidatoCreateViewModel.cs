@@ -16,6 +16,7 @@ public class CandidatoCreateViewModel
     public string NumeroDocumento { get; set; } = string.Empty;
 
     [Display(Name = "Foto del Candidato")]
+    [Required(ErrorMessage = "La foto del candidato es obligatoria")]
     public IFormFile? FotoFile { get; set; }
     public IFormFile? FotoArchivo { get => FotoFile; set => FotoFile = value; }
 

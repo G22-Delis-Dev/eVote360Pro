@@ -1,10 +1,11 @@
-using eVote360Pro.Application.Interfaces;
+﻿using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Home;
 using eVote360Pro.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eVote360Pro.Web.Controllers.Dirigente;
 
+[eVote360Pro.Web.Filters.ValidarSesion("DirigentePolitico")]
 public class HomeDirigenteController : Controller
 {
     private readonly IPartidoPoliticoService _partidoService;

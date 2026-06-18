@@ -5,37 +5,55 @@ using eVote360Pro.Application.ViewModels.Candidatos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using eVote360Pro.Web.Helpers;
+using eVote360Pro.Domain.Exceptions;
 
 namespace eVote360Pro.Web.Controllers.Dirigente;
 
+[eVote360Pro.Web.Filters.ValidarSesion("DirigentePolitico")]
 public class CandidatosController : Controller
 {
     private readonly ICandidatoService _candidatoService;
     private readonly IMapper _mapper;
+    private readonly eVote360Pro.Application.Interfaces.ISesionUsuario _sesionUsuario;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     public CandidatosController(
         ICandidatoService candidatoService,
         IMapper mapper,
-        IWebHostEnvironment webHostEnvironment)
+        IWebHostEnvironment webHostEnvironment,
+        eVote360Pro.Application.Interfaces.ISesionUsuario sesionUsuario)
     {
         _candidatoService = candidatoService;
         _mapper = mapper;
         _webHostEnvironment = webHostEnvironment;
+        _sesionUsuario = sesionUsuario;
     }
 
     // TODO: Reemplazar con el ID real del partido del dirigente autenticado
     // cuando se implemente el sistema de autenticación (Claims/Session).
-    private int ObtenerPartidoIdDirigente() => 1;
+    private int ObtenerPartidoIdDirigente() => _sesionUsuario.ObtenerPartidoId() ?? 0;
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string filtro = "")
     {
         int partidoId = ObtenerPartidoIdDirigente();
 
         // Solo se muestran los candidatos del partido del dirigente autenticado
         var dtos = await _candidatoService.ObtenerPorPartidoAsync(partidoId);
         var listaVms = _mapper.Map<IEnumerable<CandidatoListViewModel>>(dtos);
-        return View(listaVms);
+
+        if (!string.IsNullOrEmpty(filtro))
+        {
+            listaVms = listaVms.Where(c => c.NombreCompleto.Contains(filtro, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var viewModel = new CandidatoListViewModel
+        {
+            Candidatos = listaVms,
+            Filtro = filtro
+        };
+
+        return View(viewModel);
     }
 
     [HttpGet]
@@ -54,18 +72,26 @@ public class CandidatosController : Controller
             return View(vm);
         }
 
-        var dto = _mapper.Map<CandidatoDto>(vm);
-
-        // El partido se toma automáticamente del dirigente autenticado
-        dto.PartidoPoliticoId = ObtenerPartidoIdDirigente();
-
-        if (vm.FotoArchivo != null)
+        try
         {
-            dto.FotoUrl = await GuardarFotoAsync(vm.FotoArchivo);
-        }
+            var dto = _mapper.Map<CandidatoDto>(vm);
 
-        await _candidatoService.CrearAsync(dto);
-        return RedirectToAction(nameof(Index));
+            // El partido se toma automáticamente del dirigente autenticado
+            dto.PartidoPoliticoId = ObtenerPartidoIdDirigente();
+
+            if (vm.FotoArchivo != null)
+            {
+                dto.FotoUrl = SubidaArchivo.Subir(vm.FotoArchivo, "candidatos");
+            }
+
+            await _candidatoService.CrearAsync(dto);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (ValidacionException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(vm);
+        }
     }
 
     [HttpGet]
@@ -94,22 +120,34 @@ public class CandidatosController : Controller
             return View(vm);
         }
 
-        var dto = _mapper.Map<CandidatoDto>(vm);
-
-        // El partido se toma automáticamente del dirigente autenticado
-        dto.PartidoPoliticoId = ObtenerPartidoIdDirigente();
-
-        if (vm.FotoArchivo != null)
+        try
         {
-            dto.FotoUrl = await GuardarFotoAsync(vm.FotoArchivo);
-        }
-        else
-        {
-            dto.FotoUrl = vm.FotoUrlExistente;
-        }
+            var dto = _mapper.Map<CandidatoDto>(vm);
 
-        await _candidatoService.ActualizarAsync(id, dto);
-        return RedirectToAction(nameof(Index));
+            // El partido se toma automáticamente del dirigente autenticado
+            dto.PartidoPoliticoId = ObtenerPartidoIdDirigente();
+
+            if (vm.FotoArchivo != null)
+            {
+                dto.FotoUrl = SubidaArchivo.Subir(vm.FotoArchivo, "candidatos", isEditMode: true, imagePath: vm.FotoUrlExistente);
+            }
+            else
+            {
+                dto.FotoUrl = vm.FotoUrlExistente;
+            }
+
+            await _candidatoService.ActualizarAsync(id, dto);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (ValidacionException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(vm);
+        }
+        catch (RegistroNoEncontradoException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpPost]
@@ -127,19 +165,4 @@ public class CandidatosController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task<string> GuardarFotoAsync(IFormFile foto)
-    {
-        string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "img", "candidatos");
-        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-        string uniqueFileName = Guid.NewGuid().ToString() + "_" + foto.FileName;
-        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        {
-            await foto.CopyToAsync(fileStream);
-        }
-
-        return $"/img/candidatos/{uniqueFileName}";
-    }
 }

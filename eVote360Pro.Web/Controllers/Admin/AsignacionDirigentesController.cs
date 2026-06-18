@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.AsignacionDirigentes;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eVote360Pro.Web.Controllers.Admin;
 
+[eVote360Pro.Web.Filters.ValidarSesion("Administrador")]
 public class AsignacionDirigentesController : Controller
 {
     private readonly IAsignacionDirigenteService _asignacionService;

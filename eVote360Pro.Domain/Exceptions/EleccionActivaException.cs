@@ -1,9 +1,9 @@
-﻿namespace eVote360Pro.Domain.Exceptions;
+namespace eVote360Pro.Domain.Exceptions;
 
-public class EleccionActivaException : Exception
+public class EleccionActivaException : ValidacionException
 {
     public EleccionActivaException()
-        : base("No se puede realizar esta acción mientras exista una elección activa.") { }
+        : base("Ya existe una elección activa en el sistema.") { }
 
     public EleccionActivaException(string mensaje) : base(mensaje) { }
 }

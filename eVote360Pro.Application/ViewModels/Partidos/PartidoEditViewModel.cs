@@ -15,8 +15,8 @@ public class PartidoEditViewModel
     [Required(ErrorMessage = "Las siglas son obligatorias")]
     public string Siglas { get; set; } = string.Empty;
 
-    public string? LogoActualRuta { get; set; }
     public string? LogoActual { get; set; }
+    public string? LogoActualRuta { get => LogoActual; set => LogoActual = value; }
 
     public IFormFile? NuevoLogoArchivo { get; set; }
 

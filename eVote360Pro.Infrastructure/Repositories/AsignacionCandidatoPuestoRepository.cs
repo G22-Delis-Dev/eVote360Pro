@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using eVote360Pro.Domain.Entities;
 using eVote360Pro.Domain.Interfaces.Repositories;
 using eVote360Pro.Infrastructure.Data;
@@ -17,6 +17,7 @@ public class AsignacionCandidatoPuestoRepository : GenericRepository<AsignacionC
         return await _dbSet
             .Include(a => a.Candidato)
             .Include(a => a.PuestoElectivo)
+            .Include(a => a.PartidoPolitico)
             .Where(a => a.PartidoPoliticoId == partidoId)
             .ToListAsync();
     }
