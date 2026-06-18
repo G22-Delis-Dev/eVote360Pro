@@ -24,4 +24,7 @@ public interface IVotacionService
 
     // Paso 7: Enviar notificación con el resumen de votación al ciudadano por correo
     Task EnviarNotificacionVotoAsync(string email, string nombre, ResumenVotacionDto resumen);
+
+    // OCR: Validar que la imagen de la cédula coincide con el número ingresado
+    Task ValidarOcrAsync(string cedulaIngresada, Stream imagenStream);
 }

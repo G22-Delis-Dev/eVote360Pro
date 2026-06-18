@@ -1,4 +1,4 @@
-﻿using eVote360Pro.Application.DTOs;
+using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Votacion;
 using eVote360Pro.Domain.Exceptions;
@@ -10,17 +10,18 @@ namespace eVote360Pro.Web.Controllers.Elector
     {
         private readonly IVotacionService _votacionService;
 
+        private static readonly string[] FormatosPermitidos = [".jpg", ".jpeg", ".png"];
+
         public VotacionController(IVotacionService votacionService)
         {
             _votacionService = votacionService;
         }
 
-        // Pantalla de Bienvenida
+        // ─── PANTALLA DE BIENVENIDA ───────────────────────────────────────────────
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            // Validamos si hay una elección abierta antes de permitir avanzar
             var eleccionActiva = await _votacionService.ObtenerEleccionActivaAsync();
             if (eleccionActiva == null)
             {
@@ -37,7 +38,8 @@ namespace eVote360Pro.Web.Controllers.Elector
             return View(vm);
         }
 
-        // PASO 1: VALIDACIÓN DE IDENTIDAD (CÉDULA)
+        // ─── PASO 1: VALIDACIÓN DE CÉDULA ────────────────────────────────────────
+
         [HttpGet]
         public IActionResult ValidarIdentidad()
         {
@@ -55,13 +57,16 @@ namespace eVote360Pro.Web.Controllers.Elector
 
             try
             {
-                // Validamos que la cédula sea correcta y que no haya registros de votación previos
+                // Validar que el ciudadano existe, está activo y no ha votado
                 var ciudadano = await _votacionService.ValidarCiudadanoParaVotarAsync(vm.Cedula, eleccion.Id);
 
-                // Si la identidad pasa los filtros, enviamos el código de 6 dígitos
-                await _votacionService.GenerarYEnviarCodigoAsync(ciudadano.Id, eleccion.Id);
-
-                return RedirectToAction(nameof(VerificarCodigo), new { ciudadanoId = ciudadano.Id, eleccionId = eleccion.Id });
+                // Redirigir al paso OCR con los datos necesarios
+                return RedirectToAction(nameof(ValidarOcr), new
+                {
+                    ciudadanoId = ciudadano.Id,
+                    eleccionId = eleccion.Id,
+                    cedulaIngresada = vm.Cedula
+                });
             }
             catch (ValidacionException ex)
             {
@@ -70,7 +75,64 @@ namespace eVote360Pro.Web.Controllers.Elector
             }
         }
 
-        // PASO 2: VERIFICACIÓN DE CÓDIGO
+        // ─── PASO 2: VALIDACIÓN OCR (IMAGEN DE CÉDULA) ───────────────────────────
+
+        [HttpGet]
+        public IActionResult ValidarOcr(int ciudadanoId, int eleccionId, string cedulaIngresada)
+        {
+            var vm = new ValidacionOcrViewModel
+            {
+                CiudadanoId = ciudadanoId,
+                EleccionId = eleccionId,
+                CedulaIngresada = cedulaIngresada
+            };
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ValidarOcr(ValidacionOcrViewModel vm)
+        {
+            // Validar que se subió un archivo
+            if (vm.ImagenCedula == null || vm.ImagenCedula.Length == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Debe subir una imagen de su cédula para validar su identidad.");
+                return View(vm);
+            }
+
+            // Validar el formato del archivo
+            var extension = Path.GetExtension(vm.ImagenCedula.FileName).ToLowerInvariant();
+            if (!FormatosPermitidos.Contains(extension))
+            {
+                ModelState.AddModelError(string.Empty, "El archivo seleccionado no tiene un formato de imagen válido.");
+                return View(vm);
+            }
+
+            try
+            {
+                // Procesar OCR y validar coincidencia con la cédula ingresada
+                using var stream = vm.ImagenCedula.OpenReadStream();
+                await _votacionService.ValidarOcrAsync(vm.CedulaIngresada, stream);
+
+                // OCR exitoso: generar y enviar código por correo
+                await _votacionService.GenerarYEnviarCodigoAsync(vm.CiudadanoId, vm.EleccionId);
+
+                // Obtener correo para mostrarlo oculto en la siguiente pantalla
+                return RedirectToAction(nameof(VerificarCodigo), new
+                {
+                    ciudadanoId = vm.CiudadanoId,
+                    eleccionId = vm.EleccionId
+                });
+            }
+            catch (ValidacionException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(vm);
+            }
+        }
+
+        // ─── PASO 3: VERIFICACIÓN DE CÓDIGO POR CORREO ───────────────────────────
+
         [HttpGet]
         public IActionResult VerificarCodigo(int ciudadanoId, int eleccionId)
         {
@@ -90,10 +152,10 @@ namespace eVote360Pro.Web.Controllers.Elector
 
             try
             {
-                // Confirmamos que el código coincida, esté activo y no haya expirado
+                // Confirmar que el código es válido, no ha expirado y no fue usado
                 await _votacionService.ValidarCodigoVerificacionAsync(vm.CiudadanoId, vm.EleccionId, vm.Codigo);
 
-                // Acceso concedido a las boletas oficiales
+                // Acceso concedido a la boleta electoral
                 return RedirectToAction(nameof(Boleta), new { ciudadanoId = vm.CiudadanoId, eleccionId = vm.EleccionId });
             }
             catch (ValidacionException ex)
@@ -103,7 +165,8 @@ namespace eVote360Pro.Web.Controllers.Elector
             }
         }
 
-        // PASO 3: BOLETA ELECTORAL (EMISIÓN DEL VOTO)
+        // ─── PASO 4: BOLETA ELECTORAL ─────────────────────────────────────────────
+
         [HttpGet]
         public async Task<IActionResult> Boleta(int ciudadanoId, int eleccionId)
         {
@@ -142,14 +205,14 @@ namespace eVote360Pro.Web.Controllers.Elector
             {
                 ModelState.AddModelError(string.Empty, "Ocurrió un error crítico de consistencia procesando su votación. Por favor, reintente.");
 
-                // Recargamos el catálogo visual de la boleta si ocurre un Rollback en base de datos
                 var boletaDto = await _votacionService.ObtenerBoletaElectoralAsync(vm.EleccionId);
                 ViewBag.BoletaElectoral = boletaDto;
                 return View(vm);
             }
         }
 
-        // CONFIRMACIÓN DEL VOTO
+        // ─── CONFIRMACIÓN DEL VOTO ────────────────────────────────────────────────
+
         [HttpGet]
         public IActionResult ConfirmacionVoto()
         {

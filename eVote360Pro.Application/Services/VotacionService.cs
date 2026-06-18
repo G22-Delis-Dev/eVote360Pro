@@ -15,13 +15,15 @@ public class VotacionService : IVotacionService
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
     private readonly IEmailTemplateService _templateService;
+    private readonly IOcrService _ocrService;
 
-    public VotacionService(IUnitOfWork unitOfWork, IMapper mapper, IEmailService emailService, IEmailTemplateService templateService)
+    public VotacionService(IUnitOfWork unitOfWork, IMapper mapper, IEmailService emailService, IEmailTemplateService templateService, IOcrService ocrService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _emailService = emailService;
         _templateService = templateService;
+        _ocrService = ocrService;
     }
 
     public async Task<EleccionDto?> ObtenerEleccionActivaAsync()
@@ -37,9 +39,14 @@ public class VotacionService : IVotacionService
         var ciudadanos = await _unitOfWork.Ciudadanos.FindAsync(c => c.NumeroDocumento == cedula);
         var ciudadano = ciudadanos.FirstOrDefault();
 
-        if (ciudadano == null || !ciudadano.Activo)
+        if (ciudadano == null)
         {
-            throw new ValidacionException("La cédula ingresada no pertenece a un padrón electoral válido o está inactiva.");
+            throw new ValidacionException("No existe un ciudadano registrado con este número de documento.");
+        }
+
+        if (!ciudadano.Activo)
+        {
+            throw new ValidacionException("Este ciudadano se encuentra inactivo y no puede participar en el proceso de votación.");
         }
 
         var participacion = await _unitOfWork.ParticipacionesElectorales
@@ -47,7 +54,7 @@ public class VotacionService : IVotacionService
 
         if (participacion.Any())
         {
-            throw new ValidacionException("Este ciudadano ya ha emitido su voto en esta elección. Evitando fraude.");
+            throw new ValidacionException("Ya ha ejercido su derecho al voto.");
         }
 
         return _mapper.Map<CiudadanoDto>(ciudadano);
@@ -55,18 +62,26 @@ public class VotacionService : IVotacionService
 
     public async Task GenerarYEnviarCodigoAsync(int ciudadanoId, int eleccionId)
     {
-        // 1. Invalidar códigos anteriores que no se hayan utilizado
+        // 1. Obtener al ciudadano
+        var ciudadano = await _unitOfWork.Ciudadanos.GetByIdAsync(ciudadanoId)
+            ?? throw new ValidacionException("No se encontró al ciudadano correspondiente para el envío del código.");
+
+        if (string.IsNullOrWhiteSpace(ciudadano.CorreoElectronico))
+        {
+            throw new ValidacionException("Este ciudadano no tiene un correo electrónico registrado. No es posible continuar con la verificación de identidad.");
+        }
+
+        // 2. Invalidar códigos anteriores que no se hayan utilizado
         var codigosViejos = await _unitOfWork.CodigosVerificacion
             .FindAsync(c => c.CiudadanoId == ciudadanoId && c.EleccionId == eleccionId && !c.Utilizado);
 
         foreach (var viejo in codigosViejos)
         {
-            // Solo actualizamos Utilizado, ya que BaseEntity no tiene Activo
             viejo.Utilizado = true;
             _unitOfWork.CodigosVerificacion.Update(viejo);
         }
 
-        // 2. Generar un código nuevo
+        // 3. Generar un código nuevo
         string nuevoCodigo = new Random().Next(100000, 1000000).ToString();
 
         var codigoEntidad = new CodigoVerificacion
@@ -82,32 +97,41 @@ public class VotacionService : IVotacionService
         await _unitOfWork.CodigosVerificacion.AddAsync(codigoEntidad);
         await _unitOfWork.SaveChangesAsync();
 
-        // 3. Enviar correo real usando el servicio de email y plantillas
-        var ciudadano = await _unitOfWork.Ciudadanos.GetByIdAsync(ciudadanoId);
-        if (ciudadano == null)
+        // 4. Enviar correo
+        try
         {
-            throw new ValidacionException("No se encontró al ciudadano correspondiente para el envío del código.");
+            var cuerpoHtml = _templateService.GenerarCodigoVerificacionHtml($"{ciudadano.Nombre} {ciudadano.Apellido}", nuevoCodigo);
+            await _emailService.EnviarAsync(ciudadano.CorreoElectronico, "Código de verificación para votar - eVote360 Pro", cuerpoHtml);
         }
-
-        var cuerpoHtml = _templateService.GenerarCodigoVerificacionHtml($"{ciudadano.Nombre} {ciudadano.Apellido}", nuevoCodigo);
-        await _emailService.EnviarAsync(ciudadano.CorreoElectronico, "Código de verificación - eVote360 Pro", cuerpoHtml);
+        catch
+        {
+            throw new ValidacionException("No fue posible enviar el código de verificación. Intente nuevamente más tarde.");
+        }
     }
 
     public async Task<bool> ValidarCodigoVerificacionAsync(int ciudadanoId, int eleccionId, string codigo)
     {
-        var registro = await _unitOfWork.CodigosVerificacion
+        // Primero buscar el código sin importar si fue utilizado, para dar mensajes precisos
+        var todosRegistros = await _unitOfWork.CodigosVerificacion
             .FindAsync(c => c.CiudadanoId == ciudadanoId
                      && c.EleccionId == eleccionId
-                     && c.Codigo == codigo
-                     && !c.Utilizado);
+                     && c.Codigo == codigo);
 
-        var codigoValido = registro.FirstOrDefault();
+        var registro = todosRegistros.FirstOrDefault();
 
-        if (codigoValido == null)
-            throw new ValidacionException("El código es incorrecto o ya fue utilizado.");
+        if (registro == null)
+            throw new ValidacionException("El código de verificación ingresado no es válido.");
 
-        if (codigoValido.FechaExpiracion < DateTime.UtcNow)
-            throw new ValidacionException("El código ha expirado. Por favor solicite uno nuevo.");
+        if (registro.Utilizado)
+            throw new ValidacionException("Este código de verificación ya fue utilizado.");
+
+        if (registro.FechaExpiracion < DateTime.UtcNow)
+            throw new ValidacionException("El código de verificación ha expirado. Solicite un nuevo código para continuar.");
+
+        // Marcar como utilizado
+        registro.Utilizado = true;
+        _unitOfWork.CodigosVerificacion.Update(registro);
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -212,5 +236,24 @@ public class VotacionService : IVotacionService
 
         // 2. Enviar usando el servicio de correo
         await _emailService.EnviarAsync(email, "Resumen de Voto", html);
+    }
+
+    public async Task ValidarOcrAsync(string cedulaIngresada, Stream imagenStream)
+    {
+        var numeroExtraido = await _ocrService.ExtraerNumeroDocumentoAsync(imagenStream);
+
+        if (string.IsNullOrWhiteSpace(numeroExtraido))
+        {
+            throw new ValidacionException("No fue posible leer correctamente el número de documento en la imagen cargada. Por favor, suba una imagen más clara.");
+        }
+
+        // Normalizar ambos valores: quitar guiones y espacios para comparación robusta
+        var cedulaNormalizada = cedulaIngresada.Replace("-", "").Replace(" ", "").Trim();
+        var ocrNormalizado = numeroExtraido.Replace("-", "").Replace(" ", "").Trim();
+
+        if (!string.Equals(cedulaNormalizada, ocrNormalizado, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ValidacionException("Los datos extraídos de la foto no coinciden con los datos previamente ingresados por el elector.");
+        }
     }
 }
