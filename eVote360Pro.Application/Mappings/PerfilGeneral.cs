@@ -36,7 +36,10 @@ public class PerfilGeneral : Profile
             .ForMember(dest => dest.NombreDirigente, opt => opt.MapFrom(src => $"{src.Usuario.Nombre} {src.Usuario.Apellido}"))
             .ForMember(dest => dest.NombrePartido, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre))
             .ForMember(dest => dest.SiglaPartido, opt => opt.MapFrom(src => src.PartidoPolitico.Siglas));
-        CreateMap<AsignacionDirigenteDto, AsignacionDirigente>();
+
+        CreateMap<AsignacionDirigenteDto, AsignacionDirigente>()
+            .ForMember(dest => dest.Usuario, opt => opt.Ignore())
+            .ForMember(dest => dest.PartidoPolitico, opt => opt.Ignore());
 
         // =========================================================
         // MAPEOS COMPLEJOS (Con lógica o relaciones)
@@ -44,13 +47,20 @@ public class PerfilGeneral : Profile
         CreateMap<Candidato, CandidatoDto>()
             .ForMember(dest => dest.NombrePartido, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre))
             .ForMember(dest => dest.LogoPartido, opt => opt.MapFrom(src => src.PartidoPolitico.LogoRuta));
-        CreateMap<CandidatoDto, Candidato>();
+
+        CreateMap<CandidatoDto, Candidato>()
+            .ForMember(dest => dest.PartidoPolitico, opt => opt.Ignore())
+            .ForMember(dest => dest.FotoRuta, opt => opt.MapFrom(src => src.FotoUrl));
 
         CreateMap<AsignacionCandidatoPuesto, AsignacionCandidatoPuestoDto>()
             .ForMember(dest => dest.CandidatoNombreCompleto, opt => opt.MapFrom(src => $"{src.Candidato.Nombre} {src.Candidato.Apellido}"))
             .ForMember(dest => dest.PuestoNombre, opt => opt.MapFrom(src => src.PuestoElectivo.Nombre))
             .ForMember(dest => dest.PartidoNombre, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre));
-        CreateMap<AsignacionCandidatoPuestoDto, AsignacionCandidatoPuesto>();
+
+        CreateMap<AsignacionCandidatoPuestoDto, AsignacionCandidatoPuesto>()
+            .ForMember(dest => dest.Candidato, opt => opt.Ignore())
+            .ForMember(dest => dest.PuestoElectivo, opt => opt.Ignore())
+            .ForMember(dest => dest.PartidoPolitico, opt => opt.Ignore());
 
         // =========================================================
         // MAPEOS DE VISTAS Y FORMULARIOS (ViewModels <-> DTO)

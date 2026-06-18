@@ -25,35 +25,17 @@ public class AsignacionCandidatoPuestoService : GenericService<AsignacionCandida
             throw new ValidacionException("Debe seleccionar un candidato, un puesto electivo y un partido político válidos.");
         }
 
-        var candidato = await _unitOfWork.Candidatos.GetByIdAsync(dto.CandidatoId);
-        if (candidato == null || !candidato.Activo)
+        // Validar reglas de negocio usando el repositorio
+        var tieneAsignacionCandidato = await _unitOfWork.AsignacionesCandidatos.CandidatoTieneAsignacionEnPartidoAsync(dto.CandidatoId, dto.PartidoPoliticoId);
+        if (tieneAsignacionCandidato)
         {
-            throw new ValidacionException("El candidato seleccionado no es válido o está inactivo.");
+            throw new ValidacionException("Este candidato ya está asignado a un puesto dentro de este partido.");
         }
 
-        bool esAliado = candidato.PartidoPoliticoId != dto.PartidoPoliticoId;
-        dto.EsAliado = esAliado;
-
-        if (esAliado)
+        var tieneAsignacionPuesto = await _unitOfWork.AsignacionesCandidatos.PuestoTieneAsignacionEnPartidoAsync(dto.PuestoElectivoId, dto.PartidoPoliticoId);
+        if (tieneAsignacionPuesto)
         {
-            // Validar que exista una alianza vigente entre ambos partidos
-            bool existeAlianza = await _unitOfWork.AlianzasPoliticas.ExisteAlianzaVigenteAsync(dto.PartidoPoliticoId, candidato.PartidoPoliticoId);
-            if (!existeAlianza)
-            {
-                throw new ValidacionException("No existe una alianza política vigente con el partido del candidato seleccionado.");
-            }
-
-            // Validar que el candidato aliado tenga un puesto en su partido de origen
-            var asignacionesOrigen = await _unitOfWork.AsignacionesCandidatos.FindAsync(a => a.CandidatoId == dto.CandidatoId && a.PartidoPoliticoId == candidato.PartidoPoliticoId);
-            var asignacionOrigen = asignacionesOrigen.FirstOrDefault();
-
-            if (asignacionOrigen == null)
-            {
-                throw new InvalidOperationException("Este candidato aliado no tiene un puesto asignado en su partido de origen.");
-            }
-
-            // Validar que solo aspire al mismo puesto que tiene en su partido de origen
-            AsignacionCandidatoRules.ValidarCandidatoAliadoMismoPuesto(asignacionOrigen.PuestoElectivoId, dto.PuestoElectivoId);
+            throw new ValidacionException("Este puesto ya tiene un candidato asignado dentro de este partido.");
         }
 
         // Validaciones propias del partido (para evitar 2 candidatos al mismo puesto o 1 candidato a 2 puestos)
@@ -65,7 +47,11 @@ public class AsignacionCandidatoPuestoService : GenericService<AsignacionCandida
         await _repository.AddAsync(asignacion);
         await _unitOfWork.SaveChangesAsync();
 
-        return _mapper.Map<AsignacionCandidatoPuestoDto>(asignacion);
+        // Mapear de vuelta incluyendo las relaciones
+        var entidadGuardada = await _unitOfWork.AsignacionesCandidatos.GetByPartidoAsync(dto.PartidoPoliticoId);
+        var asignacionGuardada = entidadGuardada.FirstOrDefault(a => a.Id == asignacion.Id);
+
+        return _mapper.Map<AsignacionCandidatoPuestoDto>(asignacionGuardada ?? asignacion);
     }
 
     // Validaciones específicas al actualizar
@@ -84,6 +70,26 @@ public class AsignacionCandidatoPuestoService : GenericService<AsignacionCandida
             throw new ValidacionException("Debe seleccionar un candidato, un puesto electivo y un partido político válidos.");
         }
 
+        // Si cambió de candidato, validar que el nuevo candidato no tenga otra asignación
+        if (asignacionExistente.CandidatoId != dto.CandidatoId)
+        {
+            var tieneAsignacionCandidato = await _unitOfWork.AsignacionesCandidatos.CandidatoTieneAsignacionEnPartidoAsync(dto.CandidatoId, dto.PartidoPoliticoId);
+            if (tieneAsignacionCandidato)
+            {
+                throw new ValidacionException("Este candidato ya está asignado a un puesto dentro de este partido.");
+            }
+        }
+
+        // Si cambió de puesto, validar que el nuevo puesto no tenga ya un candidato asignado
+        if (asignacionExistente.PuestoElectivoId != dto.PuestoElectivoId)
+        {
+            var tieneAsignacionPuesto = await _unitOfWork.AsignacionesCandidatos.PuestoTieneAsignacionEnPartidoAsync(dto.PuestoElectivoId, dto.PartidoPoliticoId);
+            if (tieneAsignacionPuesto)
+            {
+                throw new ValidacionException("Este puesto ya tiene un candidato asignado dentro de este partido.");
+            }
+        }
+
         _mapper.Map(dto, asignacionExistente);
 
         _repository.Update(asignacionExistente);
@@ -99,9 +105,8 @@ public class AsignacionCandidatoPuestoService : GenericService<AsignacionCandida
     // Filtrar por partido
     public async Task<IEnumerable<AsignacionCandidatoPuestoDto>> ObtenerPorPartidoAsync(int partidoId)
     {
-        // Solo devuelve las asignaciones donde el partido político coincide con el del dirigente
-        var asignaciones = await _unitOfWork.AsignacionesCandidatos
-            .FindAsync(a => a.PartidoPoliticoId == partidoId);
+        // Se llama al método específico que incluye las relaciones (Candidato, PuestoElectivo, PartidoPolitico)
+        var asignaciones = await _unitOfWork.AsignacionesCandidatos.GetByPartidoAsync(partidoId);
         return _mapper.Map<IEnumerable<AsignacionCandidatoPuestoDto>>(asignaciones);
     }
 }

@@ -77,18 +77,44 @@ public class EleccionesController : Controller
         try
         {
             await _eleccionService.ActivarAsync(id);
+            TempData["Success"] = "La elección se ha iniciado exitosamente.";
             return RedirectToAction(nameof(Index));
         }
-        catch
+        catch (ValidacionException ex)
         {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Ocurrió un error inesperado al iniciar la elección: " + ex.Message;
             return RedirectToAction(nameof(Index)); 
         }
     }
 
     public async Task<IActionResult> Finalizar(int id)
     {
-        await _eleccionService.FinalizarAsync(id);
-        return RedirectToAction(nameof(Index));
+        try
+        {
+            await _eleccionService.FinalizarAsync(id);
+            TempData["Success"] = "La elección se ha finalizado exitosamente.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (ValidacionException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Ocurrió un error inesperado al finalizar la elección: " + ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     public async Task<IActionResult> Resultados(int id)
