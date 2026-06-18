@@ -68,6 +68,7 @@ public class PuestosElectivosController : Controller
         if (dto == null) return NotFound();
 
         var vm = _mapper.Map<PuestoElectivoEditViewModel>(dto);
+        vm.NombreEsEditable = !await _puestoService.ParticipoEnEleccionAsync(id);
         return View(vm);
     }
 
@@ -77,6 +78,7 @@ public class PuestosElectivosController : Controller
     {
         if (!ModelState.IsValid)
         {
+            vm.NombreEsEditable = !await _puestoService.ParticipoEnEleccionAsync(id);
             return View(vm);
         }
 
@@ -89,6 +91,7 @@ public class PuestosElectivosController : Controller
         catch (ValidacionException ex)
         {
             ModelState.AddModelError(string.Empty, ex.Message);
+            vm.NombreEsEditable = !await _puestoService.ParticipoEnEleccionAsync(id);
             return View(vm);
         }
         catch (RegistroNoEncontradoException)

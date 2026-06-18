@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Domain.Entities;
@@ -33,6 +33,7 @@ public class CiudadanoService : GenericService<Ciudadano, CiudadanoDto>, ICiudad
             await _unitOfWork.Ciudadanos.ExisteCorreoElectronicoAsync(dto.CorreoElectronico));
 
 
+        dto.Activo = true;
         return await base.CrearAsync(dto);
     }
 
