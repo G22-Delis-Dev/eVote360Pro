@@ -9,4 +9,6 @@ public interface IAlianzaPoliticaService : IGenericService<AlianzaPoliticaDto>
 
     // Método específico para el negocio de alianzas
     Task ResponderSolicitudAsync(int id, EstadoAlianza nuevoEstado);
+    Task<IEnumerable<AlianzaPoliticaDto>> ObtenerAlianzasVigentesAsync(int partidoId);
+    new Task EliminarAsync(int id);
 }

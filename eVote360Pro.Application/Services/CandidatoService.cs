@@ -4,6 +4,7 @@ using eVote360Pro.Domain.Exceptions;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Domain.Entities;
 using eVote360Pro.Domain.Interfaces.Repositories;
+using eVote360Pro.Domain.Rules;
 
 namespace eVote360Pro.Application.Services;
 
@@ -16,6 +17,8 @@ public class CandidatoService : GenericService<Candidato, CandidatoDto>, ICandid
 
     public override async Task<CandidatoDto> CrearAsync(CandidatoDto dto)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         if (string.IsNullOrWhiteSpace(dto.Nombre) || string.IsNullOrWhiteSpace(dto.Apellido))
         {
             throw new ValidacionException("El nombre y el apellido del candidato son obligatorios.");
@@ -40,6 +43,8 @@ public class CandidatoService : GenericService<Candidato, CandidatoDto>, ICandid
     // Validaciones específicas al actualizar
     public override async Task ActualizarAsync(int id, CandidatoDto dto)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         var candidatoExistente = await _repository.GetByIdAsync(id);
         if (candidatoExistente == null)
         {
@@ -49,6 +54,20 @@ public class CandidatoService : GenericService<Candidato, CandidatoDto>, ICandid
         if (string.IsNullOrWhiteSpace(dto.Nombre) || string.IsNullOrWhiteSpace(dto.Apellido))
         {
             throw new ValidacionException("El nombre y el apellido no pueden estar vacíos.");
+        }
+
+        bool participo = await _unitOfWork.Candidatos.ParticipoEnEleccionAsync(id);
+        if (participo)
+        {
+            // Validar si los campos críticos han cambiado
+            bool cambiaronCriticos = candidatoExistente.Nombre != dto.Nombre || 
+                                     candidatoExistente.Apellido != dto.Apellido || 
+                                     (dto.FotoUrl != null && candidatoExistente.FotoRuta != dto.FotoUrl);
+            
+            if (cambiaronCriticos)
+            {
+                CandidatoRules.ValidarCamposCriticosNoModificables(participo);
+            }
         }
 
         _mapper.Map(dto, candidatoExistente);
@@ -66,9 +85,18 @@ public class CandidatoService : GenericService<Candidato, CandidatoDto>, ICandid
 
     public async Task CambiarEstadoAsync(int id)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         var candidato = await _repository.GetByIdAsync(id);
         if (candidato != null)
         {
+            // Si está activo y se va a desactivar, validamos
+            if (candidato.Activo)
+            {
+                bool estaAsignado = await _unitOfWork.Candidatos.EstaAsignadoAPuestoAsync(id);
+                CandidatoRules.ValidarPuedeDesactivarse(estaAsignado);
+            }
+
             // Si está activo (true), pasa a inactivo (false) y viceversa.
             candidato.Activo = !candidato.Activo;
 

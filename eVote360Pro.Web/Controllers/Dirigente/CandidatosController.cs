@@ -81,7 +81,7 @@ public class CandidatosController : Controller
 
             if (vm.FotoArchivo != null)
             {
-                dto.FotoUrl = SubidaArchivo.Subir(vm.FotoArchivo, "candidatos");
+                dto.FotoUrl = SubidaArchivo.Subir(vm.FotoArchivo, "candidatos") ?? string.Empty;
             }
 
             await _candidatoService.CrearAsync(dto);
@@ -129,11 +129,11 @@ public class CandidatosController : Controller
 
             if (vm.FotoArchivo != null)
             {
-                dto.FotoUrl = SubidaArchivo.Subir(vm.FotoArchivo, "candidatos", isEditMode: true, imagePath: vm.FotoUrlExistente);
+                dto.FotoUrl = SubidaArchivo.Subir(vm.FotoArchivo, "candidatos", isEditMode: true, imagePath: vm.FotoUrlExistente) ?? string.Empty;
             }
             else
             {
-                dto.FotoUrl = vm.FotoUrlExistente;
+                dto.FotoUrl = vm.FotoUrlExistente ?? string.Empty;
             }
 
             await _candidatoService.ActualizarAsync(id, dto);
@@ -161,7 +161,19 @@ public class CandidatosController : Controller
         if (candidatoDto.PartidoPoliticoId != ObtenerPartidoIdDirigente())
             return Forbid();
 
-        await _candidatoService.CambiarEstadoAsync(id);
+        try
+        {
+            await _candidatoService.CambiarEstadoAsync(id);
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        catch (ValidacionException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        
         return RedirectToAction(nameof(Index));
     }
 

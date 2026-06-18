@@ -35,22 +35,22 @@ public class PerfilGeneral : Profile
         CreateMap<AsignacionDirigente, AsignacionDirigenteDto>()
             .ForMember(dest => dest.NombreDirigente, opt => opt.MapFrom(src => $"{src.Usuario.Nombre} {src.Usuario.Apellido}"))
             .ForMember(dest => dest.NombrePartido, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre))
-            .ForMember(dest => dest.SiglaPartido, opt => opt.MapFrom(src => src.PartidoPolitico.Siglas))
-            .ReverseMap();
+            .ForMember(dest => dest.SiglaPartido, opt => opt.MapFrom(src => src.PartidoPolitico.Siglas));
+        CreateMap<AsignacionDirigenteDto, AsignacionDirigente>();
 
         // =========================================================
         // MAPEOS COMPLEJOS (Con lógica o relaciones)
         // =========================================================
         CreateMap<Candidato, CandidatoDto>()
             .ForMember(dest => dest.NombrePartido, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre))
-            .ForMember(dest => dest.LogoPartido, opt => opt.MapFrom(src => src.PartidoPolitico.LogoRuta))
-            .ReverseMap();
+            .ForMember(dest => dest.LogoPartido, opt => opt.MapFrom(src => src.PartidoPolitico.LogoRuta));
+        CreateMap<CandidatoDto, Candidato>();
 
         CreateMap<AsignacionCandidatoPuesto, AsignacionCandidatoPuestoDto>()
             .ForMember(dest => dest.CandidatoNombreCompleto, opt => opt.MapFrom(src => $"{src.Candidato.Nombre} {src.Candidato.Apellido}"))
             .ForMember(dest => dest.PuestoNombre, opt => opt.MapFrom(src => src.PuestoElectivo.Nombre))
-            .ForMember(dest => dest.PartidoNombre, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre))
-            .ReverseMap();
+            .ForMember(dest => dest.PartidoNombre, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre));
+        CreateMap<AsignacionCandidatoPuestoDto, AsignacionCandidatoPuesto>();
 
         // =========================================================
         // MAPEOS DE VISTAS Y FORMULARIOS (ViewModels <-> DTO)

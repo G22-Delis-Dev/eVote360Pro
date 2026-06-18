@@ -14,6 +14,7 @@ public class AsignacionesController : Controller
     private readonly IAsignacionCandidatoPuestoService _asignacionService;
     private readonly ICandidatoService _candidatoService;
     private readonly IPuestoElectivoService _puestoService;
+    private readonly IAlianzaPoliticaService _alianzaService;
     private readonly IMapper _mapper;
     private readonly eVote360Pro.Application.Interfaces.ISesionUsuario _sesionUsuario;
 
@@ -21,12 +22,14 @@ public class AsignacionesController : Controller
         IAsignacionCandidatoPuestoService asignacionService,
         ICandidatoService candidatoService,
         IPuestoElectivoService puestoService,
+        IAlianzaPoliticaService alianzaService,
         IMapper mapper,
         eVote360Pro.Application.Interfaces.ISesionUsuario sesionUsuario)
     {
         _asignacionService = asignacionService;
         _candidatoService = candidatoService;
         _puestoService = puestoService;
+        _alianzaService = alianzaService;
         _mapper = mapper;
         _sesionUsuario = sesionUsuario;
     }
@@ -140,11 +143,37 @@ public class AsignacionesController : Controller
     {
         int partidoId = ObtenerPartidoIdDirigente();
 
-        // Solo se cargan los candidatos del partido del dirigente (propios)
-        var candidatos = await _candidatoService.ObtenerPorPartidoAsync(partidoId);
+        // Cargar candidatos del partido del dirigente (propios)
+        var candidatosPropios = await _candidatoService.ObtenerPorPartidoAsync(partidoId);
+        
+        var selectListItems = candidatosPropios.Select(c => new { 
+            c.Id, 
+            NombreCompleto = c.NombreCompleto 
+        }).ToList();
+        
+        // Cargar candidatos aliados
+        var alianzasVigentes = await _alianzaService.ObtenerAlianzasVigentesAsync(partidoId);
+        
+        foreach (var alianza in alianzasVigentes)
+        {
+            int partidoAliadoId = alianza.PartidoSolicitanteId == partidoId ? alianza.PartidoReceptorId : alianza.PartidoSolicitanteId;
+            var nombreAliado = alianza.PartidoSolicitanteId == partidoId ? alianza.PartidoReceptorNombre : alianza.PartidoSolicitanteNombre;
+            
+            var candidatosDeAliado = await _candidatoService.ObtenerPorPartidoAsync(partidoAliadoId);
+            
+            // Añadir prefijo para distinguirlos
+            foreach (var c in candidatosDeAliado)
+            {
+                selectListItems.Add(new { 
+                    c.Id, 
+                    NombreCompleto = $"[Aliado: {nombreAliado}] {c.NombreCompleto}" 
+                });
+            }
+        }
+        
         var puestos = await _puestoService.ObtenerTodosAsync();
 
-        ViewBag.Candidatos = new SelectList(candidatos, "Id", "NombreCompleto", candidatoId);
+        ViewBag.Candidatos = new SelectList(selectListItems, "Id", "NombreCompleto", candidatoId);
         ViewBag.Puestos = new SelectList(puestos.Where(p => p.Activo), "Id", "Nombre", puestoId);
     }
 }

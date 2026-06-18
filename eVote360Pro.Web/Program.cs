@@ -1,11 +1,11 @@
-using eVote360Pro.Infrastructure; // Importante para acceder al m�todo de extensi�n
+using eVote360Pro.Infrastructure; // Importante para acceder al m�todo de extension
 
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Inyectar todo desde Infraestructura (incluye DB, Repositorios, Servicios y AutoMapper)
 builder.Services.AgregarCapaInfraestructura(builder.Configuration);
 
-// 2. Otros registros que deben ser espec�ficos de la capa Web
+// 2. Otros registros que deben ser especificos de la capa Web
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

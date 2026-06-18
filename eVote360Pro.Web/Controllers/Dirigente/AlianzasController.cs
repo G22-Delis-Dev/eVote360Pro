@@ -35,6 +35,7 @@ public class AlianzasController : Controller
     public async Task<IActionResult> Index()
     {
         int partidoId = ObtenerPartidoIdDirigente();
+        ViewBag.PartidoId = partidoId;
 
         // Solo se muestran las alianzas donde el partido del dirigente es solicitante o receptor
         var dtos = await _alianzaService.ObtenerPorPartidoAsync(partidoId);
@@ -81,7 +82,37 @@ public class AlianzasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Responder(int id, EstadoAlianza nuevoEstado)
     {
-        await _alianzaService.ResponderSolicitudAsync(id, nuevoEstado);
+        try
+        {
+            await _alianzaService.ResponderSolicitudAsync(id, nuevoEstado);
+        }
+        catch (eVote360Pro.Domain.Exceptions.ValidacionException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _alianzaService.EliminarAsync(id);
+        }
+        catch (eVote360Pro.Domain.Exceptions.ValidacionException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
         return RedirectToAction(nameof(Index));
     }
 
