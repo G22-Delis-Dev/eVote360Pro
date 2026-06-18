@@ -19,11 +19,33 @@ public class CandidatoRepository : GenericRepository<Candidato>, ICandidatoRepos
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Candidato>> GetActivosByPartidosAsync(IEnumerable<int> partidoIds)
+    {
+        // Trae candidatos activos de múltiples partidos (para candidatos aliados)
+        // Incluye el partido de origen para poder mostrarlo en el dropdown
+        return await _dbSet
+            .Include(c => c.PartidoPolitico)
+            .Where(c => partidoIds.Contains(c.PartidoPoliticoId) && c.Activo)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Candidato>> GetByPartidoConPuestosAsync(int partidoId)
+    {
+        // Trae candidatos del partido incluyendo sus asignaciones de puesto (activas)
+        // y el partido, necesario para el mapeo completo de la vista
+        return await _dbSet
+            .Include(c => c.PartidoPolitico)
+            .Include(c => c.AsignacionesPuestos.Where(a => a.Activo))
+                .ThenInclude(a => a.PuestoElectivo)
+            .Where(c => c.PartidoPoliticoId == partidoId)
+            .ToListAsync();
+    }
+
     public async Task<bool> EstaAsignadoAPuestoAsync(int candidatoId)
     {
-        // Valida si el candidato ya fue inscrito en alguna boleta (asignado a un puesto)
+        // Valida si el candidato tiene una asignación de puesto activa (no eliminada lógicamente)
         return await _dbSet
-            .AnyAsync(c => c.Id == candidatoId && c.AsignacionesPuestos.Any());
+            .AnyAsync(c => c.Id == candidatoId && c.AsignacionesPuestos.Any(a => a.Activo));
     }
 
     public async Task<bool> ParticipoEnEleccionAsync(int candidatoId)

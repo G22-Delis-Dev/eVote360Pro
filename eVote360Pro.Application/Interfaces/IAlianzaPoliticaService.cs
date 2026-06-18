@@ -6,7 +6,7 @@ namespace eVote360Pro.Application.Interfaces;
 public interface IAlianzaPoliticaService : IGenericService<AlianzaPoliticaDto>
 {
     Task<IEnumerable<AlianzaPoliticaDto>> ObtenerPorPartidoAsync(int partidoId);
-
-    // Método específico para el negocio de alianzas
     Task ResponderSolicitudAsync(int id, EstadoAlianza nuevoEstado);
+    Task CancelarSolicitudAsync(int id, int partidoSolicitanteId);
+    Task RomperAlianzaAsync(int id, int partidoId);
 }

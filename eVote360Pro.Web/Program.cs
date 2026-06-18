@@ -1,15 +1,26 @@
-using eVote360Pro.Infrastructure; // Importante para acceder al m�todo de extensi�n
+using eVote360Pro.Application.Interfaces;
+using eVote360Pro.Infrastructure; // Importante para acceder al método de extensión
+using eVote360Pro.Infrastructure.Services;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Escuchar en todas las interfaces para acceso desde red local
+builder.WebHost.UseUrls("http://0.0.0.0:5071", "https://localhost:7089");
 
 // 1. Inyectar todo desde Infraestructura (incluye DB, Repositorios, Servicios y AutoMapper)
 builder.Services.AgregarCapaInfraestructura(builder.Configuration);
 
-// 2. Otros registros que deben ser espec�ficos de la capa Web
+// 2. Otros registros específicos de la capa Web
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<eVote360Pro.Application.Interfaces.ISesionUsuario, eVote360Pro.Web.Middlewares.SesionUsuario>();
+
+// Sobreescribir el OcrService para que use la ruta absoluta de tessdata
+var tessDataPath = Path.Combine(builder.Environment.ContentRootPath, "tessdata");
+builder.Services.AddScoped<IOcrService>(_ => new OcrService(tessDataPath));
 
 builder.Services.AddSession(options =>
 {
@@ -41,6 +52,16 @@ using (var scope = app.Services.CreateScope())
 }
 
 // 3. Pipeline HTTP
+
+// Soporte para ngrok y proxies inversos (ForwardedHeaders)
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost,
+    // Aceptar cualquier proxy (ngrok, red local, etc.)
+    KnownNetworks = { new Microsoft.AspNetCore.HttpOverrides.IPNetwork(IPAddress.Parse("0.0.0.0"), 0) },
+    KnownProxies = { }
+});
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -49,10 +70,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseSession();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseSession();
 
 app.MapControllerRoute(
     name: "default",

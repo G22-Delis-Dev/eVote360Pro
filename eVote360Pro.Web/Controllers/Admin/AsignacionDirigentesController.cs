@@ -98,24 +98,16 @@ public class AsignacionDirigentesController : Controller
         var dirigentes = await _asignacionService.ObtenerDirigentesDisponiblesAsync();
         var partidos = await _asignacionService.ObtenerPartidosDisponiblesAsync();
 
-        vm.DirigentesDisponibles = dirigentes.Select(d =>
+        vm.DirigentesDisponibles = dirigentes.Select(d => new SelectListItem
         {
-            var type = d.GetType();
-            return new SelectListItem
-            {
-                Value = type.GetProperty("Value")?.GetValue(d)?.ToString(),
-                Text = type.GetProperty("Text")?.GetValue(d)?.ToString()
-            };
+            Value = d.Value.ToString(),
+            Text = d.Text
         });
 
-        vm.PartidosDisponibles = partidos.Select(p =>
+        vm.PartidosDisponibles = partidos.Select(p => new SelectListItem
         {
-            var type = p.GetType();
-            return new SelectListItem
-            {
-                Value = type.GetProperty("Value")?.GetValue(p)?.ToString(),
-                Text = type.GetProperty("Text")?.GetValue(p)?.ToString()
-            };
+            Value = p.Value.ToString(),
+            Text = p.Text
         });
     }
 }

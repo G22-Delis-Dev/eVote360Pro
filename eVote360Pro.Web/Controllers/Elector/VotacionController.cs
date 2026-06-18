@@ -2,6 +2,7 @@ using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Votacion;
 using eVote360Pro.Domain.Exceptions;
+using eVote360Pro.Web.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eVote360Pro.Web.Controllers.Elector
@@ -9,6 +10,9 @@ namespace eVote360Pro.Web.Controllers.Elector
     public class VotacionController : Controller
     {
         private readonly IVotacionService _votacionService;
+
+        // Clave de sesión para el estado del flujo de votación
+        private const string SesionVotacionKey = "VotacionSesion";
 
         private static readonly string[] FormatosPermitidos = [".jpg", ".jpeg", ".png"];
 
@@ -22,17 +26,18 @@ namespace eVote360Pro.Web.Controllers.Elector
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            // Limpiar cualquier sesión de votación anterior al iniciar
+            HttpContext.Session.Remove(SesionVotacionKey);
+
             var eleccionActiva = await _votacionService.ObtenerEleccionActivaAsync();
             if (eleccionActiva == null)
-            {
                 return View("SinElecciones");
-            }
 
             var vm = new InicioVotacionViewModel
             {
-                EleccionId = eleccionActiva.Id,
-                EleccionNombre = eleccionActiva.Nombre,
-                FechaRealizacion = eleccionActiva.FechaRealizacion
+                EleccionId          = eleccionActiva.Id,
+                EleccionNombre      = eleccionActiva.Nombre,
+                FechaRealizacion    = eleccionActiva.FechaRealizacion
             };
 
             return View(vm);
@@ -52,21 +57,28 @@ namespace eVote360Pro.Web.Controllers.Elector
         {
             if (!ModelState.IsValid) return View(vm);
 
+            // Normalizar cédula: quitar guiones y espacios innecesarios
+            vm.NumeroDocumento = vm.NumeroDocumento.Replace("-", "").Replace(" ", "").Trim();
+
             var eleccion = await _votacionService.ObtenerEleccionActivaAsync();
             if (eleccion == null) return RedirectToAction(nameof(Index));
 
             try
             {
-                // Validar que el ciudadano existe, está activo y no ha votado
                 var ciudadano = await _votacionService.ValidarCiudadanoParaVotarAsync(vm.Cedula, eleccion.Id);
 
-                // Redirigir al paso OCR con los datos necesarios
-                return RedirectToAction(nameof(ValidarOcr), new
+                // Guardar estado en sesión — ya no viaja en la URL
+                var sesion = new VotacionSesionData
                 {
-                    ciudadanoId = ciudadano.Id,
-                    eleccionId = eleccion.Id,
-                    cedulaIngresada = vm.Cedula
-                });
+                    CiudadanoId      = ciudadano.Id,
+                    EleccionId       = eleccion.Id,
+                    CedulaIngresada  = vm.Cedula,
+                    CorreoElectronico = ciudadano.CorreoElectronico,
+                    PasoActual       = PasoVotacion.IdentidadValidada
+                };
+                HttpContext.Session.Set(SesionVotacionKey, sesion);
+
+                return RedirectToAction(nameof(ValidarOcr));
             }
             catch (ValidacionException ex)
             {
@@ -75,16 +87,20 @@ namespace eVote360Pro.Web.Controllers.Elector
             }
         }
 
-        // ─── PASO 2: VALIDACIÓN OCR (IMAGEN DE CÉDULA) ───────────────────────────
+        // ─── PASO 2: VALIDACIÓN OCR ───────────────────────────────────────────────
 
         [HttpGet]
-        public IActionResult ValidarOcr(int ciudadanoId, int eleccionId, string cedulaIngresada)
+        public IActionResult ValidarOcr()
         {
+            var sesion = HttpContext.Session.Get<VotacionSesionData>(SesionVotacionKey);
+            if (sesion == null || sesion.PasoActual < PasoVotacion.IdentidadValidada)
+                return RedirectToAction(nameof(ValidarIdentidad));
+
             var vm = new ValidacionOcrViewModel
             {
-                CiudadanoId = ciudadanoId,
-                EleccionId = eleccionId,
-                CedulaIngresada = cedulaIngresada
+                CiudadanoId     = sesion.CiudadanoId,
+                EleccionId      = sesion.EleccionId,
+                CedulaIngresada = sesion.CedulaIngresada
             };
             return View(vm);
         }
@@ -93,53 +109,66 @@ namespace eVote360Pro.Web.Controllers.Elector
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ValidarOcr(ValidacionOcrViewModel vm)
         {
-            // Validar que se subió un archivo
+            var sesion = HttpContext.Session.Get<VotacionSesionData>(SesionVotacionKey);
+            if (sesion == null || sesion.PasoActual < PasoVotacion.IdentidadValidada)
+                return RedirectToAction(nameof(ValidarIdentidad));
+
             if (vm.ImagenCedula == null || vm.ImagenCedula.Length == 0)
             {
                 ModelState.AddModelError(string.Empty, "Debe subir una imagen de su cédula para validar su identidad.");
+                vm.CiudadanoId     = sesion.CiudadanoId;
+                vm.EleccionId      = sesion.EleccionId;
+                vm.CedulaIngresada = sesion.CedulaIngresada;
                 return View(vm);
             }
 
-            // Validar el formato del archivo
             var extension = Path.GetExtension(vm.ImagenCedula.FileName).ToLowerInvariant();
             if (!FormatosPermitidos.Contains(extension))
             {
-                ModelState.AddModelError(string.Empty, "El archivo seleccionado no tiene un formato de imagen válido.");
+                ModelState.AddModelError(string.Empty, "El archivo seleccionado no tiene un formato de imagen válido. Use JPG, JPEG o PNG.");
+                vm.CiudadanoId     = sesion.CiudadanoId;
+                vm.EleccionId      = sesion.EleccionId;
+                vm.CedulaIngresada = sesion.CedulaIngresada;
                 return View(vm);
             }
 
             try
             {
-                // Procesar OCR y validar coincidencia con la cédula ingresada
                 using var stream = vm.ImagenCedula.OpenReadStream();
-                await _votacionService.ValidarOcrAsync(vm.CedulaIngresada, stream);
+                await _votacionService.ValidarOcrAsync(sesion.CedulaIngresada, stream);
 
-                // OCR exitoso: generar y enviar código por correo
-                await _votacionService.GenerarYEnviarCodigoAsync(vm.CiudadanoId, vm.EleccionId);
+                await _votacionService.GenerarYEnviarCodigoAsync(sesion.CiudadanoId, sesion.EleccionId);
 
-                // Obtener correo para mostrarlo oculto en la siguiente pantalla
-                return RedirectToAction(nameof(VerificarCodigo), new
-                {
-                    ciudadanoId = vm.CiudadanoId,
-                    eleccionId = vm.EleccionId
-                });
+                // Avanzar paso en sesión
+                sesion.PasoActual = PasoVotacion.OcrValidado;
+                HttpContext.Session.Set(SesionVotacionKey, sesion);
+
+                return RedirectToAction(nameof(VerificarCodigo));
             }
             catch (ValidacionException ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
+                vm.CiudadanoId     = sesion.CiudadanoId;
+                vm.EleccionId      = sesion.EleccionId;
+                vm.CedulaIngresada = sesion.CedulaIngresada;
                 return View(vm);
             }
         }
 
-        // ─── PASO 3: VERIFICACIÓN DE CÓDIGO POR CORREO ───────────────────────────
+        // ─── PASO 3: VERIFICACIÓN DE CÓDIGO ──────────────────────────────────────
 
         [HttpGet]
-        public IActionResult VerificarCodigo(int ciudadanoId, int eleccionId)
+        public IActionResult VerificarCodigo()
         {
+            var sesion = HttpContext.Session.Get<VotacionSesionData>(SesionVotacionKey);
+            if (sesion == null || sesion.PasoActual < PasoVotacion.OcrValidado)
+                return RedirectToAction(nameof(ValidarIdentidad));
+
             var vm = new VerificacionCodigoViewModel
             {
-                CiudadanoId = ciudadanoId,
-                EleccionId = eleccionId
+                CiudadanoId            = sesion.CiudadanoId,
+                EleccionId             = sesion.EleccionId,
+                CorreoElectronicoOculto = OcultarCorreo(sesion.CorreoElectronico)
             };
             return View(vm);
         }
@@ -148,19 +177,29 @@ namespace eVote360Pro.Web.Controllers.Elector
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerificarCodigo(VerificacionCodigoViewModel vm)
         {
-            if (!ModelState.IsValid) return View(vm);
+            var sesion = HttpContext.Session.Get<VotacionSesionData>(SesionVotacionKey);
+            if (sesion == null || sesion.PasoActual < PasoVotacion.OcrValidado)
+                return RedirectToAction(nameof(ValidarIdentidad));
+
+            if (!ModelState.IsValid)
+            {
+                vm.CorreoElectronicoOculto = OcultarCorreo(sesion.CorreoElectronico);
+                return View(vm);
+            }
 
             try
             {
-                // Confirmar que el código es válido, no ha expirado y no fue usado
-                await _votacionService.ValidarCodigoVerificacionAsync(vm.CiudadanoId, vm.EleccionId, vm.Codigo);
+                await _votacionService.ValidarCodigoVerificacionAsync(sesion.CiudadanoId, sesion.EleccionId, vm.Codigo);
 
-                // Acceso concedido a la boleta electoral
-                return RedirectToAction(nameof(Boleta), new { ciudadanoId = vm.CiudadanoId, eleccionId = vm.EleccionId });
+                sesion.PasoActual = PasoVotacion.CodigoValidado;
+                HttpContext.Session.Set(SesionVotacionKey, sesion);
+
+                return RedirectToAction(nameof(Boleta));
             }
             catch (ValidacionException ex)
             {
                 ModelState.AddModelError(string.Empty, ex.Message);
+                vm.CorreoElectronicoOculto = OcultarCorreo(sesion.CorreoElectronico);
                 return View(vm);
             }
         }
@@ -168,16 +207,33 @@ namespace eVote360Pro.Web.Controllers.Elector
         // ─── PASO 4: BOLETA ELECTORAL ─────────────────────────────────────────────
 
         [HttpGet]
-        public async Task<IActionResult> Boleta(int ciudadanoId, int eleccionId)
+        public async Task<IActionResult> Boleta()
         {
-            var boletaDto = await _votacionService.ObtenerBoletaElectoralAsync(eleccionId);
+            var sesion = HttpContext.Session.Get<VotacionSesionData>(SesionVotacionKey);
+            if (sesion == null || sesion.PasoActual < PasoVotacion.CodigoValidado)
+                return RedirectToAction(nameof(ValidarIdentidad));
 
-            ViewBag.BoletaElectoral = boletaDto;
+            var boletaDto = await _votacionService.ObtenerBoletaElectoralAsync(sesion.EleccionId);
 
             var vm = new BoletaElectoralViewModel
             {
-                CiudadanoId = ciudadanoId,
-                EleccionId = eleccionId
+                CiudadanoId = sesion.CiudadanoId,
+                VotanteId   = sesion.CiudadanoId,
+                EleccionId  = sesion.EleccionId,
+                Puestos     = boletaDto.Select(p => new PuestoBoletaViewModel
+                {
+                    PuestoId    = p.PuestoId,
+                    PuestoNombre = p.PuestoNombre,
+                    Candidatos  = p.Candidatos.Select(c => new CandidatoBoletaViewModel
+                    {
+                        CandidatoId       = c.CandidatoId,
+                        CandidatoNombre   = c.NombreCompleto,
+                        FotoCandidatoUrl  = c.FotoUrl,
+                        PartidoPoliticoId = c.PartidoPoliticoId,
+                        PartidoNombre     = c.PartidoNombre,
+                        LogoPartidoUrl    = c.LogoPartido
+                    }).ToList()
+                }).ToList()
             };
 
             return View(vm);
@@ -187,27 +243,64 @@ namespace eVote360Pro.Web.Controllers.Elector
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Boleta(BoletaElectoralViewModel vm)
         {
+            var sesion = HttpContext.Session.Get<VotacionSesionData>(SesionVotacionKey);
+            if (sesion == null || sesion.PasoActual < PasoVotacion.CodigoValidado)
+                return RedirectToAction(nameof(ValidarIdentidad));
+
+            // Validar que todos los puestos tienen selección (-1 = voto en blanco, es válido)
+            if (vm.Puestos == null || !vm.Puestos.Any() ||
+                vm.Puestos.Any(p => !p.CandidatoSeleccionadoId.HasValue))
+            {
+                ModelState.AddModelError(string.Empty, "Debe realizar una selección para todos los puestos electivos antes de continuar.");
+                await RepoblarCandidatos(vm, sesion.EleccionId);
+                return View(vm);
+            }
+
             try
             {
-                var votosDto = vm.Selecciones.Select(s => new VotoDto
+                // -1 indica voto en blanco (Ninguno), se convierte a null al guardar
+                var votosDto = vm.Puestos.Select(p => new VotoDto
                 {
-                    EleccionId = vm.EleccionId,
-                    PuestoElectivoId = s.PuestoElectivoId,
-                    CandidatoId = s.CandidatoId,
-                    PartidoPoliticoId = s.PartidoPoliticoId
+                    EleccionId        = sesion.EleccionId,
+                    PuestoElectivoId  = p.PuestoId,
+                    CandidatoId       = p.CandidatoSeleccionadoId == -1 ? null : p.CandidatoSeleccionadoId,
+                    PartidoPoliticoId = null // anónimo — se resuelve por candidato en la capa de servicio
                 });
 
-                await _votacionService.ProcesarVotacionAsync(vm.CiudadanoId, vm.EleccionId, votosDto);
+                await _votacionService.ProcesarVotacionAsync(sesion.CiudadanoId, sesion.EleccionId, votosDto);
+
+                // Limpiar sesión de votación al finalizar
+                HttpContext.Session.Remove(SesionVotacionKey);
 
                 return RedirectToAction(nameof(ConfirmacionVoto));
             }
             catch (Exception)
             {
-                ModelState.AddModelError(string.Empty, "Ocurrió un error crítico de consistencia procesando su votación. Por favor, reintente.");
-
-                var boletaDto = await _votacionService.ObtenerBoletaElectoralAsync(vm.EleccionId);
-                ViewBag.BoletaElectoral = boletaDto;
+                ModelState.AddModelError(string.Empty, "Ocurrió un error procesando su votación. Por favor, reintente.");
+                await RepoblarCandidatos(vm, sesion.EleccionId);
                 return View(vm);
+            }
+        }
+
+        private async Task RepoblarCandidatos(BoletaElectoralViewModel vm, int eleccionId)
+        {
+            var boletaDto = await _votacionService.ObtenerBoletaElectoralAsync(eleccionId);
+            if (vm.Puestos == null) return;
+            foreach (var puesto in vm.Puestos)
+            {
+                var puestoDto = boletaDto.FirstOrDefault(p => p.PuestoId == puesto.PuestoId);
+                if (puestoDto != null)
+                {
+                    puesto.Candidatos = puestoDto.Candidatos.Select(c => new CandidatoBoletaViewModel
+                    {
+                        CandidatoId      = c.CandidatoId,
+                        CandidatoNombre  = c.NombreCompleto,
+                        FotoCandidatoUrl = c.FotoUrl,
+                        PartidoPoliticoId = c.PartidoPoliticoId,
+                        PartidoNombre    = c.PartidoNombre,
+                        LogoPartidoUrl   = c.LogoPartido
+                    }).ToList();
+                }
             }
         }
 
@@ -222,5 +315,37 @@ namespace eVote360Pro.Web.Controllers.Elector
             };
             return View(vm);
         }
+
+        // ─── HELPERS ──────────────────────────────────────────────────────────────
+
+        private static string OcultarCorreo(string? correo)
+        {
+            if (string.IsNullOrWhiteSpace(correo)) return "correo registrado";
+            var partes = correo.Split('@');
+            if (partes.Length != 2) return "****@****";
+            var usuario = partes[0];
+            var visible = usuario.Length > 2 ? usuario[..2] : usuario;
+            return $"{visible}***@{partes[1]}";
+        }
+    }
+
+    // ─── MODELO DE SESIÓN (solo para este flujo) ──────────────────────────────
+
+    public class VotacionSesionData
+    {
+        public int CiudadanoId { get; set; }
+        public int EleccionId { get; set; }
+        public string CedulaIngresada { get; set; } = string.Empty;
+        public string? CorreoElectronico { get; set; }
+        public PasoVotacion PasoActual { get; set; }
+    }
+
+    public enum PasoVotacion
+    {
+        Inicio            = 0,
+        IdentidadValidada = 1,
+        OcrValidado       = 2,
+        CodigoValidado    = 3,
+        VotoEmitido       = 4
     }
 }

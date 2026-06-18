@@ -4,6 +4,7 @@ using eVote360Pro.Domain.Exceptions;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Domain.Entities;
 using eVote360Pro.Domain.Interfaces.Repositories;
+using eVote360Pro.Domain.Rules;
 
 namespace eVote360Pro.Application.Services;
 
@@ -17,9 +18,29 @@ public class AsignacionCandidatoPuestoService : GenericService<AsignacionCandida
     //  Validar que no exista duplicado antes de crear
     public override async Task<AsignacionCandidatoPuestoDto> CrearAsync(AsignacionCandidatoPuestoDto dto)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         if (dto.CandidatoId <= 0 || dto.PuestoElectivoId <= 0 || dto.PartidoPoliticoId <= 0)
         {
             throw new ValidacionException("Debe seleccionar un candidato, un puesto electivo y un partido político válidos.");
+        }
+
+        // Si es un candidato aliado, validar que aspira al mismo puesto que tiene en su partido de origen
+        if (dto.EsAliado)
+        {
+            // Buscar en qué puesto está asignado este candidato en su partido de origen
+            var asignacionOrigen = await _unitOfWork.AsignacionesCandidatos
+                .FindAsync(a => a.CandidatoId == dto.CandidatoId && !a.EsAliado && a.Activo);
+
+            var asignacionOriginal = asignacionOrigen.FirstOrDefault();
+
+            if (asignacionOriginal == null)
+                throw new ValidacionException("El candidato aliado no tiene un puesto asignado en su partido de origen.");
+
+            AsignacionCandidatoRules.ValidarCandidatoAliadoMismoPuesto(
+                asignacionOriginal.PuestoElectivoId,
+                dto.PuestoElectivoId);
         }
 
         // Validar reglas de negocio usando el repositorio
@@ -50,6 +71,9 @@ public class AsignacionCandidatoPuestoService : GenericService<AsignacionCandida
     // Validaciones específicas al actualizar
     public override async Task ActualizarAsync(int id, AsignacionCandidatoPuestoDto dto)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         var asignacionExistente = await _repository.GetByIdAsync(id);
         if (asignacionExistente == null)
         {
@@ -93,5 +117,13 @@ public class AsignacionCandidatoPuestoService : GenericService<AsignacionCandida
         // Se llama al método específico que incluye las relaciones (Candidato, PuestoElectivo, PartidoPolitico)
         var asignaciones = await _unitOfWork.AsignacionesCandidatos.GetByPartidoAsync(partidoId);
         return _mapper.Map<IEnumerable<AsignacionCandidatoPuestoDto>>(asignaciones);
+    }
+
+    public override async Task EliminarAsync(int id)
+    {
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
+        await base.EliminarAsync(id);
     }
 }

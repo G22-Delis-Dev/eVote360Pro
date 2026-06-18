@@ -18,10 +18,10 @@
     </div>
 </div>
 
-<form asp-action="ConfirmarVoto" method="post" id="boletaForm">
+    <form asp-action="Boleta" method="post" id="boletaForm">
     @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="CiudadanoId" />
     <input type="hidden" asp-for="VotanteId" />
-    <input type="hidden" asp-for="TokenAutenticacion" />
     <input type="hidden" asp-for="EleccionId" />
 
     <div class="space-y-12 mb-12">
@@ -48,7 +48,7 @@
                         
                         <!-- Opción: Ninguno (Voto en Blanco) -->
                         <label class="relative cursor-pointer group">
-                            <input type="radio" asp-for="Puestos[i].CandidatoSeleccionadoId" value="" class="peer sr-only candidato-radio" onchange="actualizarProgreso()" />
+                            <input type="radio" asp-for="Puestos[i].CandidatoSeleccionadoId" value="-1" class="peer sr-only candidato-radio" onchange="actualizarProgreso()" />
                             <div class="h-full bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-elec-300 hover:bg-elec-50 transition-all peer-checked:border-elec-600 peer-checked:bg-elec-50 peer-checked:shadow-md flex flex-col items-center justify-center text-center min-h-[160px]">
                                 <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3 text-2xl group-hover:bg-white group-hover:text-elec-500 peer-checked:bg-white peer-checked:text-elec-600 transition-colors">
                                     ⚪
@@ -112,15 +112,16 @@
                     <p class="text-sm">Revisa tu boleta y haz clic en continuar cuando estés listo.</p>
                 </div>
             </div>
-            <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-elec-600 text-white font-bold rounded-xl hover:bg-elec-900 transition-colors shadow-md">
+            <button type="button" onclick="document.getElementById('boletaForm').submit()" class="w-full sm:w-auto px-8 py-3 bg-elec-600 text-white font-bold rounded-xl hover:bg-elec-900 transition-colors shadow-md">
                 Revisar y Continuar ➡️
             </button>
         </div>
     </div>
-    
-    <!-- Botón alternativo al final de la página (para móviles o si la barra flotante no se ve bien) -->
+
+    <!-- Botón fijo al final de la página -->
     <div class="text-center mt-8 pb-24">
-        <button type="button" id="btnSiguienteAlternativo" disabled class="px-8 py-4 bg-gray-300 text-gray-500 font-bold rounded-xl cursor-not-allowed transition-colors w-full sm:w-auto">
+        <button type="button" id="btnSiguienteAlternativo" disabled
+                class="px-8 py-4 bg-gray-300 text-gray-500 font-bold rounded-xl cursor-not-allowed transition-colors w-full sm:w-auto">
             Completa la selección para continuar
         </button>
     </div>

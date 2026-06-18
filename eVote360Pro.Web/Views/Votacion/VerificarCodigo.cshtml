@@ -20,7 +20,8 @@
 
     <form asp-action="VerificarCodigo" method="post" class="p-8">
         @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="VotanteId" />
+        <input type="hidden" asp-for="CiudadanoId" />
+        <input type="hidden" asp-for="EleccionId" />
         <input type="hidden" asp-for="CorreoElectronicoOculto" />
         
         <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>

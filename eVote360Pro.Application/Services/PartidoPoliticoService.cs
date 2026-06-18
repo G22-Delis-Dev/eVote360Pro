@@ -20,6 +20,9 @@ public class PartidoPoliticoService : GenericService<PartidoPolitico, PartidoPol
 
     public async Task CrearAsync(PartidoPoliticoDto dto, string rutaLogo)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         PartidoPoliticoRules.ValidarSiglasUnicas(
             await _unitOfWork.PartidosPoliticos.ExisteSiglasAsync(dto.Siglas));
 
@@ -34,6 +37,9 @@ public class PartidoPoliticoService : GenericService<PartidoPolitico, PartidoPol
 
     public async Task EditarAsync(PartidoPoliticoDto dto, string? rutaLogo)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         var partido = await _unitOfWork.PartidosPoliticos.GetByIdAsync(dto.Id)
             ?? throw new Domain.Exceptions.RegistroNoEncontradoException(nameof(PartidoPolitico), dto.Id);
 

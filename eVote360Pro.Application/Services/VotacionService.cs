@@ -36,7 +36,11 @@ public class VotacionService : IVotacionService
 
     public async Task<CiudadanoDto> ValidarCiudadanoParaVotarAsync(string cedula, int eleccionId)
     {
-        var ciudadanos = await _unitOfWork.Ciudadanos.FindAsync(c => c.NumeroDocumento == cedula);
+        // Normalizar: quitar espacios y guiones para comparación robusta
+        var cedulaNormalizada = cedula.Replace("-", "").Replace(" ", "").Trim();
+
+        var ciudadanos = await _unitOfWork.Ciudadanos.FindAsync(c =>
+            c.NumeroDocumento.Replace("-", "").Replace(" ", "") == cedulaNormalizada);
         var ciudadano = ciudadanos.FirstOrDefault();
 
         if (ciudadano == null)
@@ -187,7 +191,7 @@ public class VotacionService : IVotacionService
 
         try
         {
-            // 1. Quemar el código
+            // 1. Invalidar código activo
             var codigos = await _unitOfWork.CodigosVerificacion
                 .FindAsync(c => c.CiudadanoId == ciudadanoId && c.EleccionId == eleccionId && !c.Utilizado);
 
@@ -202,30 +206,111 @@ public class VotacionService : IVotacionService
             var participacion = new ParticipacionElectoral
             {
                 CiudadanoId = ciudadanoId,
-                EleccionId = eleccionId,
-                FechaVoto = DateTime.UtcNow
+                EleccionId  = eleccionId,
+                FechaVoto   = DateTime.UtcNow
             };
             await _unitOfWork.ParticipacionesElectorales.AddAsync(participacion);
 
-            // 3. Registrar Votos Anónimos
-            foreach (var voto in votos)
+            // 3. Registrar Votos Anónimos (con PartidoPoliticoId resuelto)
+            var votosList = votos.ToList();
+            foreach (var voto in votosList)
             {
+                int? partidoId = voto.PartidoPoliticoId;
+
+                // Resolver partido desde el candidato si no viene en el DTO
+                if (partidoId == null && voto.CandidatoId.HasValue)
+                {
+                    var asignacion = (await _unitOfWork.AsignacionesCandidatos
+                        .FindAsync(a => a.CandidatoId == voto.CandidatoId.Value
+                                     && a.PuestoElectivoId == voto.PuestoElectivoId))
+                        .FirstOrDefault();
+                    partidoId = asignacion?.PartidoPoliticoId;
+                }
+
                 var nuevoVoto = new Voto
                 {
-                    EleccionId = eleccionId,
-                    PuestoElectivoId = voto.PuestoElectivoId,
-                    CandidatoId = voto.CandidatoId,
-                    PartidoPoliticoId = voto.PartidoPoliticoId
+                    EleccionId        = eleccionId,
+                    PuestoElectivoId  = voto.PuestoElectivoId,
+                    CandidatoId       = voto.CandidatoId,
+                    PartidoPoliticoId = partidoId
                 };
                 await _unitOfWork.Votos.AddAsync(nuevoVoto);
             }
 
             await _unitOfWork.CommitTransactionAsync();
+
+            // 4. Enviar correo de resumen DESPUÉS de confirmar la transacción
+            await EnviarResumenPostVotacionAsync(ciudadanoId, eleccionId, votosList);
         }
         catch (Exception ex)
         {
             await _unitOfWork.RollbackTransactionAsync();
             throw new Exception("Ocurrió un error crítico al procesar la votación. Su voto no fue registrado.", ex);
+        }
+    }
+
+    private async Task EnviarResumenPostVotacionAsync(int ciudadanoId, int eleccionId, List<VotoDto> votos)
+    {
+        try
+        {
+            var ciudadano = await _unitOfWork.Ciudadanos.GetByIdAsync(ciudadanoId);
+            if (ciudadano == null || string.IsNullOrWhiteSpace(ciudadano.CorreoElectronico)) return;
+
+            var eleccion = await _unitOfWork.Elecciones.GetByIdAsync(eleccionId);
+            if (eleccion == null) return;
+
+            // Construir lista de votos para el resumen
+            var votosResumen = new List<VotoResumenDto>();
+            foreach (var voto in votos)
+            {
+                var puesto = await _unitOfWork.PuestosElectivos.GetByIdAsync(voto.PuestoElectivoId);
+                string puestoNombre = puesto?.Nombre ?? "Puesto desconocido";
+
+                string candidatoNombre = "Ninguno (Voto en Blanco)";
+                string partidoNombre   = "-";
+
+                if (voto.CandidatoId.HasValue && voto.CandidatoId.Value > 0)
+                {
+                    var candidato = await _unitOfWork.Candidatos.GetByIdAsync(voto.CandidatoId.Value);
+                    if (candidato != null)
+                        candidatoNombre = $"{candidato.Nombre} {candidato.Apellido}";
+
+                    // Resolver partido
+                    var asignacion = (await _unitOfWork.AsignacionesCandidatos
+                        .FindAsync(a => a.CandidatoId == voto.CandidatoId.Value
+                                     && a.PuestoElectivoId == voto.PuestoElectivoId))
+                        .FirstOrDefault();
+
+                    if (asignacion != null)
+                    {
+                        var partido = await _unitOfWork.PartidosPoliticos.GetByIdAsync(asignacion.PartidoPoliticoId);
+                        if (partido != null) partidoNombre = partido.Nombre;
+                    }
+                }
+
+                votosResumen.Add(new VotoResumenDto
+                {
+                    Puesto    = puestoNombre,
+                    Candidato = candidatoNombre,
+                    Partido   = partidoNombre
+                });
+            }
+
+            var resumen = new ResumenVotacionDto
+            {
+                NombreEleccion = eleccion.Nombre,
+                FechaEleccion  = DateTime.Now,
+                Votos          = votosResumen
+            };
+
+            await EnviarNotificacionVotoAsync(
+                ciudadano.CorreoElectronico,
+                $"{ciudadano.Nombre} {ciudadano.Apellido}",
+                resumen);
+        }
+        catch
+        {
+            // El correo de resumen es informativo — no debe revertir el voto ya guardado
         }
     }
 
@@ -249,7 +334,7 @@ public class VotacionService : IVotacionService
 
         // Normalizar ambos valores: quitar guiones y espacios para comparación robusta
         var cedulaNormalizada = cedulaIngresada.Replace("-", "").Replace(" ", "").Trim();
-        var ocrNormalizado = numeroExtraido.Replace("-", "").Replace(" ", "").Trim();
+        var ocrNormalizado    = numeroExtraido.Replace("-", "").Replace(" ", "").Trim();
 
         if (!string.Equals(cedulaNormalizada, ocrNormalizado, StringComparison.OrdinalIgnoreCase))
         {
