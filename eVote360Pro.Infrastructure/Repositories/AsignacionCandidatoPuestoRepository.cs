@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using eVote360Pro.Domain.Entities;
 using eVote360Pro.Domain.Interfaces.Repositories;
 using eVote360Pro.Infrastructure.Data;
@@ -17,6 +17,7 @@ public class AsignacionCandidatoPuestoRepository : GenericRepository<AsignacionC
         return await _dbSet
             .Include(a => a.Candidato)
             .Include(a => a.PuestoElectivo)
+            .Include(a => a.PartidoPolitico)
             .Where(a => a.PartidoPoliticoId == partidoId)
             .ToListAsync();
     }
@@ -24,13 +25,15 @@ public class AsignacionCandidatoPuestoRepository : GenericRepository<AsignacionC
     public async Task<bool> CandidatoTieneAsignacionEnPartidoAsync(int candidatoId, int partidoId)
     {
         // Evita que un mismo candidato sea postulado a dos puestos diferentes dentro de un mismo partido
-        return await _dbSet.AnyAsync(a => a.CandidatoId == candidatoId && a.PartidoPoliticoId == partidoId);
+        // Solo considera asignaciones activas (no eliminadas lógicamente)
+        return await _dbSet.AnyAsync(a => a.CandidatoId == candidatoId && a.PartidoPoliticoId == partidoId && a.Activo);
     }
 
     public async Task<bool> PuestoTieneAsignacionEnPartidoAsync(int puestoId, int partidoId)
     {
         // Evita que un partido registre a dos candidatos diferentes para el mismo puesto (ej. Dos presidentes)
-        return await _dbSet.AnyAsync(a => a.PuestoElectivoId == puestoId && a.PartidoPoliticoId == partidoId);
+        // Solo considera asignaciones activas (no eliminadas lógicamente)
+        return await _dbSet.AnyAsync(a => a.PuestoElectivoId == puestoId && a.PartidoPoliticoId == partidoId && a.Activo);
     }
 
     public async Task<bool> ExistenAsignacionesAliadasPorAlianzaAsync(int partidoAId, int partidoBId)

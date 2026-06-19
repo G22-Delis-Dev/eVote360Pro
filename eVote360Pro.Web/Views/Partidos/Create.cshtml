@@ -1,0 +1,88 @@
+@model eVote360Pro.Application.ViewModels.Partidos.PartidoCreateViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Nuevo Partido";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Nuevo Partido</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeAdmin" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><a asp-action="Index">Partidos</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Nuevo</span></li>
+        </ul>
+    </div>
+</div>
+
+<div class="card max-w-3xl">
+    <div class="card-header">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            Informacion del Partido
+        </h2>
+    </div>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="card-body">
+        @Html.AntiForgeryToken()
+        
+        <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Nombre -->
+            <div class="form-group md:col-span-2">
+                <label asp-for="Nombre" class="form-label">Nombre del Partido <span class="required">*</span></label>
+                <input asp-for="Nombre" class="form-input" placeholder="Ej. Partido Revolucionario..." />
+                <span asp-validation-for="Nombre" class="form-error"></span>
+            </div>
+
+            <!-- Siglas -->
+            <div class="form-group">
+                <label asp-for="Siglas" class="form-label">Siglas <span class="required">*</span></label>
+                <input asp-for="Siglas" class="form-input input-uppercase font-mono" placeholder="Ej. PRM" />
+                <span class="form-hint">Se convertira a mayusculas automaticamente.</span>
+                <span asp-validation-for="Siglas" class="form-error"></span>
+            </div>
+
+            <!-- Logo -->
+            <div class="form-group">
+                <label asp-for="LogoFile" class="form-label">Logo del Partido <span class="required">*</span></label>
+                <input type="file" asp-for="LogoFile" class="form-input" accept="image/*" />
+                <span class="form-hint">Formatos soportados: JPG, PNG, GIF. Max 2MB.</span>
+                <span asp-validation-for="LogoFile" class="form-error"></span>
+            </div>
+
+            <!-- Descripcion -->
+            <div class="form-group md:col-span-2">
+                <label asp-for="Descripcion" class="form-label">Descripcion <span class="required">*</span></label>
+                <textarea asp-for="Descripcion" class="form-input min-h-[100px]" rows="3" placeholder="Breve descripcion del partido..."></textarea>
+                <span asp-validation-for="Descripcion" class="form-error"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Guardar Partido
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

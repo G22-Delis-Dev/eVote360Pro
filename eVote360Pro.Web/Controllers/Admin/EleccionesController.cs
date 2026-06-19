@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Elecciones;
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eVote360Pro.Web.Controllers.Admin;
 
+[eVote360Pro.Web.Filters.ValidarSesion("Administrador")]
 public class EleccionesController : Controller
 {
     private readonly IEleccionService _eleccionService;
@@ -30,11 +31,15 @@ public class EleccionesController : Controller
         var dtos = await _eleccionService.ObtenerTodosAsync();
         var items = _mapper.Map<IEnumerable<EleccionItemViewModel>>(dtos);
 
+        var hayActiva = items.Any(e => e.Estado == EstadoEleccion.Activa);
+
         var vm = new EleccionListViewModel
         {
             Elecciones = items,
-            HayEleccionActiva = items.Any(e => e.Estado == EstadoEleccion.Activa)
+            HayEleccionActiva = hayActiva
         };
+
+        ViewBag.HayEleccionActiva = hayActiva;
 
         return View(vm);
     }
@@ -71,30 +76,56 @@ public class EleccionesController : Controller
         }
     }
 
-    public async Task<IActionResult> Activar(int id)
+    public async Task<IActionResult> Iniciar(int id)
     {
         try
         {
             await _eleccionService.ActivarAsync(id);
+            TempData["Success"] = "La elección se ha iniciado exitosamente.";
             return RedirectToAction(nameof(Index));
         }
-        catch
+        catch (ValidacionException ex)
         {
-            return RedirectToAction(nameof(Index)); // O manejar el error con un TempData
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Ocurrió un error inesperado al iniciar la elección: " + ex.Message;
+            return RedirectToAction(nameof(Index)); 
         }
     }
 
     public async Task<IActionResult> Finalizar(int id)
     {
-        await _eleccionService.FinalizarAsync(id);
-        return RedirectToAction(nameof(Index));
+        try
+        {
+            await _eleccionService.FinalizarAsync(id);
+            TempData["Success"] = "La elección se ha finalizado exitosamente.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (ValidacionException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Ocurrió un error inesperado al finalizar la elección: " + ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     public async Task<IActionResult> Resultados(int id)
     {
         var dto = await _eleccionService.ObtenerResultadosAsync(id);
 
-        // Mapeamos el DTO de resultados a tu ViewModel de Resultados
+        // Mapeamos el DTO de resultados al ViewModel de Resultados
         var vm = _mapper.Map<EleccionResultadoViewModel>(dto);
 
         return View(vm);
@@ -102,7 +133,7 @@ public class EleccionesController : Controller
 
     private async Task CargarDropdownPuestosAsync(EleccionCreateViewModel vm)
     {
-        var puestos = await _puestoService.ObtenerTodosAsync(); // Ajusta según tu servicio
+        var puestos = await _puestoService.ObtenerTodosAsync(); 
         vm.PuestosDisponibles = puestos.Select(p => new SelectListItem
         {
             Value = p.Id.ToString(),

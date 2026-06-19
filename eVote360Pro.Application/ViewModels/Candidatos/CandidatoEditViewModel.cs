@@ -14,9 +14,17 @@ public class CandidatoEditViewModel
     public string Apellido { get; set; } = string.Empty;
 
     // El PartidoPoliticoId ya no es seleccionable, se toma automáticamente del dirigente autenticado
+    public string NumeroDocumento { get; set; } = string.Empty;
+    public bool DocumentoEsEditable { get; set; }
 
     [Display(Name = "Nueva Foto del Candidato (Opcional)")]
-    public IFormFile? FotoArchivo { get; set; }
+    public IFormFile? NuevaFoto { get; set; }
+    public IFormFile? FotoArchivo { get => NuevaFoto; set => NuevaFoto = value; }
+    public IFormFile? FotoFile { get => NuevaFoto; set => NuevaFoto = value; }
 
-    public string FotoUrlExistente { get; set; } = string.Empty;
+    public string FotoActual { get; set; } = string.Empty;
+    public string FotoUrlExistente { get => FotoActual; set => FotoActual = value; }
+    
+    public bool Activo { get; set; }
+    public string CiudadanoNombreCompleto { get => $"{Nombre} {Apellido}"; }
 }

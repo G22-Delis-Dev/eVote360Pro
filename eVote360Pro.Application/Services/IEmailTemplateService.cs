@@ -31,8 +31,22 @@ public class EmailTemplateService : IEmailTemplateService
     {
         var html = ObtenerPlantilla("ResumenVotacion.html");
 
-        return html.Replace("{{Nombre}}", nombreCiudadano)
-                   .Replace("{{NombreEleccion}}", resumen.NombreEleccion);
-        // Puedes agregar más reemplazos según los campos de tu DTO
+        // Construir tabla de votos
+        var filasVotos = new System.Text.StringBuilder();
+        foreach (var voto in resumen.Votos)
+        {
+            filasVotos.AppendLine($@"
+                <tr>
+                    <td style=""padding: 10px 12px; border-bottom: 1px solid #e8e8e8; font-weight: 600; color: #333;"">{System.Net.WebUtility.HtmlEncode(voto.Puesto)}</td>
+                    <td style=""padding: 10px 12px; border-bottom: 1px solid #e8e8e8; color: #444;"">{System.Net.WebUtility.HtmlEncode(voto.Candidato)}</td>
+                    <td style=""padding: 10px 12px; border-bottom: 1px solid #e8e8e8; color: #666;"">{System.Net.WebUtility.HtmlEncode(voto.Partido)}</td>
+                </tr>");
+        }
+
+        return html
+            .Replace("{{Nombre}}", System.Net.WebUtility.HtmlEncode(nombreCiudadano))
+            .Replace("{{NombreEleccion}}", System.Net.WebUtility.HtmlEncode(resumen.NombreEleccion))
+            .Replace("{{FechaVotacion}}", resumen.FechaEleccion.ToString("dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-ES")))
+            .Replace("{{FilasVotos}}", filasVotos.ToString());
     }
 }

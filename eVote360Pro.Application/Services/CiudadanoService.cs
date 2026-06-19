@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Domain.Entities;
@@ -26,20 +26,34 @@ public class CiudadanoService : GenericService<Ciudadano, CiudadanoDto>, ICiudad
 
     public override async Task<CiudadanoDto> CrearAsync(CiudadanoDto dto)
     {
+        // Bloquear si hay elección activa
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
+        // Normalizar cédula: quitar guiones y espacios
+        dto.NumeroDocumento = dto.NumeroDocumento.Replace("-", "").Replace(" ", "").Trim();
+
         CiudadanoRules.ValidarDocumentoUnico(
             await _unitOfWork.Ciudadanos.ExisteNumeroDocumentoAsync(dto.NumeroDocumento));
 
         CiudadanoRules.ValidarCorreoUnico(
             await _unitOfWork.Ciudadanos.ExisteCorreoElectronicoAsync(dto.CorreoElectronico));
 
-
+        dto.Activo = true;
         return await base.CrearAsync(dto);
     }
 
     public async Task EditarAsync(CiudadanoDto dto)
     {
+        // Bloquear si hay elección activa
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         var ciudadano = await _unitOfWork.Ciudadanos.GetByIdAsync(dto.Id)
             ?? throw new Domain.Exceptions.RegistroNoEncontradoException(nameof(Ciudadano), dto.Id);
+
+        // Normalizar cédula: quitar guiones y espacios
+        dto.NumeroDocumento = dto.NumeroDocumento.Replace("-", "").Replace(" ", "").Trim();
 
         var participoEnEleccion = await _unitOfWork.Ciudadanos.ParticipóEnEleccionAsync(dto.Id);
 

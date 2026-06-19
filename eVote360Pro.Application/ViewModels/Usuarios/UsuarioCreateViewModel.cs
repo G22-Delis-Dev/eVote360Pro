@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eVote360Pro.Application.ViewModels.Usuarios;
@@ -26,4 +26,7 @@ public class UsuarioCreateViewModel
     public int Rol { get; set; }
 
     public IEnumerable<SelectListItem>? RolesDisponibles { get; set; }
+
+    public int? CiudadanoId { get; set; }
+    public IEnumerable<SelectListItem>? CiudadanosDisponibles { get; set; }
 }

@@ -4,23 +4,28 @@ using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Partidos;
 using eVote360Pro.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using eVote360Pro.Web.Helpers;
 
 namespace eVote360Pro.Web.Controllers.Admin;
 
+[eVote360Pro.Web.Filters.ValidarSesion("Administrador")]
 public class PartidosController : Controller
 {
     private readonly IPartidoPoliticoService _partidoService;
     private readonly IMapper _mapper;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly IEleccionService _eleccionService;
 
     public PartidosController(
         IPartidoPoliticoService partidoService,
         IMapper mapper,
-        IWebHostEnvironment webHostEnvironment)
+        IWebHostEnvironment webHostEnvironment,
+        IEleccionService eleccionService)
     {
         _partidoService = partidoService;
         _mapper = mapper;
         _webHostEnvironment = webHostEnvironment;
+        _eleccionService = eleccionService;
     }
 
     public async Task<IActionResult> Index()
@@ -33,12 +38,15 @@ public class PartidosController : Controller
             Partidos = items
         };
 
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
         return View(vm);
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
         return View(new PartidoCreateViewModel());
     }
 
@@ -54,7 +62,7 @@ public class PartidosController : Controller
         try
         {
             var dto = _mapper.Map<PartidoPoliticoDto>(vm);
-            string rutaLogo = await GuardarLogoAsync(vm.LogoArchivo);
+            string rutaLogo = SubidaArchivo.Subir(vm.LogoArchivo, "partidos")!;
 
             await _partidoService.CrearAsync(dto, rutaLogo);
             return RedirectToAction(nameof(Index));
@@ -72,8 +80,14 @@ public class PartidosController : Controller
         var dto = await _partidoService.ObtenerPorIdAsync(id);
         if (dto == null) return NotFound();
 
+        var participoEnEleccion = await _partidoService.ParticipoEnEleccionAsync(id);
+
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
         var vm = _mapper.Map<PartidoEditViewModel>(dto);
         vm.LogoActualRuta = dto.LogoRuta;
+        vm.CamposCriticosEditables = !participoEnEleccion;
+        
         return View(vm);
     }
 
@@ -89,12 +103,7 @@ public class PartidosController : Controller
         try
         {
             var dto = _mapper.Map<PartidoPoliticoDto>(vm);
-            string? rutaLogo = null;
-
-            if (vm.NuevoLogoArchivo != null)
-            {
-                rutaLogo = await GuardarLogoAsync(vm.NuevoLogoArchivo);
-            }
+            string? rutaLogo = SubidaArchivo.Subir(vm.NuevoLogoArchivo, "partidos", isEditMode: true, imagePath: vm.LogoActualRuta);
 
             await _partidoService.EditarAsync(dto, rutaLogo);
             return RedirectToAction(nameof(Index));
@@ -128,21 +137,11 @@ public class PartidosController : Controller
             TempData["Error"] = ex.Message;
             return RedirectToAction(nameof(Index));
         }
-    }
-
-    private async Task<string> GuardarLogoAsync(IFormFile logo)
-    {
-        string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "img", "partidos");
-        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-        string uniqueFileName = Guid.NewGuid().ToString() + "_" + logo.FileName;
-        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        catch (InvalidOperationException ex)
         {
-            await logo.CopyToAsync(fileStream);
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
         }
-
-        return $"/img/partidos/{uniqueFileName}";
     }
+
 }

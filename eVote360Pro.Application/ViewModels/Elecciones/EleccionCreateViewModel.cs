@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eVote360Pro.Application.ViewModels.Elecciones;
@@ -13,11 +13,13 @@ public class EleccionCreateViewModel
     [Required(ErrorMessage = "La fecha es obligatoria.")]
     [DataType(DataType.Date)]
     [Display(Name = "Fecha de realización")]
-    public DateTime FechaRealizacion { get; set; }
+    public DateTime FechaEleccion { get; set; } = DateTime.Today;
+    public DateTime FechaRealizacion { get => FechaEleccion; set => FechaEleccion = value; }
 
     [Required(ErrorMessage = "Debe seleccionar al menos un puesto electivo.")]
     [Display(Name = "Puestos electivos")]
-    public List<int> PuestosSeleccionados { get; set; } = [];
+    public List<int> PuestosSeleccionadosIds { get; set; } = [];
+    public List<int> PuestosSeleccionados { get => PuestosSeleccionadosIds; set => PuestosSeleccionadosIds = value; }
 
     public IEnumerable<SelectListItem> PuestosDisponibles { get; set; } = [];
 }

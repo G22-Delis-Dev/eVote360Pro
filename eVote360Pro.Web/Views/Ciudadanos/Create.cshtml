@@ -1,0 +1,125 @@
+@model eVote360Pro.Application.ViewModels.Ciudadanos.CiudadanoCreateViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Nuevo Ciudadano";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Nuevo Ciudadano</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeAdmin" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><a asp-action="Index">Ciudadanos</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Nuevo</span></li>
+        </ul>
+    </div>
+</div>
+
+<div class="card max-w-3xl">
+    <div class="card-header">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            Informacion del Ciudadano
+        </h2>
+    </div>
+
+    <form asp-action="Create" method="post" class="card-body">
+        @Html.AntiForgeryToken()
+        
+        <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Nombres -->
+            <div class="form-group">
+                <label asp-for="Nombre" class="form-label">Nombres <span class="required">*</span></label>
+                <input asp-for="Nombre" class="form-input" placeholder="Ej. Juan Carlos" />
+                <span asp-validation-for="Nombre" class="form-error"></span>
+            </div>
+
+            <!-- Apellidos -->
+            <div class="form-group">
+                <label asp-for="Apellido" class="form-label">Apellidos <span class="required">*</span></label>
+                <input asp-for="Apellido" class="form-input" placeholder="Ej. Perez Gomez" />
+                <span asp-validation-for="Apellido" class="form-error"></span>
+            </div>
+
+            <!-- Documento -->
+            <div class="form-group">
+                <label asp-for="NumeroDocumento" class="form-label">N° Documento (Cedula) <span class="required">*</span></label>
+                <input asp-for="NumeroDocumento" id="cedula-admin-create"
+                       class="form-input form-input-mono"
+                       placeholder="000-0000000-0" maxlength="13" />
+                <span id="cedula-admin-create-hint" class="form-hint" style="display: none;"></span>
+                <span asp-validation-for="NumeroDocumento" class="form-error"></span>
+            </div>
+
+            <!-- Correo -->
+            <div class="form-group">
+                <label asp-for="CorreoElectronico" class="form-label">Correo Electronico <span class="required">*</span></label>
+                <input asp-for="CorreoElectronico" type="email" class="form-input" placeholder="correo@ejemplo.com" />
+                <span asp-validation-for="CorreoElectronico" class="form-error"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Guardar Ciudadano
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            iniciarFormatoCedula('cedula-admin-create', 'cedula-admin-create-hint');
+
+            function iniciarFormatoCedula(inputId, hintId) {
+                const input = document.getElementById(inputId);
+                const hint  = document.getElementById(hintId);
+                if (!input || !hint) return;
+
+                input.addEventListener('input', function () {
+                    this.value = this.value.replace(/[^\d-]/g, '');
+                    hint.style.display = 'none';
+                });
+
+                input.addEventListener('blur', function () {
+                    const digits = this.value.replace(/\D/g, '');
+                    if (digits.length === 0) { hint.style.display = 'none'; return; }
+
+                    hint.style.display = 'block';
+                    if (digits.length < 11) {
+                        hint.textContent = 'Cedula no completada (faltan ' + (11 - digits.length) + ' digito(s))';
+                        hint.className = 'form-hint form-hint-warning';
+                        return;
+                    }
+                    if (digits.length > 11) {
+                        hint.textContent = 'Cedula invalida (demasiados digitos)';
+                        hint.className = 'form-hint form-hint-danger';
+                        return;
+                    }
+                    this.value = digits.slice(0, 3) + '-' + digits.slice(3, 10) + '-' + digits.slice(10);
+                    hint.textContent = 'Cedula valida';
+                    hint.className = 'form-hint form-hint-success';
+                });
+            }
+        })();
+    </script>
+}

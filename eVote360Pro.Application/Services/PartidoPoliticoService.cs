@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Domain.Entities;
@@ -20,12 +20,16 @@ public class PartidoPoliticoService : GenericService<PartidoPolitico, PartidoPol
 
     public async Task CrearAsync(PartidoPoliticoDto dto, string rutaLogo)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         PartidoPoliticoRules.ValidarSiglasUnicas(
             await _unitOfWork.PartidosPoliticos.ExisteSiglasAsync(dto.Siglas));
 
         var partido = _mapper.Map<PartidoPolitico>(dto);
         partido.LogoRuta = rutaLogo;
         partido.Siglas = dto.Siglas.ToUpper();
+        partido.Activo = true;
 
         await _unitOfWork.PartidosPoliticos.AddAsync(partido);
         await _unitOfWork.SaveChangesAsync();
@@ -33,6 +37,9 @@ public class PartidoPoliticoService : GenericService<PartidoPolitico, PartidoPol
 
     public async Task EditarAsync(PartidoPoliticoDto dto, string? rutaLogo)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         var partido = await _unitOfWork.PartidosPoliticos.GetByIdAsync(dto.Id)
             ?? throw new Domain.Exceptions.RegistroNoEncontradoException(nameof(PartidoPolitico), dto.Id);
 
@@ -78,5 +85,10 @@ public class PartidoPoliticoService : GenericService<PartidoPolitico, PartidoPol
 
         _unitOfWork.PartidosPoliticos.Update(partido);
         await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task<bool> ParticipoEnEleccionAsync(int id)
+    {
+        return await _unitOfWork.PartidosPoliticos.ParticipoEnEleccionAsync(id);
     }
 }

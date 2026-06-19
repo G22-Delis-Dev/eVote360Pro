@@ -1,8 +1,9 @@
-﻿namespace eVote360Pro.Application.ViewModels.PuestosElectivos;
+namespace eVote360Pro.Application.ViewModels.PuestosElectivos;
 
 public class PuestoElectivoListViewModel
 {
     public IEnumerable<PuestoElectivoItemViewModel> Puestos { get; set; } = new List<PuestoElectivoItemViewModel>();
+    public string Filtro { get; set; } = string.Empty;
 }
 
 public class PuestoElectivoItemViewModel
@@ -11,4 +12,5 @@ public class PuestoElectivoItemViewModel
     public string Nombre { get; set; } = string.Empty;
     public string Descripcion { get; set; } = string.Empty;
     public bool Activo { get; set; }
+    public bool EnEleccionActiva { get; set; }
 }

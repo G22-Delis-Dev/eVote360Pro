@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace eVote360Pro.Application.ViewModels.PuestosElectivos;
 
@@ -13,4 +13,5 @@ public class PuestoElectivoEditViewModel
     public string Descripcion { get; set; } = string.Empty;
 
     public bool Activo { get; set; }
+    public bool NombreEsEditable { get; set; }
 }

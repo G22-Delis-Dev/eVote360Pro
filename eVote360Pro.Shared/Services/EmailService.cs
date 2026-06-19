@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace eVote360Pro.Infrastructure.Services;
+namespace eVote360Pro.Shared.Services;
 
 public class EmailService : IEmailService
 {

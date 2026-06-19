@@ -1,0 +1,47 @@
+@model eVote360Pro.Application.ViewModels.Votacion.ConfirmacionVotoViewModel
+@{
+    Layout = "_LayoutElector";
+    ViewData["Title"] = "Voto Registrado";
+    ViewData["PasoActivo"] = 5;
+}
+
+<div class="max-w-xl mx-auto py-16 text-center">
+
+    <!-- Icono animado de éxito -->
+    <div class="w-28 h-28 mx-auto mb-8 rounded-full flex items-center justify-center"
+         style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); box-shadow: 0 0 0 8px rgba(5,150,105,0.08);">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+             class="w-14 h-14 text-emerald-600">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    </div>
+
+    <h1 class="text-4xl font-bold text-gray-900 mb-3 tracking-tight">¡Voto Registrado!</h1>
+    <p class="text-gray-500 text-lg mb-2 leading-relaxed max-w-md mx-auto">@Model.MensajeExito</p>
+    <p class="text-sm font-medium mb-10"
+       style="color: var(--elec-600);">
+        @Model.FechaParticipacion.ToString("dd/MM/yyyy") — @Model.FechaParticipacion.ToString("HH:mm:ss")
+    </p>
+
+    <!-- Card informativa -->
+    <div class="card p-6 text-left" style="border-top: 3px solid var(--success);">
+        <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                 style="background: var(--success-light);">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                     stroke="currentColor" class="w-5 h-5" style="color: var(--success);">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+            </div>
+            <div>
+                <p class="font-semibold text-gray-900 mb-1">Tu voto ha sido guardado de forma anónima</p>
+                <p class="text-sm text-gray-500 leading-relaxed">
+                    Tu participación quedó registrada en el sistema. Se envió un resumen detallado
+                    al correo electrónico registrado en tu cuenta.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>

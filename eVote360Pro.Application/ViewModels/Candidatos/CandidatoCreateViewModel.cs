@@ -13,8 +13,15 @@ public class CandidatoCreateViewModel
     [Required(ErrorMessage = "El apellido es obligatorio")]
     public string Apellido { get; set; } = string.Empty;
 
+    public string NumeroDocumento { get; set; } = string.Empty;
+
     [Display(Name = "Foto del Candidato")]
-    public IFormFile? FotoArchivo { get; set; }
+    [Required(ErrorMessage = "La foto del candidato es obligatoria")]
+    public IFormFile? FotoFile { get; set; }
+    public IFormFile? FotoArchivo { get => FotoFile; set => FotoFile = value; }
 
     public string FotoUrlExistente { get; set; } = string.Empty;
+
+    public int CiudadanoId { get; set; }
+    public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>? CiudadanosDisponibles { get; set; }
 }

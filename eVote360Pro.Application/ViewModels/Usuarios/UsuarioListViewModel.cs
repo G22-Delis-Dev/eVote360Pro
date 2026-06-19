@@ -1,8 +1,9 @@
-﻿namespace eVote360Pro.Application.ViewModels.Usuarios;
+namespace eVote360Pro.Application.ViewModels.Usuarios;
 
 public class UsuarioListViewModel
 {
     public IEnumerable<UsuarioItemViewModel> Usuarios { get; set; } = new List<UsuarioItemViewModel>();
+    public string Filtro { get; set; } = string.Empty;
 }
 
 public class UsuarioItemViewModel
@@ -13,4 +14,5 @@ public class UsuarioItemViewModel
     public string CorreoElectronico { get; set; } = string.Empty;
     public string Rol { get; set; } = string.Empty;
     public bool Activo { get; set; }
+    public string CiudadanoNombreCompleto { get; set; } = string.Empty;
 }

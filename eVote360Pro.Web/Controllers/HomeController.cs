@@ -13,12 +13,9 @@ public class HomeController : Controller
         _logger = logger;
     }
 
-    // Acción inicial que redirige al dashboard administrativo
     public IActionResult Index()
     {
-        // Por ahora redirigimos al HomeAdmin para que el 404 desaparezca.
-        // Después, aquí puedes añadir lógica para saber a qué carpeta enviar al usuario.
-        return RedirectToAction("Index", "HomeAdmin");
+        return RedirectToAction("Index", "Votacion");
     }
 
     public IActionResult Privacy()

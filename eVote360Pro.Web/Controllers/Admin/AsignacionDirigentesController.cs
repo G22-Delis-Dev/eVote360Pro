@@ -8,27 +8,46 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eVote360Pro.Web.Controllers.Admin;
 
+[eVote360Pro.Web.Filters.ValidarSesion("Administrador")]
 public class AsignacionDirigentesController : Controller
 {
     private readonly IAsignacionDirigenteService _asignacionService;
+    private readonly IEleccionService _eleccionService;
     private readonly IMapper _mapper;
 
     public AsignacionDirigentesController(
         IAsignacionDirigenteService asignacionService,
+        IEleccionService eleccionService,
         IMapper mapper)
     {
         _asignacionService = asignacionService;
+        _eleccionService = eleccionService;
         _mapper = mapper;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? partidoFiltroId)
     {
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
         var dtos = await _asignacionService.ObtenerListaAsync();
+
+        var partidosDisponibles = dtos
+            .Select(d => new SelectListItem { Value = d.PartidoPoliticoId.ToString(), Text = d.NombrePartido })
+            .DistinctBy(p => p.Value)
+            .ToList();
+
+        if (partidoFiltroId.HasValue)
+        {
+            dtos = dtos.Where(d => d.PartidoPoliticoId == partidoFiltroId.Value);
+        }
+
         var items = _mapper.Map<IEnumerable<AsignacionDirigenteItemViewModel>>(dtos);
 
         var vm = new AsignacionDirigenteListViewModel
         {
-            Asignaciones = items
+            Asignaciones = items,
+            PartidosDisponibles = partidosDisponibles,
+            PartidoFiltroId = partidoFiltroId
         };
 
         return View(vm);
@@ -37,6 +56,12 @@ public class AsignacionDirigentesController : Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
+        if (await _eleccionService.ExisteEleccionActivaAsync())
+        {
+            TempData["Error"] = "No se pueden realizar asignaciones de dirigentes durante una elección activa.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var vm = new AsignacionDirigenteCreateViewModel();
         await CargarDropdownsAsync(vm);
         return View(vm);
@@ -46,6 +71,12 @@ public class AsignacionDirigentesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(AsignacionDirigenteCreateViewModel vm)
     {
+        if (await _eleccionService.ExisteEleccionActivaAsync())
+        {
+            TempData["Error"] = "No se pueden realizar asignaciones de dirigentes durante una elección activa.";
+            return RedirectToAction(nameof(Index));
+        }
+
         if (!ModelState.IsValid)
         {
             await CargarDropdownsAsync(vm);
@@ -76,6 +107,12 @@ public class AsignacionDirigentesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
+        if (await _eleccionService.ExisteEleccionActivaAsync())
+        {
+            TempData["Error"] = "No se pueden revocar asignaciones de dirigentes durante una elección activa.";
+            return RedirectToAction(nameof(Index));
+        }
+
         try
         {
             await _asignacionService.EliminarAsync(id);
@@ -97,24 +134,16 @@ public class AsignacionDirigentesController : Controller
         var dirigentes = await _asignacionService.ObtenerDirigentesDisponiblesAsync();
         var partidos = await _asignacionService.ObtenerPartidosDisponiblesAsync();
 
-        vm.DirigentesDisponibles = dirigentes.Select(d =>
+        vm.DirigentesDisponibles = dirigentes.Select(d => new SelectListItem
         {
-            var type = d.GetType();
-            return new SelectListItem
-            {
-                Value = type.GetProperty("Value")?.GetValue(d)?.ToString(),
-                Text = type.GetProperty("Text")?.GetValue(d)?.ToString()
-            };
+            Value = d.Value.ToString(),
+            Text = d.Text
         });
 
-        vm.PartidosDisponibles = partidos.Select(p =>
+        vm.PartidosDisponibles = partidos.Select(p => new SelectListItem
         {
-            var type = p.GetType();
-            return new SelectListItem
-            {
-                Value = type.GetProperty("Value")?.GetValue(p)?.ToString(),
-                Text = type.GetProperty("Text")?.GetValue(p)?.ToString()
-            };
+            Value = p.Value.ToString(),
+            Text = p.Text
         });
     }
 }

@@ -1,0 +1,100 @@
+@model eVote360Pro.Application.ViewModels.Partidos.PartidoEditViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Editar Partido";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Editar Partido</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeAdmin" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><a asp-action="Index">Partidos</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Editar</span></li>
+        </ul>
+    </div>
+</div>
+
+<div class="card max-w-3xl">
+    <div class="card-header">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+            </svg>
+            Modificar Partido
+        </h2>
+    </div>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="card-body">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="LogoUrlActual" />
+        
+        <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Nombre -->
+            <div class="form-group md:col-span-2">
+                <label asp-for="Nombre" class="form-label">Nombre del Partido <span class="required">*</span></label>
+                <input asp-for="Nombre" class="form-input" />
+                <span asp-validation-for="Nombre" class="form-error"></span>
+            </div>
+
+            <!-- Siglas -->
+            <div class="form-group">
+                <label asp-for="Siglas" class="form-label">Siglas <span class="required">*</span></label>
+                <input asp-for="Siglas" class="form-input input-uppercase font-mono" />
+                <span asp-validation-for="Siglas" class="form-error"></span>
+            </div>
+
+            <!-- Logo -->
+            <div class="form-group">
+                <label asp-for="LogoFile" class="form-label">Cambiar Logo</label>
+                
+                @if (!string.IsNullOrEmpty(Model.LogoUrlActual))
+                {
+                    <div class="mb-3">
+                        <p class="text-xs text-gray-500 mb-2">Logo Actual:</p>
+                        <div class="w-16 h-16 rounded-lg border border-gray-200 p-1 bg-white overflow-hidden flex items-center justify-center">
+                            <img src="@Model.LogoUrlActual" alt="Logo actual" class="max-w-full max-h-full object-contain" />
+                        </div>
+                    </div>
+                }
+                
+                <input type="file" asp-for="LogoFile" class="form-input" accept="image/*" />
+                <span class="form-hint">Dejar vacio para mantener el logo actual. Formatos: JPG, PNG, GIF. Max 2MB.</span>
+                <span asp-validation-for="LogoFile" class="form-error"></span>
+            </div>
+
+            <!-- Descripcion -->
+            <div class="form-group md:col-span-2">
+                <label asp-for="Descripcion" class="form-label">Descripcion <span class="required">*</span></label>
+                <textarea asp-for="Descripcion" class="form-input min-h-[100px]" rows="3"></textarea>
+                <span asp-validation-for="Descripcion" class="form-error"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

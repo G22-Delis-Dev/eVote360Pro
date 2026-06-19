@@ -1,0 +1,132 @@
+@model IEnumerable<eVote360Pro.Application.ViewModels.Alianzas.AlianzaListViewModel>
+@{
+    Layout = "_LayoutDirigente";
+    ViewData["Title"] = "Gestión de Alianzas";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Mis Alianzas Electorales</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeDirigente" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Alianzas</span></li>
+        </ul>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        @if (ViewBag.HayEleccionActiva == true)
+        {
+            <button disabled class="btn btn-secondary disabled" title="Accion bloqueada durante eleccion activa">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nueva Alianza
+            </button>
+        }
+        else
+        {
+            <a asp-action="Create" class="btn btn-primary-dir">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nueva Alianza
+            </a>
+        }
+    </div>
+</div>
+
+<div class="card mb-6">
+    <div class="card-body p-4 bg-gray-50 border-b border-gray-200">
+        <form method="get" asp-action="Index" class="flex flex-col sm:flex-row gap-4 items-end">
+            <div class="flex-1 w-full">
+                <label class="form-label text-xs">Puesto Electivo</label>
+                <select name="puestoIdFiltro" class="form-input py-2">
+                    <option value="">Todos los puestos</option>
+                    @foreach (var puesto in ViewBag.PuestosDisponibles as IEnumerable<SelectListItem> ?? [])
+                    {
+                        if (ViewBag.PuestoIdFiltro == int.Parse(puesto.Value))
+                        {
+                            <option value="@puesto.Value" selected>@puesto.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@puesto.Value">@puesto.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-secondary py-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                    </svg>
+                    Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <partial name="_EmptyState" model="@(("<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' d='M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v2.25A2.25 2.25 0 006 10.5zm0 9.75h2.25A2.25 2.25 0 0010.5 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18A2.25 2.25 0 006 20.25zm9.75-9.75H18a2.25 2.25 0 002.25-2.25V6A2.25 2.25 0 0018 3.75h-2.25A2.25 2.25 0 0013.5 6v2.25a2.25 2.25 0 002.25 2.25z' /></svg>", "No tienes alianzas electorales registradas para tu partido.", "Nueva Alianza", "Create", "Alianzas", (bool)(ViewBag.HayEleccionActiva ?? false)))" />
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Puesto Electivo</th>
+                        <th>Partido Aliado</th>
+                        <th>Fecha Registro</th>
+                        <th class="cell-actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="cell-primary font-medium">@item.PuestoNombre</td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <span class="badge badge-purple">@item.PartidoAliadoSiglas</span>
+                                    <span>@item.PartidoAliadoNombre</span>
+                                </div>
+                            </td>
+                            <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="cell-actions">
+                                @if (ViewBag.HayEleccionActiva == true)
+                                {
+                                    <button disabled class="btn-action btn-action-disabled" title="Bloqueado por eleccion activa">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.152 0c-.34-.059-.68-.114-1.022-.165m0 0a48.11 48.11 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                        Romper Alianza
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" 
+                                            onclick="showConfirmModal('Romper Alianza', '¿Estas seguro de romper esta alianza con el partido @item.PartidoAliadoSiglas para el puesto @item.PuestoNombre? Al romper la alianza, los votos de @item.PartidoAliadoSiglas para este puesto ya no se sumaran a tus candidatos.', '@Url.Action("Delete", "Alianzas", new { id = item.Id })', 'btn-danger')"
+                                            class="btn-action btn-action-danger">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.152 0c-.34-.059-.68-.114-1.022-.165m0 0a48.11 48.11 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                        Romper Alianza
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <partial name="_Paginacion" />
+    }
+</div>

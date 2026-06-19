@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eVote360Pro.Application.ViewModels.Usuarios;
@@ -28,4 +28,6 @@ public class UsuarioEditViewModel
 
     public bool Activo { get; set; }
     public IEnumerable<SelectListItem>? RolesDisponibles { get; set; }
+    public string CiudadanoNombreCompleto { get; set; } = string.Empty;
+    public string CiudadanoDocumento { get; set; } = string.Empty;
 }

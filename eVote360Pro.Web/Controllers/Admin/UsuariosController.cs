@@ -9,22 +9,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eVote360Pro.Web.Controllers.Admin;
 
+[eVote360Pro.Web.Filters.ValidarSesion("Administrador")]
 public class UsuariosController : Controller
 {
     private readonly IUsuarioService _usuarioService;
     private readonly IMapper _mapper;
+    private readonly eVote360Pro.Application.Interfaces.ISesionUsuario _sesionUsuario;
+    private readonly IEleccionService _eleccionService;
 
     public UsuariosController(
         IUsuarioService usuarioService,
-        IMapper mapper)
+        IMapper mapper,
+        eVote360Pro.Application.Interfaces.ISesionUsuario sesionUsuario,
+        IEleccionService eleccionService)
     {
         _usuarioService = usuarioService;
         _mapper = mapper;
+        _sesionUsuario = sesionUsuario;
+        _eleccionService = eleccionService;
     }
 
     // TODO: Reemplazar con el ID real del administrador autenticado
     // cuando se implemente el sistema de autenticación (Claims/Session).
-    private int ObtenerUsuarioIdActual() => 1;
+    private int ObtenerUsuarioIdActual() => _sesionUsuario.ObtenerUsuarioSesion()?.Id ?? 0;
 
     public async Task<IActionResult> Index()
     {
@@ -36,12 +43,15 @@ public class UsuariosController : Controller
             Usuarios = items
         };
 
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
         return View(vm);
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
         var vm = new UsuarioCreateViewModel();
         CargarDropdownRoles(vm);
         return View(vm);
@@ -76,6 +86,8 @@ public class UsuariosController : Controller
     {
         var dto = await _usuarioService.ObtenerPorIdAsync(id);
         if (dto == null) return NotFound();
+
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
 
         var vm = _mapper.Map<UsuarioEditViewModel>(dto);
         vm.Rol = (int)dto.Rol;

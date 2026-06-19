@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
 namespace eVote360Pro.Application.ViewModels.Partidos;
@@ -15,9 +15,12 @@ public class PartidoEditViewModel
     [Required(ErrorMessage = "Las siglas son obligatorias")]
     public string Siglas { get; set; } = string.Empty;
 
-    public string? LogoActualRuta { get; set; }
+    public string? LogoActual { get; set; }
+    public string? LogoUrlActual { get => LogoActual; set => LogoActual = value; }
+    public string? LogoActualRuta { get => LogoActual; set => LogoActual = value; }
 
     public IFormFile? NuevoLogoArchivo { get; set; }
+    public IFormFile? LogoFile { get => NuevoLogoArchivo; set => NuevoLogoArchivo = value; }
 
     public bool Activo { get; set; }
 
