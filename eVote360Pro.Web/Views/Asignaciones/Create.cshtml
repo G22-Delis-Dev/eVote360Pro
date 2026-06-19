@@ -41,10 +41,9 @@
         <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
 
         <div class="grid grid-cols-1 gap-6">
-            <!-- Puesto -->
             <div class="form-group">
                 <label asp-for="PuestoId" class="form-label">Puesto Electivo <span class="required">*</span></label>
-                <select asp-for="PuestoId" asp-items="@(new SelectList(Model.PuestosDisponibles, "Id", "Nombre"))" class="form-input">
+                <select asp-for="PuestoId" asp-items="ViewBag.Puestos" class="form-input">
                     <option value="">Seleccione el puesto a postular</option>
                 </select>
                 <span class="form-hint">No se muestran puestos donde su partido ya tenga un candidato asignado.</span>
@@ -54,7 +53,7 @@
             <!-- Candidato -->
             <div class="form-group">
                 <label asp-for="CandidatoId" class="form-label">Candidato <span class="required">*</span></label>
-                <select asp-for="CandidatoId" asp-items="@(new SelectList(Model.CandidatosDisponibles, "Id", "CiudadanoNombreCompleto"))" class="form-input">
+                <select asp-for="CandidatoId" asp-items="ViewBag.Candidatos" class="form-input">
                     <option value="">Seleccione un candidato de su partido</option>
                 </select>
                 <span class="form-hint">Un candidato solo puede ser postulado a un (1) unico puesto electivo.</span>

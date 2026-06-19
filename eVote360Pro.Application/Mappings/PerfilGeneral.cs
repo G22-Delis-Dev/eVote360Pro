@@ -52,6 +52,7 @@ public class PerfilGeneral : Profile
         CreateMap<Candidato, CandidatoDto>()
             .ForMember(dest => dest.NombrePartido, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre))
             .ForMember(dest => dest.LogoPartido, opt => opt.MapFrom(src => src.PartidoPolitico.LogoRuta))
+            .ForMember(dest => dest.FotoUrl, opt => opt.MapFrom(src => src.FotoRuta))
             .ForMember(dest => dest.PuestosAsignados, opt => opt.MapFrom(src =>
                 src.AsignacionesPuestos
                     .Where(a => a.Activo)
