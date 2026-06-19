@@ -129,11 +129,4 @@ public class AsignacionCandidatoPuestoService : GenericService<AsignacionCandida
         return _mapper.Map<IEnumerable<AsignacionCandidatoPuestoDto>>(asignaciones);
     }
 
-    public override async Task EliminarAsync(int id)
-    {
-        EleccionRules.ValidarNoExisteEleccionActiva(
-            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
-
-        await base.EliminarAsync(id);
-    }
 }

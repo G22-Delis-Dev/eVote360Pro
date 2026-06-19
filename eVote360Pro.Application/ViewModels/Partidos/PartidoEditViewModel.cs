@@ -16,9 +16,11 @@ public class PartidoEditViewModel
     public string Siglas { get; set; } = string.Empty;
 
     public string? LogoActual { get; set; }
+    public string? LogoUrlActual { get => LogoActual; set => LogoActual = value; }
     public string? LogoActualRuta { get => LogoActual; set => LogoActual = value; }
 
     public IFormFile? NuevoLogoArchivo { get; set; }
+    public IFormFile? LogoFile { get => NuevoLogoArchivo; set => NuevoLogoArchivo = value; }
 
     public bool Activo { get; set; }
 

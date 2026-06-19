@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Dirigente | eVote360 Pro</title>
+    <!-- Tailwind CSS (Solo utilidades) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,9 +12,16 @@
                 extend: {
                     colors: {
                         dir: {
-                            900: '#276749',
-                            600: '#38a169',
-                            200: '#c6f6d5'
+                            50: '#f0faf4',
+                            100: '#dcf0e3',
+                            200: '#b5e2c8',
+                            300: '#86cfA2',
+                            400: '#5cb882',
+                            500: '#38a169',
+                            600: '#2f9461',
+                            700: '#27734d',
+                            800: '#215d3f',
+                            900: '#1a4731'
                         }
                     }
                 }
@@ -22,67 +30,93 @@
     </script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-gray-50 text-gray-800 flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden bg-gray-100">
+
+    <!-- Overlay para sidebar en móvil -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
     <!-- Sidebar Dirigente -->
-    <aside class="w-64 bg-dir-900 text-white flex flex-col hidden md:flex flex-shrink-0 transition-all duration-300 z-20">
+    <aside id="sidebar" class="sidebar bg-dir-900 text-white shadow-xl flex-shrink-0 z-30">
         
         <!-- Logo Partido / Nombre -->
-        <div class="h-24 flex flex-col items-center justify-center border-b border-dir-600 bg-dir-900 px-4">
-            <!-- Si no hay ViewBag, un placeholder -->
+        <div class="h-24 flex flex-col items-center justify-center border-b border-dir-700 bg-dir-900 px-4">
             @if(ViewBag.LogoPartido != null) {
                 <img src="@ViewBag.LogoPartido" alt="Logo" class="h-10 w-10 object-contain mb-1 rounded-full bg-white p-1" />
             } else {
-                <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center text-dir-900 font-bold mb-1">🏛️</div>
+                <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center text-dir-900 mb-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                    </svg>
+                </div>
             }
-            <span class="text-sm font-bold text-center truncate w-full">@(ViewBag.NombrePartido ?? "Mi Partido")</span>
+            <span class="text-sm font-bold text-center truncate w-full text-white">@(ViewBag.NombrePartido ?? "Mi Partido")</span>
         </div>
         
         <!-- Navegación -->
-        <nav class="flex-1 overflow-y-auto py-4">
-            <ul class="space-y-1 px-3">
-                <li>
-                    <a asp-controller="HomeDirigente" asp-action="Index" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dir-600 transition-colors @(ViewContext.RouteData.Values["Controller"]?.ToString() == "HomeDirigente" ? "bg-dir-600" : "")">
-                        <span>🏠</span> Inicio
+        <nav class="sidebar-nav custom-scrollbar">
+            <ul>
+                <li class="nav-item">
+                    <a asp-controller="HomeDirigente" asp-action="Index" class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "HomeDirigente" ? "active" : "") hover:bg-dir-800">
+                        <span class="icon icon-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                            </svg>
+                        </span>
+                        Inicio
                     </a>
                 </li>
-                <li>
-                    <a asp-controller="Candidatos" asp-action="Index" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dir-600 transition-colors @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Candidatos" ? "bg-dir-600" : "")">
-                        <span>👤</span> Mis Candidatos
+                <li class="nav-item">
+                    <a asp-controller="Candidatos" asp-action="Index" class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Candidatos" ? "active" : "") hover:bg-dir-800">
+                        <span class="icon icon-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                            </svg>
+                        </span>
+                        Mis Candidatos
                     </a>
                 </li>
-                <li>
-                    <a asp-controller="Alianzas" asp-action="Index" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dir-600 transition-colors @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Alianzas" ? "bg-dir-600" : "")">
-                        <span>🤝</span> Alianzas Políticas
+                <li class="nav-item">
+                    <a asp-controller="Alianzas" asp-action="Index" class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Alianzas" ? "active" : "") hover:bg-dir-800">
+                        <span class="icon icon-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                        </span>
+                        Alianzas Políticas
                     </a>
                 </li>
-                <li>
-                    <a asp-controller="Asignaciones" asp-action="Index" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-dir-600 transition-colors @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Asignaciones" ? "bg-dir-600" : "")">
-                        <span>📋</span> Asignar a Puestos
+                <li class="nav-item">
+                    <a asp-controller="Asignaciones" asp-action="Index" class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "Asignaciones" ? "active" : "") hover:bg-dir-800">
+                        <span class="icon icon-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+                            </svg>
+                        </span>
+                        Asignar a Puestos
                     </a>
                 </li>
             </ul>
         </nav>
         
         <!-- Info Dirigente -->
-        <div class="p-4 border-t border-dir-600 bg-dir-900">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-dir-200 text-dir-900 flex items-center justify-center font-bold">
+        <div class="sidebar-footer bg-dir-900 border-t border-dir-700">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar bg-dir-100 text-dir-900">
                     D
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-white truncate">Dirigente</p>
-                    <p class="text-xs text-dir-200 truncate">dirigente@partido.com</p>
+                <div class="sidebar-user-info">
+                    <p class="sidebar-user-name">Dirigente</p>
+                    <p class="sidebar-user-role">dirigente@partido.com</p>
                 </div>
             </div>
         </div>
     </aside>
 
     <!-- Contenido Principal -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <!-- Navbar Superior -->
-        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 z-10 shadow-sm">
-            <button id="sidebarToggle" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+        <header class="top-header">
+            <button id="sidebarToggle" class="header-toggle">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
@@ -90,9 +124,14 @@
             
             <div class="hidden md:block"></div>
 
-            <div class="flex items-center gap-4 ml-auto">
-                <a asp-controller="Auth" asp-action="Logout" class="text-gray-500 hover:text-red-600 flex items-center gap-2 text-sm font-medium transition-colors">
-                    <span>🚪</span> Cerrar Sesión
+            <div class="header-actions">
+                <a asp-controller="Auth" asp-action="Logout" class="btn-logout group">
+                    <span class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                        </svg>
+                    </span>
+                    Cerrar Sesion
                 </a>
             </div>
         </header>
@@ -100,7 +139,7 @@
         <partial name="_EleccionActivaBanner" />
 
         <!-- Main Content Area -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 animate-fade-in relative">
+        <main class="main-content relative animate-fade-in" id="mainContent">
             <partial name="_Alert" />
             @RenderBody()
         </main>
@@ -111,19 +150,6 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    
-    <script>
-        document.getElementById('sidebarToggle')?.addEventListener('click', () => {
-            const sidebar = document.querySelector('aside');
-            if(sidebar.classList.contains('hidden')) {
-                sidebar.classList.remove('hidden');
-                sidebar.classList.add('absolute', 'h-full', 'shadow-2xl');
-            } else {
-                sidebar.classList.add('hidden');
-                sidebar.classList.remove('absolute', 'h-full', 'shadow-2xl');
-            }
-        });
-    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

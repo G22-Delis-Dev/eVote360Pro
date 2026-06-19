@@ -29,4 +29,9 @@ public class CandidatoBoletaViewModel
     public int PartidoPoliticoId { get; set; }
     public string PartidoNombre { get; set; } = string.Empty;
     public string LogoPartidoUrl { get; set; } = string.Empty;
+
+    public string LogoPartido { get => LogoPartidoUrl; set => LogoPartidoUrl = value; }
+    public string PartidoSiglas { get; set; } = string.Empty;
+    public string FotoCandidato { get => FotoCandidatoUrl; set => FotoCandidatoUrl = value; }
+    public string NombreCompleto { get => CandidatoNombre; set => CandidatoNombre = value; }
 }

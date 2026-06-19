@@ -3,6 +3,7 @@ namespace eVote360Pro.Application.ViewModels.Partidos;
 public class PartidoListViewModel
 {
     public IEnumerable<PartidoItemViewModel> Partidos { get; set; } = new List<PartidoItemViewModel>();
+    public string Filtro { get; set; } = string.Empty;
 }
 
 public class PartidoItemViewModel
@@ -14,4 +15,5 @@ public class PartidoItemViewModel
     public string? LogoUrl { get => LogoRuta; set => LogoRuta = value; }
     public bool Activo { get; set; }
     public bool EnEleccionActiva { get; set; }
+    public string Descripcion { get; set; } = string.Empty;
 }

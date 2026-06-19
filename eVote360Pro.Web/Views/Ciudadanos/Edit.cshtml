@@ -4,112 +4,84 @@
     ViewData["Title"] = "Editar Ciudadano";
 }
 
-<div class="mb-6">
-    <div class="flex items-center gap-3">
-        <h1 class="text-2xl font-bold text-gray-900">Editar Ciudadano</h1>
-        @if (Model.Activo)
-        {
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Activo
-            </span>
-        }
-        else
-        {
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                Inactivo
-            </span>
-        }
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Editar Ciudadano</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeAdmin" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><a asp-action="Index">Ciudadanos</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Editar</span></li>
+        </ul>
     </div>
-    
-    <nav class="flex mt-1" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
-            <li class="inline-flex items-center">
-                <a asp-controller="HomeAdmin" asp-action="Index" class="hover:text-admin-600">Inicio</a>
-            </li>
-            <li>
-                <div class="flex items-center">
-                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
-                    <a asp-action="Index" class="ml-1 hover:text-admin-600 md:ml-2">Ciudadanos</a>
-                </div>
-            </li>
-            <li>
-                <div class="flex items-center">
-                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
-                    <span class="ml-1 text-gray-500 md:ml-2">Editar</span>
-                </div>
-            </li>
-        </ol>
-    </nav>
 </div>
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden max-w-3xl">
-    <div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
-        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <span>✏️</span> Modificar Información
+<div class="card max-w-3xl">
+    <div class="card-header">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+            </svg>
+            Modificar Ciudadano
         </h2>
     </div>
 
-    <form asp-action="Edit" method="post" class="p-6">
+    <form asp-action="Edit" method="post" class="card-body">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="Activo" />
-        <input type="hidden" asp-for="DocumentoEsEditable" />
         
-        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
-
-        @if (!Model.DocumentoEsEditable)
-        {
-            <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded text-sm text-blue-700 flex gap-3">
-                <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                <p>El N° de Documento no se puede modificar porque este ciudadano ya tiene participación registrada (ej. votación).</p>
-            </div>
-        }
+        <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Nombres -->
-            <div>
-                <label asp-for="Nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombres <span class="text-red-500">*</span></label>
-                <input asp-for="Nombre" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors" />
-                <span asp-validation-for="Nombre" class="text-xs text-red-500 mt-1 block"></span>
+            <div class="form-group">
+                <label asp-for="Nombre" class="form-label">Nombres <span class="required">*</span></label>
+                <input asp-for="Nombre" class="form-input" />
+                <span asp-validation-for="Nombre" class="form-error"></span>
             </div>
 
             <!-- Apellidos -->
-            <div>
-                <label asp-for="Apellido" class="block text-sm font-medium text-gray-700 mb-1">Apellidos <span class="text-red-500">*</span></label>
-                <input asp-for="Apellido" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors" />
-                <span asp-validation-for="Apellido" class="text-xs text-red-500 mt-1 block"></span>
+            <div class="form-group">
+                <label asp-for="Apellido" class="form-label">Apellidos <span class="required">*</span></label>
+                <input asp-for="Apellido" class="form-input" />
+                <span asp-validation-for="Apellido" class="form-error"></span>
             </div>
 
-            <!-- Documento -->
-            <div>
-                <label asp-for="NumeroDocumento" class="block text-sm font-medium text-gray-700 mb-1">N° Documento <span class="text-red-500">*</span></label>
-                @if (Model.DocumentoEsEditable)
-                {
-                    <input asp-for="NumeroDocumento" id="cedula-admin-edit"
-                           class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors font-mono"
-                           maxlength="13" />
-                    <span id="cedula-admin-edit-hint" class="text-xs mt-1 block hidden"></span>
-                }
-                else
-                {
-                    <input asp-for="NumeroDocumento" readonly class="block w-full px-3 py-2 border border-gray-200 bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed font-mono" />
-                }
-                <span asp-validation-for="NumeroDocumento" class="text-xs text-red-500 mt-1 block"></span>
+            <!-- Documento (Sólo lectura en edición para proteger identidad en eVote) -->
+            <div class="form-group">
+                <label asp-for="NumeroDocumento" class="form-label">N° Documento (Cedula)</label>
+                <div class="form-input bg-gray-50 text-gray-500 font-mono flex items-center justify-between" style="border-color: var(--gray-200); cursor: not-allowed;">
+                    <span>@Model.NumeroDocumento</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-gray-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                </div>
+                <span class="form-hint">El documento no puede modificarse por seguridad.</span>
+                <input type="hidden" asp-for="NumeroDocumento" />
             </div>
 
             <!-- Correo -->
-            <div>
-                <label asp-for="CorreoElectronico" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico <span class="text-red-500">*</span></label>
-                <input asp-for="CorreoElectronico" type="email" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors" />
-                <span asp-validation-for="CorreoElectronico" class="text-xs text-red-500 mt-1 block"></span>
+            <div class="form-group">
+                <label asp-for="CorreoElectronico" class="form-label">Correo Electronico <span class="required">*</span></label>
+                <input asp-for="CorreoElectronico" type="email" class="form-input" />
+                <span asp-validation-for="CorreoElectronico" class="form-error"></span>
             </div>
         </div>
 
-        <div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-5">
-            <a asp-action="Index" class="px-4 py-2 text-gray-700 bg-gray-100 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-secondary">
                 Cancelar
             </a>
-            <button type="submit" class="px-4 py-2 bg-admin-600 text-white font-medium rounded-lg hover:bg-admin-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-admin-500">
+            <button type="submit" class="btn btn-primary">
                 Guardar Cambios
             </button>
         </div>
@@ -118,39 +90,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        (function () {
-            iniciarFormatoCedula('cedula-admin-edit', 'cedula-admin-edit-hint');
-
-            function iniciarFormatoCedula(inputId, hintId) {
-                const input = document.getElementById(inputId);
-                const hint  = document.getElementById(hintId);
-                if (!input || !hint) return;
-
-                input.addEventListener('input', function () {
-                    this.value = this.value.replace(/[^\d-]/g, '');
-                    hint.classList.add('hidden');
-                });
-
-                input.addEventListener('blur', function () {
-                    const digits = this.value.replace(/\D/g, '');
-                    if (digits.length === 0) { hint.classList.add('hidden'); return; }
-
-                    if (digits.length < 11) {
-                        hint.textContent = '⚠️ Cédula no completada (faltan ' + (11 - digits.length) + ' dígito(s))';
-                        hint.className = 'text-xs mt-1 block text-amber-600 font-medium';
-                        return;
-                    }
-                    if (digits.length > 11) {
-                        hint.textContent = '⚠️ Cédula inválida (demasiados dígitos)';
-                        hint.className = 'text-xs mt-1 block text-red-600 font-medium';
-                        return;
-                    }
-                    this.value = digits.slice(0, 3) + '-' + digits.slice(3, 10) + '-' + digits.slice(10);
-                    hint.textContent = '✅ Cédula válida';
-                    hint.className = 'text-xs mt-1 block text-green-600 font-medium';
-                });
-            }
-        })();
-    </script>
 }

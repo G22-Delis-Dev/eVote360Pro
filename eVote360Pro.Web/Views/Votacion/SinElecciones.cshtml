@@ -1,16 +1,26 @@
 @{
     Layout = "_LayoutElector";
-    ViewData["Title"] = "Sin Elecciones Activas";
+    ViewData["Title"] = "Sin Elecciones";
 }
 
-<div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 max-w-2xl w-full mx-auto text-center p-10 sm:p-16">
-    <div class="text-8xl mb-6">🚫</div>
-    <h1 class="text-3xl font-bold text-gray-900 mb-4">No hay elecciones activas</h1>
-    <p class="text-lg text-gray-600 mb-8">
-        No hay ningún proceso electoral en estos momentos.
-    </p>
+<div class="max-w-2xl mx-auto pt-20 pb-20 text-center">
+    <div class="w-32 h-32 mx-auto mb-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    </div>
     
-    <a asp-controller="Auth" asp-action="Login" class="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-elec-900 bg-elec-100 rounded-lg hover:bg-elec-200 transition-colors">
-        Acceso a Dirigentes y Administradores
+    <h1 class="text-3xl font-bold text-gray-900 mb-4">No hay procesos electorales activos</h1>
+    
+    <p class="text-lg text-gray-500 mb-8 max-w-xl mx-auto">
+        En este momento, el sistema no tiene ninguna elección activa en curso. 
+        Te invitamos a volver más adelante o revisar el calendario electoral emitido por las autoridades correspondientes.
+    </p>
+
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary inline-flex px-8 py-3 text-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+        </svg>
+        Volver al Inicio
     </a>
 </div>

@@ -1,72 +1,83 @@
 @model eVote360Pro.Application.ViewModels.AsignacionDirigentes.AsignacionDirigenteCreateViewModel
 @{
     Layout = "_LayoutAdmin";
-    ViewData["Title"] = "Nueva Asignación de Dirigente";
+    ViewData["Title"] = "Asignar Dirigente a Partido";
 }
 
-<div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">Nueva Asignación</h1>
-    <nav class="flex mt-1" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
-            <li class="inline-flex items-center">
-                <a asp-controller="HomeAdmin" asp-action="Index" class="hover:text-admin-600">Inicio</a>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Asignar Dirigente</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeAdmin" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
             </li>
-            <li>
-                <div class="flex items-center">
-                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
-                    <a asp-action="Index" class="ml-1 hover:text-admin-600 md:ml-2">Asignaciones</a>
-                </div>
+            <li><a asp-action="Index">Asignaciones</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
             </li>
-            <li>
-                <div class="flex items-center">
-                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
-                    <span class="ml-1 text-gray-500 md:ml-2">Nueva</span>
-                </div>
-            </li>
-        </ol>
-    </nav>
+            <li><span>Nueva Asignación</span></li>
+        </ul>
+    </div>
 </div>
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden max-w-2xl">
-    <div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
-        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <span>🔗</span> Vincular Dirigente a Partido
+<div class="card max-w-2xl">
+    <div class="card-header">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+            </svg>
+            Vincular Usuario a Partido Politico
         </h2>
     </div>
 
-    <form asp-action="Create" method="post" class="p-6">
+    <form asp-action="Create" method="post" class="card-body">
         @Html.AntiForgeryToken()
         
-        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
+        <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
 
-        <div class="space-y-6">
-            <!-- Usuario -->
-            <div>
-                <label asp-for="UsuarioId" class="block text-sm font-medium text-gray-700 mb-1">Dirigente Político <span class="text-red-500">*</span></label>
-                <select asp-for="UsuarioId" asp-items="Model.DirigentesDisponibles" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors">
-                    <option value="">-- Seleccione un dirigente --</option>
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Dirigente -->
+            <div class="form-group">
+                <label asp-for="UsuarioId" class="form-label">Usuario Dirigente <span class="required">*</span></label>
+                <select asp-for="UsuarioId" asp-items="Model.UsuariosDisponibles" class="form-input">
+                    <option value="">Seleccione un usuario con rol Dirigente</option>
                 </select>
-                <span asp-validation-for="UsuarioId" class="text-xs text-red-500 mt-1 block"></span>
-                <p class="text-xs text-gray-500 mt-1">Solo se muestran usuarios activos con el rol "Dirigente Político" que no tengan un partido asignado.</p>
+                <span class="form-hint">Solo se muestran usuarios activos con rol Dirigente que no esten ya asignados.</span>
+                <span asp-validation-for="UsuarioId" class="form-error"></span>
             </div>
 
             <!-- Partido -->
-            <div>
-                <label asp-for="PartidoPoliticoId" class="block text-sm font-medium text-gray-700 mb-1">Partido Político <span class="text-red-500">*</span></label>
-                <select asp-for="PartidoPoliticoId" asp-items="Model.PartidosDisponibles" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors">
-                    <option value="">-- Seleccione un partido --</option>
+            <div class="form-group">
+                <label asp-for="PartidoId" class="form-label">Partido Politico <span class="required">*</span></label>
+                <select asp-for="PartidoId" asp-items="Model.PartidosDisponibles" class="form-input">
+                    <option value="">Seleccione un partido politico</option>
                 </select>
-                <span asp-validation-for="PartidoPoliticoId" class="text-xs text-red-500 mt-1 block"></span>
-                <p class="text-xs text-gray-500 mt-1">Solo se muestran partidos políticos activos.</p>
+                <span asp-validation-for="PartidoId" class="form-error"></span>
             </div>
         </div>
 
-        <div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-5">
-            <a asp-action="Index" class="px-4 py-2 text-gray-700 bg-gray-100 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+        <div class="alert alert-info mt-6">
+            <div class="alert-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+            </div>
+            <div class="alert-text">
+                Al asignar un dirigente a un partido, este tendra acceso exclusivo a gestionar los candidatos y alianzas de dicho partido.
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-secondary">
                 Cancelar
             </a>
-            <button type="submit" class="px-4 py-2 bg-admin-600 text-white font-medium rounded-lg hover:bg-admin-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-admin-500">
-                Guardar Asignación
+            <button type="submit" class="btn btn-primary">
+                Asignar Dirigente
             </button>
         </div>
     </form>

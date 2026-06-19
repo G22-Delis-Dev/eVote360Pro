@@ -1,36 +1,112 @@
 @model eVote360Pro.Application.ViewModels.Votacion.ConfirmacionVotoViewModel
 @{
     Layout = "_LayoutElector";
-    ViewData["Title"] = "Voto Exitoso";
-    ViewData["PasoActivo"] = 5;
+    ViewData["Title"] = "Confirmación de Voto";
 }
 
-<div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 text-center">
-        <div class="bg-green-500 p-8 sm:p-12 text-white">
-            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white text-green-500 text-5xl mb-6 shadow-lg">
-                ✓
-            </div>
-            <h1 class="text-3xl sm:text-4xl font-bold mb-2">¡Votación Exitosa!</h1>
-            <p class="text-green-100 text-lg">Tu derecho al voto ha sido ejercido correctamente.</p>
+<div class="page-header text-center mb-8">
+    <div>
+        <h1 class="page-title text-3xl font-bold text-gray-900">Revisión Final</h1>
+        <p class="text-gray-500">Por favor, revisa tus selecciones antes de confirmar tu voto. Esta acción es irreversible.</p>
+    </div>
+</div>
+
+<div class="max-w-3xl mx-auto pb-20">
+    <div class="card mb-8">
+        <div class="card-header bg-gray-50 border-b border-gray-200 p-4">
+            <h2 class="text-lg font-bold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 019 9v.375M10.125 2.25A3.375 3.375 0 0113.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 013.375 3.375M9 15l2.25 2.25L15 12" />
+                </svg>
+                Tu Resumen de Votación
+            </h2>
         </div>
-        
-        <div class="p-8 sm:p-12">
-            <div class="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
-                <p class="text-gray-900 font-medium mb-4 text-lg">@Model.MensajeExito</p>
-                <div class="flex items-center justify-center gap-2 text-sm text-gray-500">
-                    <span>🕒</span>
-                    <span>Registrado el: <strong>@Model.FechaParticipacion.ToString("dd/MM/yyyy hh:mm:ss tt")</strong></span>
-                </div>
-            </div>
-
-            <p class="text-gray-600 mb-8">
-                Gracias por participar en este proceso electoral. Puedes cerrar esta ventana de forma segura.
-            </p>
-
-            <a href="/" class="inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors shadow-sm w-full sm:w-auto">
-                Volver al Inicio
-            </a>
+        <div class="p-0">
+            <ul class="divide-y divide-gray-200">
+                @foreach (var voto in Model.VotosSeleccionados)
+                {
+                    <li class="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">@voto.PuestoNombre</p>
+                            
+                            @if (!string.IsNullOrEmpty(voto.CandidatoNombreCompleto))
+                            {
+                                <div class="flex items-center gap-4 mt-2">
+                                    @if (!string.IsNullOrEmpty(voto.FotoCandidato))
+                                    {
+                                        <img src="@voto.FotoCandidato" class="w-12 h-12 rounded-full border border-gray-200 object-cover" alt="Foto" />
+                                    }
+                                    else
+                                    {
+                                        <div class="w-12 h-12 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-400">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                            </svg>
+                                        </div>
+                                    }
+                                    
+                                    <div>
+                                        <p class="font-bold text-gray-900 text-lg">@voto.CandidatoNombreCompleto</p>
+                                        <p class="text-sm text-gray-500 flex items-center gap-1">
+                                            @if (!string.IsNullOrEmpty(voto.LogoPartido))
+                                            {
+                                                <img src="@voto.LogoPartido" class="w-4 h-4 object-contain" alt="Logo" />
+                                            }
+                                            @voto.PartidoSiglas - @voto.PartidoNombre
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="flex items-center gap-4 mt-2 opacity-60">
+                                    <div class="w-12 h-12 rounded-full border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-600 text-lg">Voto en Blanco</p>
+                                        <p class="text-sm text-gray-400">No se selecciono candidato</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="hidden sm:block text-green-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                        </div>
+                    </li>
+                }
+            </ul>
         </div>
     </div>
+
+    <div class="alert alert-warning mb-8">
+        <div class="alert-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <div class="alert-text">
+            <strong>Advertencia:</strong> Una vez confirmado, tu voto sera encriptado y guardado de forma segura y anonima. 
+            No podras modificar tus selecciones posteriores ni votar nuevamente en esta eleccion.
+        </div>
+    </div>
+
+    <form asp-action="ConfirmarVotoFinal" method="post" class="flex flex-col sm:flex-row gap-4 justify-center">
+        @Html.AntiForgeryToken()
+        
+        <a asp-action="Boleta" class="btn btn-secondary py-3 px-8 justify-center text-lg">
+            Volver y Modificar
+        </a>
+        <button type="submit" class="btn btn-primary py-3 px-8 justify-center text-lg">
+            Confirmar y Enviar Voto
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+            </svg>
+        </button>
+    </form>
 </div>

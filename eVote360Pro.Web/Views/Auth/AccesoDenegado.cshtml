@@ -12,19 +12,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="access-denied-wrapper">
 
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden text-center p-8">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 mb-6">
-            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+    <div class="access-denied-card animate-fade-in">
+        <div class="access-denied-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
             </svg>
         </div>
         
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
-        <p class="text-gray-600 mb-8">No tienes permisos para acceder a esta pǭgina. Verifica tu rol o contacta al administrador.</p>
+        <h1 class="text-xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
+        <p class="text-sm text-gray-600 mb-8">No tienes permisos para acceder a esta pagina. Verifica tu rol o contacta al administrador.</p>
         
-        <a asp-controller="Auth" asp-action="Login" class="inline-flex justify-center w-full py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+        <a asp-controller="Auth" asp-action="Login" class="btn btn-primary w-full justify-center py-2.5">
             Volver al Inicio
         </a>
     </div>

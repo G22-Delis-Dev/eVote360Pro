@@ -21,4 +21,7 @@ public class CandidatoCreateViewModel
     public IFormFile? FotoArchivo { get => FotoFile; set => FotoFile = value; }
 
     public string FotoUrlExistente { get; set; } = string.Empty;
+
+    public int CiudadanoId { get; set; }
+    public IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>? CiudadanosDisponibles { get; set; }
 }

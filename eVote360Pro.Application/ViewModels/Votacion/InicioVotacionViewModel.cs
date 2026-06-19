@@ -6,4 +6,6 @@ public class InicioVotacionViewModel
     public string EleccionNombre { get; set; } = string.Empty;
     public string NombreEleccion { get => EleccionNombre; set => EleccionNombre = value; }
     public DateTime FechaRealizacion { get; set; }
+    public bool HayEleccionActiva { get; set; } = true;
+    public bool YaVoto { get; set; } = false;
 }

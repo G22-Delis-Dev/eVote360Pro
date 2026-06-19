@@ -14,6 +14,7 @@ public class EleccionCreateViewModel
     [DataType(DataType.Date)]
     [Display(Name = "Fecha de realización")]
     public DateTime FechaEleccion { get; set; }
+    public DateTime FechaRealizacion { get => FechaEleccion; set => FechaEleccion = value; }
 
     [Required(ErrorMessage = "Debe seleccionar al menos un puesto electivo.")]
     [Display(Name = "Puestos electivos")]

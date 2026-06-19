@@ -15,4 +15,7 @@ public class CandidatoListViewModel
     public string NumeroDocumento { get; set; } = string.Empty;
     public IEnumerable<string> PuestosAsignados { get; set; } = [];
     public bool EnEleccionActiva { get; set; }
+
+    public string FotoCandidato { get => FotoUrl; set => FotoUrl = value; }
+    public string CiudadanoNombreCompleto { get => NombreCompleto; set => NombreCompleto = value; }
 }

@@ -1,160 +1,132 @@
-@using eVote360Pro.Domain.Enums
 @model IEnumerable<eVote360Pro.Application.ViewModels.Alianzas.AlianzaListViewModel>
 @{
     Layout = "_LayoutDirigente";
     ViewData["Title"] = "Gestión de Alianzas";
-    int partidoActualId = ViewBag.PartidoActualId ?? 0;
 }
 
-<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="page-header">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">Alianzas Políticas</h1>
-        <nav class="flex mt-1" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
-                <li class="inline-flex items-center">
-                    <a asp-controller="HomeDirigente" asp-action="Index" class="hover:text-dir-600">Inicio</a>
-                </li>
-                <li>
-                    <div class="flex items-center">
-                        <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
-                        <span class="ml-1 text-gray-500 md:ml-2">Alianzas</span>
-                    </div>
-                </li>
-            </ol>
-        </nav>
+        <h1 class="page-title">Mis Alianzas Electorales</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeDirigente" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Alianzas</span></li>
+        </ul>
     </div>
-
-    <div>
+    
+    <div class="flex items-center gap-3">
         @if (ViewBag.HayEleccionActiva == true)
         {
-            <button disabled class="inline-flex items-center gap-2 px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed" title="Acción bloqueada durante elección activa">
-                <span>🤝</span> Nueva Alianza
+            <button disabled class="btn btn-secondary disabled" title="Accion bloqueada durante eleccion activa">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nueva Alianza
             </button>
         }
         else
         {
-            <a asp-action="Create" class="inline-flex items-center gap-2 px-4 py-2 bg-dir-600 hover:bg-dir-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
-                <span>🤝</span> Nueva Alianza
+            <a asp-action="Create" class="btn btn-primary-dir">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nueva Alianza
             </a>
         }
     </div>
 </div>
 
-@if (TempData["Error"] != null)
-{
-    <div class="mb-4 flex items-center gap-3 p-4 bg-red-50 border-l-4 border-red-500 rounded text-sm text-red-700" role="alert">
-        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
-        <span>@TempData["Error"]</span>
+<div class="card mb-6">
+    <div class="card-body p-4 bg-gray-50 border-b border-gray-200">
+        <form method="get" asp-action="Index" class="flex flex-col sm:flex-row gap-4 items-end">
+            <div class="flex-1 w-full">
+                <label class="form-label text-xs">Puesto Electivo</label>
+                <select name="puestoIdFiltro" class="form-input py-2">
+                    <option value="">Todos los puestos</option>
+                    @foreach (var puesto in ViewBag.PuestosDisponibles as IEnumerable<SelectListItem> ?? [])
+                    {
+                        if (ViewBag.PuestoIdFiltro == int.Parse(puesto.Value))
+                        {
+                            <option value="@puesto.Value" selected>@puesto.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@puesto.Value">@puesto.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-secondary py-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                    </svg>
+                    Filtrar
+                </button>
+            </div>
+        </form>
     </div>
-}
 
-@if (TempData["Success"] != null)
-{
-    <div class="mb-4 flex items-center gap-3 p-4 bg-green-50 border-l-4 border-green-500 rounded text-sm text-green-700" role="alert">
-        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-        <span>@TempData["Success"]</span>
-    </div>
-}
-
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8 p-6">
     @if (!Model.Any())
     {
-        <div class="text-center py-8">
-            <p class="text-gray-500">No hay alianzas registradas para este partido.</p>
-        </div>
+        <partial name="_EmptyState" model="@(("<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' d='M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v2.25A2.25 2.25 0 006 10.5zm0 9.75h2.25A2.25 2.25 0 0010.5 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18A2.25 2.25 0 006 20.25zm9.75-9.75H18a2.25 2.25 0 002.25-2.25V6A2.25 2.25 0 0018 3.75h-2.25A2.25 2.25 0 0013.5 6v2.25a2.25 2.25 0 002.25 2.25z' /></svg>", "No tienes alianzas electorales registradas para tu partido.", "Nueva Alianza", "Create", "Alianzas", (bool)(ViewBag.HayEleccionActiva ?? false)))" />
     }
     else
     {
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-500">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-100 rounded-t-lg">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <th scope="col" class="px-6 py-3 rounded-tl-lg">Partido Solicitante</th>
-                        <th scope="col" class="px-6 py-3">Partido Receptor</th>
-                        <th scope="col" class="px-6 py-3">Estado</th>
-                        <th scope="col" class="px-6 py-3">Fecha de Respuesta</th>
-                        <th scope="col" class="px-6 py-3 rounded-tr-lg text-right">Acciones</th>
+                        <th>Puesto Electivo</th>
+                        <th>Partido Aliado</th>
+                        <th>Fecha Registro</th>
+                        <th class="cell-actions">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        bool esSolicitante = item.PartidoSolicitanteId == partidoActualId;
-                        bool esReceptor = item.PartidoReceptorId == partidoActualId;
-
-                        <tr class="bg-white border-b">
-                            <td class="px-6 py-4 font-medium text-gray-900">@item.PartidoSolicitanteNombre</td>
-                            <td class="px-6 py-4 font-medium text-gray-900">@item.PartidoReceptorNombre</td>
-                            <td class="px-6 py-4">
-                                @switch (item.Estado)
-                                {
-                                    case EstadoAlianza.Pendiente:
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">Pendiente</span>
-                                        break;
-                                    case EstadoAlianza.Aceptada:
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Aceptada</span>
-                                        break;
-                                    case EstadoAlianza.Rechazada:
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Rechazada</span>
-                                        break;
-                                }
-                            </td>
-                            <td class="px-6 py-4">
-                                @(item.FechaRespuesta?.ToString("dd/MM/yyyy") ?? "-")
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex justify-end gap-2">
-                                    @if (item.Estado == EstadoAlianza.Pendiente && ViewBag.HayEleccionActiva != true)
-                                    {
-                                        @if (esReceptor)
-                                        {
-                                            <!-- El receptor puede aceptar o rechazar -->
-                                            <form asp-action="Responder" method="post" class="inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@item.Id" />
-                                                <input type="hidden" name="nuevoEstado" value="@EstadoAlianza.Aceptada" />
-                                                <button type="submit" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">✅ Aceptar</button>
-                                            </form>
-                                            <form asp-action="Responder" method="post" class="inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@item.Id" />
-                                                <input type="hidden" name="nuevoEstado" value="@EstadoAlianza.Rechazada" />
-                                                <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200">❌ Rechazar</button>
-                                            </form>
-                                        }
-                                        else if (esSolicitante)
-                                        {
-                                            <!-- El solicitante puede cancelar su propia solicitud -->
-                                            <form asp-action="Cancelar" method="post" class="inline">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="id" value="@item.Id" />
-                                                <button type="submit" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">🗑 Cancelar Solicitud</button>
-                                            </form>
-                                        }
-                                    }
-                                    else if (item.Estado == EstadoAlianza.Aceptada && ViewBag.HayEleccionActiva != true)
-                                    {
-                                        <!-- Cualquiera de los dos partidos puede romper la alianza -->
-                                        <form asp-action="Romper" method="post" class="inline">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@item.Id" />
-                                            <button type="submit"
-                                                    onclick="return confirm('¿Estás seguro de que deseas romper esta alianza? Esta acción no se puede deshacer.')"
-                                                    class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
-                                                💔 Romper Alianza
-                                            </button>
-                                        </form>
-                                    }
-                                    else if (item.Estado == EstadoAlianza.Rechazada)
-                                    {
-                                        <span class="text-xs text-gray-400 italic">Sin acciones disponibles</span>
-                                    }
+                        <tr>
+                            <td class="cell-primary font-medium">@item.PuestoNombre</td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <span class="badge badge-purple">@item.PartidoAliadoSiglas</span>
+                                    <span>@item.PartidoAliadoNombre</span>
                                 </div>
+                            </td>
+                            <td>@item.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="cell-actions">
+                                @if (ViewBag.HayEleccionActiva == true)
+                                {
+                                    <button disabled class="btn-action btn-action-disabled" title="Bloqueado por eleccion activa">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.152 0c-.34-.059-.68-.114-1.022-.165m0 0a48.11 48.11 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                        Romper Alianza
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" 
+                                            onclick="showConfirmModal('Romper Alianza', '¿Estas seguro de romper esta alianza con el partido @item.PartidoAliadoSiglas para el puesto @item.PuestoNombre? Al romper la alianza, los votos de @item.PartidoAliadoSiglas para este puesto ya no se sumaran a tus candidatos.', '@Url.Action("Delete", "Alianzas", new { id = item.Id })', 'btn-danger')"
+                                            class="btn-action btn-action-danger">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.152 0c-.34-.059-.68-.114-1.022-.165m0 0a48.11 48.11 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                        Romper Alianza
+                                    </button>
+                                }
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
+        
+        <partial name="_Paginacion" />
     }
 </div>

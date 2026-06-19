@@ -6,6 +6,8 @@ public class EleccionListViewModel
 {
     public IEnumerable<EleccionItemViewModel> Elecciones { get; set; } = [];
     public bool HayEleccionActiva { get; set; }
+    public string AnioFiltro { get; set; } = string.Empty;
+    public string EstadoFiltro { get; set; } = string.Empty;
 }
 
 public class EleccionItemViewModel

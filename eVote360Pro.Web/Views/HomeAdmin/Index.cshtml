@@ -4,59 +4,75 @@
     ViewData["Title"] = "Inicio Administrador";
 }
 
-<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+<div class="page-header">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900">Panel de Control</h1>
-        <nav class="flex mt-1" aria-label="Breadcrumb">
-            <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
-                <li class="inline-flex items-center">
-                    <span class="text-admin-600 font-medium">Inicio</span>
-                </li>
-            </ol>
-        </nav>
+        <h1 class="page-title">Panel de Control</h1>
+        <ul class="breadcrumb">
+            <li><span class="text-admin-600 font-medium">Inicio</span></li>
+        </ul>
     </div>
 </div>
 
 <!-- Tarjetas de Resumen General -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-2xl">👤</div>
+    <div class="stat-card">
+        <div class="stat-icon bg-blue-50 text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+        </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Usuarios</p>
-            <p class="text-2xl font-bold text-gray-900">@Model.TotalUsuarios</p>
+            <p class="stat-label">Usuarios</p>
+            <p class="stat-value">@Model.TotalUsuarios</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-        <div class="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-2xl">👥</div>
+    <div class="stat-card">
+        <div class="stat-icon bg-green-50 text-green-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+        </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Ciudadanos</p>
-            <p class="text-2xl font-bold text-gray-900">@Model.TotalCiudadanos</p>
+            <p class="stat-label">Ciudadanos</p>
+            <p class="stat-value">@Model.TotalCiudadanos</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-        <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-2xl">🏛️</div>
+    <div class="stat-card">
+        <div class="stat-icon bg-purple-50 text-purple-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+            </svg>
+        </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Partidos</p>
-            <p class="text-2xl font-bold text-gray-900">@Model.TotalPartidosPoliticos</p>
+            <p class="stat-label">Partidos</p>
+            <p class="stat-value">@Model.TotalPartidosPoliticos</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-        <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center text-2xl">📋</div>
+    <div class="stat-card">
+        <div class="stat-icon bg-orange-50 text-orange-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+            </svg>
+        </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Puestos Electivos</p>
-            <p class="text-2xl font-bold text-gray-900">@Model.TotalPuestosElectivos</p>
+            <p class="stat-label">Puestos</p>
+            <p class="stat-value">@Model.TotalPuestosElectivos</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
-        <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">🔗</div>
+    <div class="stat-card">
+        <div class="stat-icon bg-indigo-50 text-indigo-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+            </svg>
+        </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Asignaciones</p>
-            <p class="text-2xl font-bold text-gray-900">@Model.TotalAsignacionesDirigentes</p>
+            <p class="stat-label">Asignaciones</p>
+            <p class="stat-value">@Model.TotalAsignacionesDirigentes</p>
         </div>
     </div>
 
@@ -65,40 +81,56 @@
 <!-- Tarjetas de Elecciones -->
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
 
-    <div class="bg-white rounded-xl shadow-sm border border-yellow-200 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center text-2xl">🗳️</div>
+    <div class="stat-card border-yellow-200" style="border-width: 1px;">
+        <div class="stat-icon bg-yellow-50 text-yellow-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Elección Activa</p>
-            <p class="text-2xl font-bold text-yellow-600">@Model.EleccionesActivas</p>
+            <p class="stat-label">Eleccion Activa</p>
+            <p class="stat-value text-yellow-600">@Model.EleccionesActivas</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-2xl">⏳</div>
+    <div class="stat-card">
+        <div class="stat-icon bg-gray-100 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Pendientes</p>
-            <p class="text-2xl font-bold text-gray-900">@Model.EleccionesPendientes</p>
+            <p class="stat-label">Pendientes</p>
+            <p class="stat-value">@Model.EleccionesPendientes</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-green-100 p-5 flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center text-2xl">✅</div>
+    <div class="stat-card border-green-100" style="border-width: 1px;">
+        <div class="stat-icon bg-green-50 text-green-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
         <div>
-            <p class="text-sm font-medium text-gray-500">Finalizadas</p>
-            <p class="text-2xl font-bold text-green-600">@Model.EleccionesFinalizadas</p>
+            <p class="stat-label">Finalizadas</p>
+            <p class="stat-value text-green-600">@Model.EleccionesFinalizadas</p>
         </div>
     </div>
 
 </div>
 
 <!-- Resumen Electoral por Año -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-    <div class="border-b border-gray-100 bg-gray-50 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h2 class="text-lg font-semibold text-gray-900">📊 Resumen Electoral — @Model.AnioConsulta</h2>
-        <form asp-action="Index" method="get" class="flex items-center gap-2">
+<div class="card mb-8">
+    <div class="card-header flex-col sm:flex-row items-start sm:items-center">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+            </svg>
+            Resumen Electoral — @Model.AnioConsulta
+        </h2>
+        <form asp-action="Index" method="get" class="flex items-center gap-2 mt-3 sm:mt-0">
             <label class="text-sm text-gray-600 font-medium">Año:</label>
-            <select name="anio" onchange="this.form.submit()"
-                    class="border border-gray-300 text-sm rounded-lg px-3 py-1.5 focus:ring-admin-600 focus:border-admin-600">
+            <select name="anio" onchange="this.form.submit()" class="form-input py-1.5 px-3 text-sm min-w-[100px]">
                 @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 5; y--)
                 {
                     <option value="@y" selected="@(y == Model.AnioConsulta)">@y</option>
@@ -109,59 +141,59 @@
 
     @if (!Model.ResumenElecciones.Any())
     {
-        <div class="p-8 text-center text-gray-500">
-            <span class="text-3xl block mb-2">📭</span>
-            <p>No hay elecciones registradas para el año @Model.AnioConsulta.</p>
-        </div>
+        <partial name="_EmptyState" model="@(("<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' d='M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z' /></svg>", $"No hay elecciones registradas para el año {Model.AnioConsulta}.", "", "", "", false))" />
     }
     else
     {
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Elección</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Partidos</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Candidatos</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Ciudadanos Votaron</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
+                        <th>Eleccion</th>
+                        <th>Estado</th>
+                        <th class="cell-center">Partidos</th>
+                        <th class="cell-center">Candidatos</th>
+                        <th class="cell-center">Ciudadanos Votaron</th>
+                        <th class="cell-actions">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-100">
+                <tbody>
                     @foreach (var item in Model.ResumenElecciones)
                     {
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-gray-900">@item.NombreEleccion</td>
-                            <td class="px-6 py-4">
+                        <tr>
+                            <td class="cell-primary">@item.NombreEleccion</td>
+                            <td>
                                 @switch (item.Estado)
                                 {
                                     case "Activa":
-                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">Activa</span>
+                                        <span class="badge badge-warning">Activa</span>
                                         break;
                                     case "Finalizada":
-                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Finalizada</span>
+                                        <span class="badge badge-success">Finalizada</span>
                                         break;
                                     default:
-                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Pendiente</span>
+                                        <span class="badge badge-neutral">Pendiente</span>
                                         break;
                                 }
                             </td>
-                            <td class="px-6 py-4 text-center font-semibold text-purple-700">@item.TotalPartidos</td>
-                            <td class="px-6 py-4 text-center font-semibold text-blue-700">@item.TotalCandidatos</td>
-                            <td class="px-6 py-4 text-center font-semibold text-green-700">@item.TotalVotantes</td>
-                            <td class="px-6 py-4 text-center">
+                            <td class="cell-center font-medium" style="color: #6b21a8;">@item.TotalPartidos</td>
+                            <td class="cell-center font-medium" style="color: var(--admin-600);">@item.TotalCandidatos</td>
+                            <td class="cell-center font-medium" style="color: var(--success);">@item.TotalVotantes</td>
+                            <td class="cell-actions">
                                 @if (item.Estado == "Finalizada")
                                 {
                                     <a asp-controller="Elecciones" asp-action="Resultados" asp-route-id="@item.Id"
-                                       class="text-xs px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                                        📊 Resultados
+                                       class="btn btn-sm btn-success">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                                        </svg>
+                                        Resultados
                                     </a>
                                 }
                                 else
                                 {
                                     <a asp-controller="Elecciones" asp-action="Index"
-                                       class="text-xs px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                                       class="btn btn-sm btn-secondary">
                                         Ver
                                     </a>
                                 }
@@ -174,31 +206,53 @@
     }
 </div>
 
-<!-- Acciones Rápidas -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-    <div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
-        <h2 class="text-lg font-semibold text-gray-900">Acciones Rápidas</h2>
+<!-- Acciones Rapidas -->
+<div class="card mb-8">
+    <div class="card-header">
+        <h2>Acciones Rapidas</h2>
     </div>
-    <div class="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <a asp-controller="Elecciones" asp-action="Index"
-           class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-admin-50 hover:border-admin-200 transition-colors group">
-            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">🗳️</span>
-            <span class="text-sm font-medium text-gray-700 group-hover:text-admin-600">Gestionar Elecciones</span>
-        </a>
-        <a asp-controller="Ciudadanos" asp-action="Create"
-           class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-admin-50 hover:border-admin-200 transition-colors group">
-            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">➕</span>
-            <span class="text-sm font-medium text-gray-700 group-hover:text-admin-600">Nuevo Ciudadano</span>
-        </a>
-        <a asp-controller="Partidos" asp-action="Create"
-           class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-admin-50 hover:border-admin-200 transition-colors group">
-            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">🏛️</span>
-            <span class="text-sm font-medium text-gray-700 group-hover:text-admin-600">Nuevo Partido</span>
-        </a>
-        <a asp-controller="Usuarios" asp-action="Create"
-           class="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-admin-50 hover:border-admin-200 transition-colors group">
-            <span class="text-3xl mb-2 group-hover:scale-110 transition-transform">👤</span>
-            <span class="text-sm font-medium text-gray-700 group-hover:text-admin-600">Nuevo Usuario</span>
-        </a>
+    <div class="card-body">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <a asp-controller="Elecciones" asp-action="Index" class="quick-action">
+                <div class="quick-action-content">
+                    <div class="quick-action-icon text-admin-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                        </svg>
+                    </div>
+                    <span class="quick-action-label">Gestionar Elecciones</span>
+                </div>
+            </a>
+            <a asp-controller="Ciudadanos" asp-action="Create" class="quick-action">
+                <div class="quick-action-content">
+                    <div class="quick-action-icon text-green-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                    </div>
+                    <span class="quick-action-label">Nuevo Ciudadano</span>
+                </div>
+            </a>
+            <a asp-controller="Partidos" asp-action="Create" class="quick-action">
+                <div class="quick-action-content">
+                    <div class="quick-action-icon text-purple-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+                        </svg>
+                    </div>
+                    <span class="quick-action-label">Nuevo Partido</span>
+                </div>
+            </a>
+            <a asp-controller="Usuarios" asp-action="Create" class="quick-action">
+                <div class="quick-action-content">
+                    <div class="quick-action-icon text-orange-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                    </div>
+                    <span class="quick-action-label">Nuevo Usuario</span>
+                </div>
+            </a>
+        </div>
     </div>
 </div>

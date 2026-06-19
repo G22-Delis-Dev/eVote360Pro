@@ -15,4 +15,8 @@ public class VerificacionCodigoViewModel
 
     public string CorreoElectronicoOculto { get; set; } = string.Empty;
     public int VotanteId { get => CiudadanoId; set => CiudadanoId = value; }
+
+    public string CodigoIngresado { get => Codigo; set => Codigo = value; }
+    public string CorreoElectronico { get => CorreoElectronicoOculto; set => CorreoElectronicoOculto = value; }
+    public int UsuarioId { get => CiudadanoId; set => CiudadanoId = value; }
 }

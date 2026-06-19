@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.AsignacionDirigentes;
@@ -22,14 +22,27 @@ public class AsignacionDirigentesController : Controller
         _mapper = mapper;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? partidoFiltroId)
     {
         var dtos = await _asignacionService.ObtenerListaAsync();
+
+        var partidosDisponibles = dtos
+            .Select(d => new SelectListItem { Value = d.PartidoPoliticoId.ToString(), Text = d.NombrePartido })
+            .DistinctBy(p => p.Value)
+            .ToList();
+
+        if (partidoFiltroId.HasValue)
+        {
+            dtos = dtos.Where(d => d.PartidoPoliticoId == partidoFiltroId.Value);
+        }
+
         var items = _mapper.Map<IEnumerable<AsignacionDirigenteItemViewModel>>(dtos);
 
         var vm = new AsignacionDirigenteListViewModel
         {
-            Asignaciones = items
+            Asignaciones = items,
+            PartidosDisponibles = partidosDisponibles,
+            PartidoFiltroId = partidoFiltroId
         };
 
         return View(vm);

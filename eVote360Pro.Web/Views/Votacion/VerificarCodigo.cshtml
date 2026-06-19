@@ -2,53 +2,124 @@
 @{
     Layout = "_LayoutElector";
     ViewData["Title"] = "Verificar Código";
-    ViewData["PasoActivo"] = 3;
 }
 
-<div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 max-w-xl mx-auto w-full">
-    <div class="p-8 text-center border-b border-gray-100">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-elec-100 text-elec-600 mb-4 text-3xl">
-            ✉️
-        </div>
-        <h2 class="text-2xl font-bold text-gray-900">Verificación de Código</h2>
-        <p class="text-gray-500 mt-2">Hemos enviado un código de 6 dígitos a tu correo electrónico registrado.</p>
-        
-        <div class="mt-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium border border-blue-100 inline-block">
-            Correo: @Model.CorreoElectronicoOculto
-        </div>
+<div class="max-w-md mx-auto pt-10 pb-20">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Verificación de Seguridad</h1>
+        <p class="text-gray-500 mt-2">Paso 2: Confirmación por Correo</p>
     </div>
 
-    <form asp-action="VerificarCodigo" method="post" class="p-8">
-        @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="CiudadanoId" />
-        <input type="hidden" asp-for="EleccionId" />
-        <input type="hidden" asp-for="CorreoElectronicoOculto" />
-        
-        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
-
-        <div class="mb-8 text-center">
-            <label asp-for="CodigoVerificacion" class="block text-sm font-bold text-gray-700 mb-4">Ingresa el código de 6 dígitos</label>
-            
-            <input asp-for="CodigoVerificacion" type="text" maxlength="6" class="block w-full sm:w-2/3 mx-auto px-4 py-4 text-3xl text-center border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-elec-500 focus:border-elec-500 transition-colors font-mono tracking-[0.5em] uppercase" placeholder="000000" autocomplete="off" />
-            
-            <span asp-validation-for="CodigoVerificacion" class="text-xs text-red-500 mt-2 block"></span>
-            
-            <p class="text-xs text-gray-400 mt-4">
-                ¿No recibiste el código? <button type="button" class="text-elec-600 hover:text-elec-800 font-medium">Reenviar código</button>
-            </p>
+    <div class="card p-8 shadow-lg">
+        <div class="flex justify-center mb-6">
+            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 border border-blue-100">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                </svg>
+            </div>
         </div>
 
-        <div class="flex flex-col-reverse sm:flex-row justify-between items-center gap-4 pt-4 border-t border-gray-100">
-            <a asp-action="ValidarIdentidad" class="w-full sm:w-auto text-center px-6 py-3 text-gray-500 bg-gray-100 hover:bg-gray-200 hover:text-gray-700 font-medium rounded-xl transition-colors">
-                Cancelar
-            </a>
-            <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-elec-600 text-white font-bold rounded-xl hover:bg-elec-900 transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-elec-500 flex items-center justify-center gap-2">
-                Validar código ➡️
-            </button>
+        <div class="text-center mb-6">
+            <p class="text-gray-600 mb-2">Hemos enviado un código de seguridad de 6 dígitos a:</p>
+            <p class="font-bold text-gray-900">@Model.CorreoElectronico</p>
         </div>
-    </form>
+
+        <form asp-action="VerificarCodigo" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="UsuarioId" />
+            <input type="hidden" asp-for="CorreoElectronico" />
+
+            <div asp-validation-summary="ModelOnly" class="form-validation-summary mb-4"></div>
+
+            <div class="form-group mb-8">
+                <label asp-for="CodigoIngresado" class="form-label text-center block">Ingresa el Código</label>
+                <div class="flex justify-center gap-2 max-w-[300px] mx-auto">
+                    <input type="text" id="digit1" maxlength="1" class="form-input form-input-mono text-center text-2xl py-3 w-12 font-bold px-0" autofocus />
+                    <input type="text" id="digit2" maxlength="1" class="form-input form-input-mono text-center text-2xl py-3 w-12 font-bold px-0" />
+                    <input type="text" id="digit3" maxlength="1" class="form-input form-input-mono text-center text-2xl py-3 w-12 font-bold px-0" />
+                    <span class="text-2xl text-gray-400 self-center">-</span>
+                    <input type="text" id="digit4" maxlength="1" class="form-input form-input-mono text-center text-2xl py-3 w-12 font-bold px-0" />
+                    <input type="text" id="digit5" maxlength="1" class="form-input form-input-mono text-center text-2xl py-3 w-12 font-bold px-0" />
+                    <input type="text" id="digit6" maxlength="1" class="form-input form-input-mono text-center text-2xl py-3 w-12 font-bold px-0" />
+                </div>
+                <!-- Input oculto para enviar al modelo -->
+                <input type="hidden" asp-for="CodigoIngresado" id="codigoCompleto" />
+                <span asp-validation-for="CodigoIngresado" class="form-error text-center block mt-2"></span>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button type="submit" id="btnVerificar" class="btn btn-primary w-full py-3 justify-center text-lg" onclick="unirCodigo()" disabled>
+                    Verificar y Continuar
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                </button>
+                <a asp-action="ValidarIdentidad" class="btn btn-secondary w-full justify-center">
+                    Volver
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = [];
+            for(let i = 1; i <= 6; i++) {
+                inputs.push(document.getElementById(`digit${i}`));
+            }
+            const btnVerificar = document.getElementById('btnVerificar');
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    if (this.value !== '' && index < 5) {
+                        inputs[index + 1].focus();
+                    }
+                    
+                    verificarFormularioCompleto();
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+                
+                // Pegar código completo
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+                    if(pastedData) {
+                        for(let i = 0; i < Math.min(6, pastedData.length); i++) {
+                            inputs[i].value = pastedData[i];
+                        }
+                        if (pastedData.length >= 6) {
+                            inputs[5].focus();
+                        } else {
+                            inputs[pastedData.length].focus();
+                        }
+                        verificarFormularioCompleto();
+                    }
+                });
+            });
+
+            function verificarFormularioCompleto() {
+                const isComplete = inputs.every(input => input.value !== '');
+                btnVerificar.disabled = !isComplete;
+                if(isComplete) unirCodigo();
+            }
+        });
+
+        function unirCodigo() {
+            let code = '';
+            for(let i = 1; i <= 6; i++) {
+                code += document.getElementById(`digit${i}`).value;
+            }
+            document.getElementById('codigoCompleto').value = code;
+        }
+    </script>
 }

@@ -1,73 +1,135 @@
 @model eVote360Pro.Application.ViewModels.Votacion.InicioVotacionViewModel
 @{
     Layout = "_LayoutElector";
-    ViewData["Title"] = "Bienvenido a la Votación";
-    ViewData["PasoActivo"] = 1;
+    ViewData["Title"] = "Centro de Votación";
 }
 
-<div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-    <div class="bg-gradient-to-r from-elec-900 to-elec-600 p-8 sm:p-12 text-center text-white relative">
-        <div class="absolute top-0 right-0 p-4 opacity-20">
-            <span class="text-9xl">🗳️</span>
-        </div>
-        
-        <h1 class="text-3xl sm:text-4xl font-bold mb-4 relative z-10">¡Bienvenido a @Model.NombreEleccion!</h1>
-        <p class="text-lg text-elec-100 relative z-10 max-w-2xl mx-auto">
-            El sistema electrónico y seguro para ejercer tu derecho al voto desde cualquier lugar.
+<div class="page-header text-center">
+    <div>
+        <h1 class="page-title text-3xl font-bold mb-2">Centro de Votación</h1>
+        <p class="text-gray-500 max-w-2xl mx-auto">
+            Bienvenido al sistema de votación electronica. Aca podras ejercer tu derecho al voto de manera rapida y segura.
         </p>
     </div>
-    
-    <div class="p-8 sm:p-12">
-        <div class="max-w-2xl mx-auto">
-            <h3 class="text-xl font-bold text-gray-900 mb-6 text-center border-b border-gray-200 pb-4">Pasos para votar:</h3>
-            
-            <div class="space-y-6 mb-10">
-                <div class="flex gap-4 items-start">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-elec-100 text-elec-600 flex items-center justify-center font-bold">1</div>
-                    <div>
-                        <h4 class="font-bold text-gray-900">Valida tu Identidad</h4>
-                        <p class="text-gray-600 text-sm">Ingresa tu número de documento de identidad (cédula).</p>
-                    </div>
-                </div>
+</div>
 
-                <div class="flex gap-4 items-start">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-elec-100 text-elec-600 flex items-center justify-center font-bold">2</div>
-                    <div>
-                        <h4 class="font-bold text-gray-900">Sube tu Foto de Cédula</h4>
-                        <p class="text-gray-600 text-sm">Carga una imagen clara de la parte frontal de tu cédula. El sistema la analizará automáticamente mediante OCR.</p>
-                    </div>
-                </div>
-
-                <div class="flex gap-4 items-start">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-elec-100 text-elec-600 flex items-center justify-center font-bold">3</div>
-                    <div>
-                        <h4 class="font-bold text-gray-900">Verifica tu Correo</h4>
-                        <p class="text-gray-600 text-sm">Ingresa el código de 6 dígitos que enviaremos a tu correo registrado.</p>
-                    </div>
+<div class="max-w-4xl mx-auto">
+    @if (!Model.HayEleccionActiva)
+    {
+        <div class="card p-12 text-center">
+            <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">No hay elecciones activas</h2>
+            <p class="text-gray-500 max-w-lg mx-auto">
+                En este momento no hay ningun proceso electoral activo en el que puedas participar. 
+                Por favor, verifica el calendario electoral o vuelve mas tarde.
+            </p>
+        </div>
+    }
+    else if (Model.YaVoto)
+    {
+        <div class="card p-12 text-center border-t-4" style="border-top-color: var(--success);">
+            <div class="w-24 h-24 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">¡Ya has votado!</h2>
+            <p class="text-gray-500 max-w-lg mx-auto mb-8">
+                Tu voto para la eleccion <strong>"@Model.NombreEleccion"</strong> ha sido registrado exitosamente en el sistema.
+                Gracias por ejercer tu deber civico.
+            </p>
+            <a asp-action="Comprobante" class="btn btn-primary inline-flex">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                Ver Comprobante de Votación
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="card overflow-hidden">
+            <div class="bg-primary text-white p-8 text-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10">
+                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                    </svg>
                 </div>
                 
-                <div class="flex gap-4 items-start">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-elec-100 text-elec-600 flex items-center justify-center font-bold">4</div>
-                    <div>
-                        <h4 class="font-bold text-gray-900">Selecciona tus Candidatos</h4>
-                        <p class="text-gray-600 text-sm">Elige un candidato por cada puesto electivo disponible en la boleta.</p>
+                <div class="relative z-10">
+                    <div class="inline-flex items-center justify-center p-3 bg-white/20 rounded-full mb-4 backdrop-blur-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                     </div>
-                </div>
-
-                <div class="flex gap-4 items-start">
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-elec-100 text-elec-600 flex items-center justify-center font-bold">5</div>
-                    <div>
-                        <h4 class="font-bold text-gray-900">Confirma tu Voto</h4>
-                        <p class="text-gray-600 text-sm">Revisa tu selección y emite tu voto de manera cifrada y segura.</p>
-                    </div>
+                    <h2 class="text-3xl font-bold mb-2">@Model.NombreEleccion</h2>
+                    <p class="text-primary-100 font-medium">
+                        Fecha: @Model.FechaRealizacion.ToString("dd MMMM, yyyy")
+                    </p>
                 </div>
             </div>
+            
+            <div class="p-8">
+                <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-primary">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                    Instrucciones para Votar
+                </h3>
+                
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary-50 text-primary font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</div>
+                        <div>
+                            <p class="font-bold text-gray-900">Inicie el proceso</p>
+                            <p class="text-gray-500 text-sm">Haga clic en el boton "Iniciar Votacion" al final de esta pagina.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary-50 text-primary font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</div>
+                        <div>
+                            <p class="font-bold text-gray-900">Seleccione sus candidatos</p>
+                            <p class="text-gray-500 text-sm">Se le presentara una boleta por cada puesto electivo. Seleccione el candidato de su preferencia.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary-50 text-primary font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</div>
+                        <div>
+                            <p class="font-bold text-gray-900">Revise y Confirme</p>
+                            <p class="text-gray-500 text-sm">Antes de enviar, podra revisar todas sus selecciones. Una vez confirmado, no podra cambiar su voto.</p>
+                        </div>
+                    </li>
+                </ul>
 
-            <div class="text-center">
-                <a asp-action="ValidarIdentidad" class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 text-lg font-bold text-white bg-elec-600 rounded-xl hover:bg-elec-900 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 duration-200">
-                    Comenzar Votación ➡️
-                </a>
+                <div class="alert alert-warning mb-8">
+                    <div class="alert-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div class="alert-text">
+                        <strong>Nota Importante:</strong> El voto es secreto y personal. Asegurese de estar en un lugar privado antes de comenzar.
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a asp-action="Boleta" class="btn btn-primary btn-lg inline-flex" style="min-width: 250px; justify-content: center;">
+                        Iniciar Votación
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>

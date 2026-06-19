@@ -11,4 +11,9 @@ public class AlianzaListViewModel
     public string PartidoReceptorNombre { get; set; } = string.Empty;
     public EstadoAlianza Estado { get; set; }
     public DateTime? FechaRespuesta { get; set; }
+
+    public string PuestoNombre { get; set; } = string.Empty;
+    public string PartidoAliadoSiglas { get; set; } = string.Empty;
+    public string PartidoAliadoNombre { get => PartidoReceptorNombre; set => PartidoReceptorNombre = value; }
+    public DateTime FechaCreacion { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿namespace eVote360Pro.Application.ViewModels.AsignacionCandidatos;
+namespace eVote360Pro.Application.ViewModels.AsignacionCandidatos;
 
 public class AsignacionCandidatoListViewModel
 {
@@ -7,4 +7,6 @@ public class AsignacionCandidatoListViewModel
     public string PuestoNombre { get; set; } = string.Empty;
     public string PartidoNombre { get; set; } = string.Empty;
     public bool EsAliado { get; set; }
+    public string FotoCandidato { get; set; } = string.Empty;
+    public DateTime FechaAsignacion { get; set; }
 }

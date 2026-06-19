@@ -3,33 +3,30 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Votación | eVote360 Pro</title>
+    <title>@ViewData["Title"] - Votacion | eVote360 Pro</title>
+    <!-- Tailwind CSS (Solo utilidades) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
-                extend: {
-                    colors: {
-                        elec: {
-                            900: '#744210',
-                            600: '#b7791f',
-                            500: '#d69e2e',
-                            100: '#fefcbf'
-                        }
-                    }
-                }
+                extend: {}
             }
         }
     </script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
+<body class="bg-gray-100 flex flex-col min-h-screen">
 
     <!-- Header Elector -->
-    <header class="bg-elec-900 text-white shadow-md">
-        <div class="max-w-4xl mx-auto px-4 h-16 flex items-center justify-center">
-            <span class="text-2xl font-bold flex items-center gap-2">
-                <span class="text-3xl">🗳️</span> eVote360 Pro
+    <header class="elector-header">
+        <div class="elector-header-inner">
+            <span class="elector-logo">
+                <span class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                </span>
+                eVote360 Pro
             </span>
         </div>
     </header>
@@ -37,62 +34,62 @@
     <!-- Barra de Progreso (si aplica) -->
     @if (ViewData["PasoActivo"] is int paso)
     {
-        <div class="bg-white shadow-sm border-b border-gray-200">
-            <div class="max-w-4xl mx-auto px-4 py-3">
-                <div class="flex items-center justify-between text-xs sm:text-sm font-medium text-gray-400 relative">
-                    <!-- Línea de fondo -->
-                    <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-200 -z-10 -translate-y-1/2"></div>
-                    
-                    <!-- Línea de progreso activa (ancho dinámico según paso) -->
-                    @{
-                        string wClass = paso == 1 ? "w-0" :
-                                        paso == 2 ? "w-1/4" :
-                                        paso == 3 ? "w-2/4" :
-                                        paso == 4 ? "w-3/4" : "w-full";
-                    }
-                    <div class="absolute top-1/2 left-0 @wClass h-0.5 bg-elec-500 -z-10 -translate-y-1/2 transition-all duration-500"></div>
+        <div class="progress-bar-wrapper">
+            <div class="progress-bar-inner">
+                <!-- Lineas de fondo y progreso -->
+                <div class="progress-line"></div>
+                @{
+                    string wClass = paso == 1 ? "0%" :
+                                    paso == 2 ? "25%" :
+                                    paso == 3 ? "50%" :
+                                    paso == 4 ? "75%" : "100%";
+                }
+                <div class="progress-line-active" style="width: @wClass;"></div>
 
-                    <!-- Pasos -->
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        bool isCompleted = i < paso;
-                        bool isActive = i == paso;
-                        
-                        <div class="flex flex-col items-center gap-1 bg-white px-2">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-300
-                                @(isCompleted ? "bg-elec-500 border-elec-500 text-white" : 
-                                  isActive ? "border-elec-500 text-elec-500 bg-elec-100 ring-4 ring-elec-100" : 
-                                  "border-gray-300 text-gray-400 bg-white")">
-                                @if (isCompleted) {
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                } else {
-                                    <span>@i</span>
-                                }
-                            </div>
-                            <span class="hidden sm:block @(isActive || isCompleted ? "text-gray-800 font-semibold" : "")">
-                                @(i == 1 ? "Inicio" : i == 2 ? "Identidad" : i == 3 ? "Verificación" : i == 4 ? "Voto" : "Confirmación")
-                            </span>
+                <!-- Pasos -->
+                @for (int i = 1; i <= 5; i++)
+                {
+                    bool isCompleted = i < paso;
+                    bool isActive = i == paso;
+                    string dotClass = isCompleted ? "completed" : isActive ? "active" : "";
+                    string labelClass = isActive || isCompleted ? "active" : "";
+                    string label = i == 1 ? "Inicio" : i == 2 ? "Identidad" : i == 3 ? "Verificacion" : i == 4 ? "Voto" : "Confirmacion";
+                    
+                    <div class="progress-step">
+                        <div class="progress-step-dot @dotClass">
+                            @if (isCompleted) {
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            } else {
+                                <span>@i</span>
+                            }
                         </div>
-                    }
-                </div>
+                        <span class="progress-step-label @labelClass">@label</span>
+                    </div>
+                }
             </div>
         </div>
     }
 
     <!-- Contenido Principal -->
-    <main class="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 animate-fade-in">
-        <div class="w-full max-w-4xl">
+    <main class="elector-main animate-fade-in">
+        <div class="elector-main-container">
             <partial name="_Alert" />
             @RenderBody()
         </div>
     </main>
 
-    <footer class="bg-white border-t border-gray-200 py-6 text-center text-sm text-gray-500">
+    <footer class="elector-footer">
         <p>&copy; @DateTime.Now.Year - eVote360 Pro. Todos los derechos reservados.</p>
-        <p class="mt-1 flex items-center justify-center gap-1">
-            <svg class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-            Conexión Segura y Cifrada
-        </p>
+        <div class="elector-footer-secure">
+            <span class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+            </span>
+            Conexion Segura y Cifrada
+        </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

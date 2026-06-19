@@ -1,133 +1,91 @@
 @model eVote360Pro.Application.ViewModels.Votacion.ValidacionOcrViewModel
 @{
     Layout = "_LayoutElector";
-    ViewData["Title"] = "Validación de Identidad - Imagen de Cédula";
-    ViewData["PasoActivo"] = 2;
+    ViewData["Title"] = "Validar Documento";
 }
 
-<div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 max-w-2xl mx-auto w-full">
-
-    @* Cabecera *@
-    <div class="p-8 text-center border-b border-gray-100">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-elec-100 text-elec-600 mb-4 text-3xl">
-            📷
-        </div>
-        <h2 class="text-2xl font-bold text-gray-900">Validación de Identidad</h2>
-        <p class="text-gray-500 mt-2">Suba una foto clara de la parte frontal de su cédula para verificar su identidad.</p>
+<div class="max-w-md mx-auto pt-10 pb-20">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Seguridad Biometrica</h1>
+        <p class="text-gray-500 mt-2">Sube una foto de tu cedula para validar tu identidad</p>
     </div>
 
-    @* Formulario *@
-    <form asp-action="ValidarOcr" method="post" enctype="multipart/form-data" class="p-8">
-        @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="CiudadanoId" />
-        <input type="hidden" asp-for="EleccionId" />
-        <input type="hidden" asp-for="CedulaIngresada" />
-
-        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-4 rounded-xl border border-red-200"></div>
-
-        @* Zona de carga de imagen *@
-        <div class="mb-6">
-            <label asp-for="ImagenCedula" class="block text-sm font-bold text-gray-700 mb-2">
-                Imagen frontal de la cédula <span class="text-red-500">*</span>
-            </label>
-
-            <div id="drop-zone"
-                 class="relative flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-elec-50 hover:border-elec-400 transition-all cursor-pointer p-8 text-center"
-                 onclick="document.getElementById('ImagenCedula').click()">
-
-                @* Ícono y texto por defecto *@
-                <div id="upload-placeholder">
-                    <div class="text-5xl mb-3">🪪</div>
-                    <p class="text-base font-semibold text-gray-700">Haga clic o arrastre la imagen aquí</p>
-                    <p class="text-sm text-gray-400 mt-1">Formatos aceptados: JPG, JPEG, PNG</p>
-                </div>
-
-                @* Vista previa de la imagen *@
-                <img id="preview-img"
-                     src="#"
-                     alt="Vista previa de la cédula"
-                     class="hidden max-h-64 rounded-lg shadow-md object-contain border border-gray-200" />
-
-                <input asp-for="ImagenCedula"
-                       type="file"
-                       id="ImagenCedula"
-                       accept=".jpg,.jpeg,.png"
-                       class="hidden"
-                       onchange="mostrarPreview(this)" />
-            </div>
-
-            <span asp-validation-for="ImagenCedula" class="text-xs text-red-500 mt-2 block"></span>
-
-            @* Indicaciones *@
-            <div class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-700 space-y-1">
-                <p class="font-semibold text-blue-800 mb-2">📋 La imagen debe cumplir las siguientes condiciones:</p>
-                <ul class="list-disc list-inside space-y-1">
-                    <li>Mostrar únicamente la parte <strong>frontal</strong> de la cédula.</li>
-                    <li>Tener buena iluminación y no estar borrosa.</li>
-                    <li>Permitir leer claramente el número de documento.</li>
-                    <li>No estar cortada ni demasiado oscura.</li>
-                </ul>
-            </div>
-        </div>
-
-        @* Botones *@
-        <div class="flex justify-between items-center pt-4 border-t border-gray-100">
-            <a asp-action="ValidarIdentidad"
-               class="text-gray-500 hover:text-gray-700 font-medium text-sm transition-colors flex items-center gap-1">
-                ⬅️ Atrás
-            </a>
-            <button type="submit"
-                    id="btn-validar"
-                    class="px-6 py-3 bg-elec-600 text-white font-bold rounded-xl hover:bg-elec-900 transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-elec-500 flex items-center gap-2">
-                <span id="btn-texto">Validar identidad</span>
-                <svg id="btn-spinner" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+    <div class="card p-8 shadow-lg">
+        <div class="flex justify-center mb-6">
+            <div class="w-16 h-16 bg-primary-50 rounded-full flex items-center justify-center text-primary border border-primary-100">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
                 </svg>
-            </button>
+            </div>
         </div>
-    </form>
+
+        <form asp-action="ValidarOcr" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="CiudadanoId" />
+            <input type="hidden" asp-for="EleccionId" />
+            <input type="hidden" asp-for="CedulaIngresada" />
+
+            <div asp-validation-summary="ModelOnly" class="form-validation-summary mb-4"></div>
+
+            <div class="form-group mb-6">
+                <label asp-for="ImagenCedula" class="form-label text-center block">Sube la foto de tu cedula (frente)</label>
+                
+                <div class="mt-2 flex justify-center rounded-xl border border-dashed border-gray-300 px-6 py-10 hover:bg-gray-50 transition-colors" id="drop-zone" onclick="document.getElementById('file-upload').click()">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                        </svg>
+                        <div class="mt-4 flex text-sm leading-6 text-gray-600 justify-center">
+                            <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 hover:text-primary-600">
+                                <span>Cargar un archivo</span>
+                                <input id="file-upload" name="ImagenCedula" type="file" class="sr-only" accept=".jpg,.jpeg,.png">
+                            </label>
+                            <p class="pl-1">o arrastrar y soltar</p>
+                        </div>
+                        <p class="text-xs leading-5 text-gray-500">PNG, JPG, GIF hasta 10MB</p>
+                        <p id="file-name" class="mt-2 text-sm font-medium text-primary hidden"></p>
+                    </div>
+                </div>
+                <span asp-validation-for="ImagenCedula" class="form-error text-center block mt-2"></span>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button type="submit" id="btnContinuar" class="btn btn-primary w-full py-3 justify-center text-lg" disabled>
+                    Validar Documento
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                </button>
+                <a asp-action="ValidarIdentidad" class="btn btn-secondary w-full justify-center">
+                    Volver
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        function mostrarPreview(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    var preview = document.getElementById('preview-img');
-                    var placeholder = document.getElementById('upload-placeholder');
-                    preview.src = e.target.result;
-                    preview.classList.remove('hidden');
-                    placeholder.classList.add('hidden');
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('file-upload');
+            const fileNameDisplay = document.getElementById('file-name');
+            const btnContinuar = document.getElementById('btnContinuar');
+            const dropZone = document.getElementById('drop-zone');
 
-        // Soporte para drag & drop
-        var dropZone = document.getElementById('drop-zone');
-        dropZone.addEventListener('dragover', function (e) {
-            e.preventDefault();
-            dropZone.classList.add('border-elec-500', 'bg-elec-50');
-        });
-        dropZone.addEventListener('dragleave', function () {
-            dropZone.classList.remove('border-elec-500', 'bg-elec-50');
-        });
-        dropZone.addEventListener('drop', function (e) {
-            e.preventDefault();
-            dropZone.classList.remove('border-elec-500', 'bg-elec-50');
-            var fileInput = document.getElementById('ImagenCedula');
-            fileInput.files = e.dataTransfer.files;
-            mostrarPreview(fileInput);
-        });
-
-        // Spinner al enviar
-        document.querySelector('form').addEventListener('submit', function () {
-            document.getElementById('btn-texto').textContent = 'Procesando OCR...';
-            document.getElementById('btn-spinner').classList.remove('hidden');
-            document.getElementById('btn-validar').disabled = true;
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    fileNameDisplay.textContent = this.files[0].name;
+                    fileNameDisplay.classList.remove('hidden');
+                    btnContinuar.disabled = false;
+                    dropZone.classList.add('border-primary', 'bg-primary-50');
+                } else {
+                    fileNameDisplay.classList.add('hidden');
+                    btnContinuar.disabled = true;
+                    dropZone.classList.remove('border-primary', 'bg-primary-50');
+                }
+            });
         });
     </script>
 }

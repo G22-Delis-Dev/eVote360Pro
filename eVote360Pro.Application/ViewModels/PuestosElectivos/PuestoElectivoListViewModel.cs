@@ -3,6 +3,7 @@ namespace eVote360Pro.Application.ViewModels.PuestosElectivos;
 public class PuestoElectivoListViewModel
 {
     public IEnumerable<PuestoElectivoItemViewModel> Puestos { get; set; } = new List<PuestoElectivoItemViewModel>();
+    public string Filtro { get; set; } = string.Empty;
 }
 
 public class PuestoElectivoItemViewModel

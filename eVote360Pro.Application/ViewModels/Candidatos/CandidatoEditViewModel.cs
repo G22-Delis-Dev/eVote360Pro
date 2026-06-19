@@ -20,9 +20,11 @@ public class CandidatoEditViewModel
     [Display(Name = "Nueva Foto del Candidato (Opcional)")]
     public IFormFile? NuevaFoto { get; set; }
     public IFormFile? FotoArchivo { get => NuevaFoto; set => NuevaFoto = value; }
+    public IFormFile? FotoFile { get => NuevaFoto; set => NuevaFoto = value; }
 
     public string FotoActual { get; set; } = string.Empty;
     public string FotoUrlExistente { get => FotoActual; set => FotoActual = value; }
     
     public bool Activo { get; set; }
+    public string CiudadanoNombreCompleto { get => $"{Nombre} {Apellido}"; }
 }

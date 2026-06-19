@@ -4,103 +4,75 @@
     ViewData["Title"] = "Nueva Elección";
 }
 
-<div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">Nueva Elección</h1>
-    <nav class="flex mt-1" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3 text-sm text-gray-500">
-            <li class="inline-flex items-center">
-                <a asp-controller="HomeAdmin" asp-action="Index" class="hover:text-admin-600">Inicio</a>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Nueva Elección</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeAdmin" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
             </li>
-            <li>
-                <div class="flex items-center">
-                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
-                    <a asp-action="Index" class="ml-1 hover:text-admin-600 md:ml-2">Elecciones</a>
-                </div>
+            <li><a asp-action="Index">Elecciones</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
             </li>
-            <li>
-                <div class="flex items-center">
-                    <svg class="w-3 h-3 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/></svg>
-                    <span class="ml-1 text-gray-500 md:ml-2">Nueva</span>
-                </div>
-            </li>
-        </ol>
-    </nav>
+            <li><span>Nueva</span></li>
+        </ul>
+    </div>
 </div>
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden max-w-4xl">
-    <div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
-        <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <span>🗳️</span> Configuración de la Elección
+<div class="card max-w-2xl">
+    <div class="card-header">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+            </svg>
+            Planificar Proceso Electoral
         </h2>
     </div>
 
-    <form asp-action="Create" method="post" class="p-6">
+    <form asp-action="Create" method="post" class="card-body">
         @Html.AntiForgeryToken()
         
-        <div asp-validation-summary="ModelOnly" class="mb-6 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
+        <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Datos Generales -->
-            <div class="space-y-6">
-                <div>
-                    <h3 class="text-base font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Datos Generales</h3>
-                </div>
-
-                <div>
-                    <label asp-for="Nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre de la Elección <span class="text-red-500">*</span></label>
-                    <input asp-for="Nombre" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors" placeholder="Ej. Elecciones Presidenciales 2024" />
-                    <span asp-validation-for="Nombre" class="text-xs text-red-500 mt-1 block"></span>
-                </div>
-
-                <div>
-                    <label asp-for="FechaEleccion" class="block text-sm font-medium text-gray-700 mb-1">Fecha de la Elección <span class="text-red-500">*</span></label>
-                    <input asp-for="FechaEleccion" type="date" class="block w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-admin-500 focus:border-admin-500 transition-colors" />
-                    <span asp-validation-for="FechaEleccion" class="text-xs text-red-500 mt-1 block"></span>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Nombre -->
+            <div class="form-group md:col-span-2">
+                <label asp-for="Nombre" class="form-label">Nombre de la Elección <span class="required">*</span></label>
+                <input asp-for="Nombre" class="form-input" placeholder="Ej. Elecciones Presidenciales 2024" />
+                <span asp-validation-for="Nombre" class="form-error"></span>
             </div>
 
-            <!-- Puestos Electivos -->
-            <div>
-                <div>
-                    <h3 class="text-base font-medium text-gray-900 mb-4 border-b border-gray-200 pb-2">Puestos a Disputa</h3>
-                </div>
-
-                @if (!Model.PuestosDisponibles.Any())
-                {
-                    <div class="bg-yellow-50 p-4 rounded text-sm text-yellow-700 flex gap-3">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                        <p>No hay puestos electivos activos registrados en el sistema. Debes crear al menos uno para poder configurar una elección.</p>
-                    </div>
-                }
-                else
-                {
-                    <p class="text-sm text-gray-500 mb-3">Selecciona los puestos que estarán disponibles para esta elección:</p>
-                    
-                    <div class="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                        @foreach (var puesto in Model.PuestosDisponibles)
-                        {
-                            <label class="flex items-start p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center h-5">
-                                    <input type="checkbox" name="PuestosSeleccionadosIds" value="@puesto.Value" 
-                                           @(Model.PuestosSeleccionadosIds.Contains(int.Parse(puesto.Value)) ? "checked" : "")
-                                           class="w-4 h-4 text-admin-600 bg-gray-100 border-gray-300 rounded focus:ring-admin-500 focus:ring-2">
-                                </div>
-                                <div class="ml-3 text-sm">
-                                    <span class="font-medium text-gray-900">@puesto.Text</span>
-                                </div>
-                            </label>
-                        }
-                    </div>
-                    <span asp-validation-for="PuestosSeleccionadosIds" class="text-xs text-red-500 mt-2 block"></span>
-                }
+            <!-- Fecha -->
+            <div class="form-group md:col-span-2">
+                <label asp-for="FechaRealizacion" class="form-label">Fecha de Realización <span class="required">*</span></label>
+                <input asp-for="FechaRealizacion" type="date" class="form-input md:max-w-xs" />
+                <span class="form-hint">Seleccione la fecha pautada para las elecciones. El estado inicial será "Pendiente".</span>
+                <span asp-validation-for="FechaRealizacion" class="form-error"></span>
             </div>
         </div>
 
-        <div class="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-5">
-            <a asp-action="Index" class="px-4 py-2 text-gray-700 bg-gray-100 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+        <div class="alert alert-info mt-6">
+            <div class="alert-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+            </div>
+            <div class="alert-text">
+                Al crear una eleccion, los ciudadanos podran votar si la eleccion es iniciada (estado "Activa"). Recuerde que solo puede haber una eleccion activa a la vez.
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-secondary">
                 Cancelar
             </a>
-            <button type="submit" class="px-4 py-2 bg-admin-600 text-white font-medium rounded-lg hover:bg-admin-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-admin-500">
+            <button type="submit" class="btn btn-primary">
                 Guardar Elección
             </button>
         </div>
