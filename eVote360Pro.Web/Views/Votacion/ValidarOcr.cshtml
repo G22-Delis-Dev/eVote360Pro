@@ -31,8 +31,9 @@
             <div class="form-group mb-6">
                 <label asp-for="ImagenCedula" class="form-label text-center block">Sube la foto de tu cedula (frente)</label>
                 
+                <!-- Drop Zone para subir archivo -->
                 <div class="mt-2 flex justify-center rounded-xl border border-dashed border-gray-300 px-6 py-10 hover:bg-gray-50 transition-colors" id="drop-zone" onclick="document.getElementById('file-upload').click()">
-                    <div class="text-center">
+                    <div class="text-center" id="upload-content">
                         <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
                         </svg>
@@ -43,10 +44,31 @@
                             </label>
                             <p class="pl-1">o arrastrar y soltar</p>
                         </div>
-                        <p class="text-xs leading-5 text-gray-500">PNG, JPG, GIF hasta 10MB</p>
-                        <p id="file-name" class="mt-2 text-sm font-medium text-primary hidden"></p>
+                        <p class="text-xs leading-5 text-gray-500">PNG, JPG hasta 10MB</p>
                     </div>
                 </div>
+
+                <!-- Vista previa de la imagen -->
+                <div id="preview-container" class="mt-4 hidden">
+                    <div class="relative rounded-xl border-2 border-primary bg-primary-50 p-4">
+                        <img id="image-preview" src="" alt="Vista previa de cédula" class="w-full h-auto rounded-lg shadow-md" />
+                        <div class="mt-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p id="file-name" class="text-sm font-medium text-gray-700"></p>
+                            </div>
+                            <button type="button" id="btn-remove-image" class="text-sm text-red-600 hover:text-red-800 font-medium flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <span asp-validation-for="ImagenCedula" class="form-error text-center block mt-2"></span>
             </div>
 
@@ -73,17 +95,78 @@
             const fileNameDisplay = document.getElementById('file-name');
             const btnContinuar = document.getElementById('btnContinuar');
             const dropZone = document.getElementById('drop-zone');
+            const uploadContent = document.getElementById('upload-content');
+            const previewContainer = document.getElementById('preview-container');
+            const imagePreview = document.getElementById('image-preview');
+            const btnRemoveImage = document.getElementById('btn-remove-image');
 
+            // Función para mostrar la vista previa de la imagen
+            function mostrarVistaPrevia(file) {
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        uploadContent.classList.add('hidden');
+                        previewContainer.classList.remove('hidden');
+                        fileNameDisplay.textContent = file.name;
+                        btnContinuar.disabled = false;
+                        dropZone.classList.remove('hover:bg-gray-50');
+                        dropZone.onclick = null; // Deshabilitar el click en el dropzone
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Función para limpiar la vista previa
+            function limpiarVistaPrevia() {
+                imagePreview.src = '';
+                fileNameDisplay.textContent = '';
+                fileInput.value = '';
+                uploadContent.classList.remove('hidden');
+                previewContainer.classList.add('hidden');
+                btnContinuar.disabled = true;
+                dropZone.classList.add('hover:bg-gray-50');
+                dropZone.onclick = function() { fileInput.click(); };
+            }
+
+            // Evento cuando se selecciona un archivo
             fileInput.addEventListener('change', function() {
                 if (this.files && this.files.length > 0) {
-                    fileNameDisplay.textContent = this.files[0].name;
-                    fileNameDisplay.classList.remove('hidden');
-                    btnContinuar.disabled = false;
-                    dropZone.classList.add('border-primary', 'bg-primary-50');
-                } else {
-                    fileNameDisplay.classList.add('hidden');
-                    btnContinuar.disabled = true;
-                    dropZone.classList.remove('border-primary', 'bg-primary-50');
+                    mostrarVistaPrevia(this.files[0]);
+                }
+            });
+
+            // Evento para eliminar la imagen
+            btnRemoveImage.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                limpiarVistaPrevia();
+            });
+
+            // Soporte para drag & drop
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.add('border-primary', 'bg-primary-50');
+            });
+
+            dropZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('border-primary', 'bg-primary-50');
+            });
+
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('border-primary', 'bg-primary-50');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    mostrarVistaPrevia(files[0]);
                 }
             });
         });

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Ciudadanos;
@@ -12,13 +12,16 @@ public class CiudadanosController : Controller
 {
     private readonly ICiudadanoService _ciudadanoService;
     private readonly IMapper _mapper;
+    private readonly IEleccionService _eleccionService;
 
     public CiudadanosController(
         ICiudadanoService ciudadanoService,
-        IMapper mapper)
+        IMapper mapper,
+        IEleccionService eleccionService)
     {
         _ciudadanoService = ciudadanoService;
         _mapper = mapper;
+        _eleccionService = eleccionService;
     }
 
     public async Task<IActionResult> Index(string? filtro)
@@ -32,12 +35,15 @@ public class CiudadanosController : Controller
             Filtro = filtro
         };
 
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
         return View(vm);
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
         return View(new CiudadanoCreateViewModel());
     }
 
@@ -68,6 +74,8 @@ public class CiudadanosController : Controller
     {
         var dto = await _ciudadanoService.ObtenerPorIdAsync(id);
         if (dto == null) return NotFound();
+
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
 
         var vm = _mapper.Map<CiudadanoEditViewModel>(dto);
         return View(vm);

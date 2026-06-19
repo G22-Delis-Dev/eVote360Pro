@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.PuestosElectivos;
@@ -12,13 +12,16 @@ public class PuestosElectivosController : Controller
 {
     private readonly IPuestoElectivoService _puestoService;
     private readonly IMapper _mapper;
+    private readonly IEleccionService _eleccionService;
 
     public PuestosElectivosController(
         IPuestoElectivoService puestoService,
-        IMapper mapper)
+        IMapper mapper,
+        IEleccionService eleccionService)
     {
         _puestoService = puestoService;
         _mapper = mapper;
+        _eleccionService = eleccionService;
     }
 
     public async Task<IActionResult> Index()
@@ -31,12 +34,15 @@ public class PuestosElectivosController : Controller
             Puestos = items
         };
 
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
         return View(vm);
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
         return View(new PuestoElectivoCreateViewModel());
     }
 
@@ -67,6 +73,8 @@ public class PuestosElectivosController : Controller
     {
         var dto = await _puestoService.ObtenerPorIdAsync(id);
         if (dto == null) return NotFound();
+
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
 
         var vm = _mapper.Map<PuestoElectivoEditViewModel>(dto);
         vm.NombreEsEditable = !await _puestoService.ParticipoEnEleccionAsync(id);

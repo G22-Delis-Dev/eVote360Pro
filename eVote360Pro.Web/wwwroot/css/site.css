@@ -1571,6 +1571,13 @@ a, button {
    Elector Layout
    ======================================== */
 
+/* Map --primary to elector palette so boleta/views using var(--primary) match */
+:root {
+    --primary:      var(--elec-600);
+    --primary-50:   var(--elec-50);
+    --primary-100:  var(--elec-100);
+}
+
 .elector-header {
     background: var(--elec-800);
     color: #fff;
@@ -1578,26 +1585,64 @@ a, button {
 }
 
 .elector-header-inner {
-    max-width: 900px;
+    max-width: 960px;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 0 20px;
     height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.elector-logo {
+    font-size: 1.125rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.elector-logo svg {
+    width: 24px;
+    height: 24px;
+}
+
+.elector-logo .icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.15);
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.elector-logo {
-    font-size: 1.25rem;
-    font-weight: 700;
-    display: flex;
+.elector-acceder-btn {
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-fast);
 }
 
-.elector-logo svg {
-    width: 26px;
-    height: 26px;
+.elector-acceder-btn:hover {
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    border-color: rgba(255,255,255,0.35);
+}
+
+.elector-acceder-btn svg {
+    width: 15px;
+    height: 15px;
 }
 
 /* Progress bar */
@@ -1608,9 +1653,9 @@ a, button {
 }
 
 .progress-bar-inner {
-    max-width: 900px;
+    max-width: 960px;
     margin: 0 auto;
-    padding: 16px;
+    padding: 16px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1707,13 +1752,12 @@ a, button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 24px;
+    padding: 32px 16px;
 }
 
 .elector-main-container {
     width: 100%;
-    max-width: 900px;
+    max-width: 960px;
 }
 
 .elector-footer {
@@ -1741,12 +1785,31 @@ a, button {
 .elector-footer-secure svg {
     width: 14px;
     height: 14px;
-} 
- / *   H i d e   d e f a u l t   b r o w s e r   p a s s w o r d   r e v e a l   e y e   i c o n   * /  
- i n p u t [ t y p e = \  
- p a s s w o r d \ ] : : - m s - r e v e a l ,  
- i n p u t [ t y p e = \  
- p a s s w o r d \ ] : : - m s - c l e a r   {  
-         d i s p l a y :   n o n e ;  
- }  
+}
+
+/* Override btn-primary for elector context */
+.elector-main .btn-primary,
+.elector-main .btn-primary:visited {
+    background: var(--elec-600);
+    color: #fff;
+}
+
+.elector-main .btn-primary:hover {
+    background: var(--elec-700);
+}
+ 
+ / *   H i d e   d e f a u l t   b r o w s e r   p a s s w o r d   r e v e a l   e y e   i c o n   * / 
+ 
+ i n p u t [ t y p e = \ 
+ 
+ p a s s w o r d \ ] : : - m s - r e v e a l , 
+ 
+ i n p u t [ t y p e = \ 
+ 
+ p a s s w o r d \ ] : : - m s - c l e a r   { 
+ 
+         d i s p l a y :   n o n e ; 
+ 
+ } 
+ 
  

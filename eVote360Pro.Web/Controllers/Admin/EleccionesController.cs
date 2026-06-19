@@ -76,7 +76,7 @@ public class EleccionesController : Controller
         }
     }
 
-    public async Task<IActionResult> Activar(int id)
+    public async Task<IActionResult> Iniciar(int id)
     {
         try
         {

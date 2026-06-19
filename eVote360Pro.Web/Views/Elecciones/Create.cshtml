@@ -55,6 +55,43 @@
                 <span class="form-hint">Seleccione la fecha pautada para las elecciones. El estado inicial será "Pendiente".</span>
                 <span asp-validation-for="FechaRealizacion" class="form-error"></span>
             </div>
+
+            <!-- Puestos Electivos -->
+            <div class="form-group md:col-span-2">
+                <label class="form-label">Puestos Electivos <span class="required">*</span></label>
+                <span asp-validation-for="PuestosSeleccionadosIds" class="form-error mb-2 block"></span>
+
+                @if (!Model.PuestosDisponibles.Any())
+                {
+                    <div class="alert alert-warning mt-1">
+                        <div class="alert-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="alert-text">
+                            No hay puestos electivos registrados. <a asp-controller="PuestosElectivos" asp-action="Create" class="font-semibold underline">Crear uno ahora</a>.
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                        @foreach (var puesto in Model.PuestosDisponibles)
+                        {
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                                <input type="checkbox"
+                                       name="PuestosSeleccionadosIds"
+                                       value="@puesto.Value"
+                                       class="w-4 h-4 rounded accent-blue-600"
+                                       @(Model.PuestosSeleccionadosIds.Contains(int.Parse(puesto.Value)) ? "checked" : "") />
+                                <span class="text-sm font-medium text-gray-700">@puesto.Text</span>
+                            </label>
+                        }
+                    </div>
+                    <span class="form-hint mt-2 block">Seleccione los puestos que se votarán en esta elección.</span>
+                }
+            </div>
         </div>
 
         <div class="alert alert-info mt-6">

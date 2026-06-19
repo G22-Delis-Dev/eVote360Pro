@@ -9,7 +9,20 @@
     <script>
         tailwind.config = {
             theme: {
-                extend: {}
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#b7791f',
+                            50:  '#fffef5',
+                            100: '#fefcbf',
+                            300: '#e0b84d',
+                            400: '#d69e2e',
+                            600: '#b7791f',
+                            700: '#8c5a1a',
+                        },
+                        success: '#059669',
+                    }
+                }
             }
         }
     </script>
@@ -28,10 +41,14 @@
                 </span>
                 eVote360 Pro
             </span>
+            <a asp-controller="Auth" asp-action="Login" class="elector-acceder-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                </svg>
+                Acceder
+            </a>
         </div>
     </header>
-
-    <!-- Barra de Progreso (si aplica) -->
     @if (ViewData["PasoActivo"] is int paso)
     {
         <div class="progress-bar-wrapper">

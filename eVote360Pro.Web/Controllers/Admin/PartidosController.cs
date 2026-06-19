@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Partidos;
@@ -14,15 +14,18 @@ public class PartidosController : Controller
     private readonly IPartidoPoliticoService _partidoService;
     private readonly IMapper _mapper;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly IEleccionService _eleccionService;
 
     public PartidosController(
         IPartidoPoliticoService partidoService,
         IMapper mapper,
-        IWebHostEnvironment webHostEnvironment)
+        IWebHostEnvironment webHostEnvironment,
+        IEleccionService eleccionService)
     {
         _partidoService = partidoService;
         _mapper = mapper;
         _webHostEnvironment = webHostEnvironment;
+        _eleccionService = eleccionService;
     }
 
     public async Task<IActionResult> Index()
@@ -35,12 +38,15 @@ public class PartidosController : Controller
             Partidos = items
         };
 
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
         return View(vm);
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
         return View(new PartidoCreateViewModel());
     }
 
@@ -75,6 +81,8 @@ public class PartidosController : Controller
         if (dto == null) return NotFound();
 
         var participoEnEleccion = await _partidoService.ParticipoEnEleccionAsync(id);
+
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
 
         var vm = _mapper.Map<PartidoEditViewModel>(dto);
         vm.LogoActualRuta = dto.LogoRuta;

@@ -15,7 +15,7 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        return RedirectToAction("Login", "Auth");
+        return RedirectToAction("Index", "Votacion");
     }
 
     public IActionResult Privacy()

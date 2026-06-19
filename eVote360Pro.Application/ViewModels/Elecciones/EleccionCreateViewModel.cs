@@ -13,7 +13,7 @@ public class EleccionCreateViewModel
     [Required(ErrorMessage = "La fecha es obligatoria.")]
     [DataType(DataType.Date)]
     [Display(Name = "Fecha de realización")]
-    public DateTime FechaEleccion { get; set; }
+    public DateTime FechaEleccion { get; set; } = DateTime.Today;
     public DateTime FechaRealizacion { get => FechaEleccion; set => FechaEleccion = value; }
 
     [Required(ErrorMessage = "Debe seleccionar al menos un puesto electivo.")]
