@@ -31,11 +31,15 @@ public class EleccionesController : Controller
         var dtos = await _eleccionService.ObtenerTodosAsync();
         var items = _mapper.Map<IEnumerable<EleccionItemViewModel>>(dtos);
 
+        var hayActiva = items.Any(e => e.Estado == EstadoEleccion.Activa);
+
         var vm = new EleccionListViewModel
         {
             Elecciones = items,
-            HayEleccionActiva = items.Any(e => e.Estado == EstadoEleccion.Activa)
+            HayEleccionActiva = hayActiva
         };
+
+        ViewBag.HayEleccionActiva = hayActiva;
 
         return View(vm);
     }

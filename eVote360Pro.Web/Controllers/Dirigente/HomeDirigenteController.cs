@@ -37,6 +37,8 @@ public class HomeDirigenteController : Controller
         var asignaciones = await _asignacionService.ObtenerTodosAsync();
         var elecciones = await _eleccionService.ObtenerTodosAsync();
 
+        var hayEleccionActiva = elecciones.Any(e => e.Estado == EstadoEleccion.Activa);
+
         // Construimos el ViewModel recolectando las estadísticas
         var viewModel = new HomeDirigenteViewModel
         {
@@ -46,8 +48,11 @@ public class HomeDirigenteController : Controller
             TotalAlianzasPendientes = alianzas.Count(a => a.Estado == EstadoAlianza.Pendiente),
             TotalAsignaciones = asignaciones.Count(),
             // Contamos solo las elecciones que están en estado Activa
-            TotalEleccionesActivas = elecciones.Count(e => e.Estado == EstadoEleccion.Activa)
+            TotalEleccionesActivas = elecciones.Count(e => e.Estado == EstadoEleccion.Activa),
+            HayEleccionActiva = hayEleccionActiva
         };
+
+        ViewBag.HayEleccionActiva = hayEleccionActiva;
 
         // Enviamos el panel consolidado directamente a la vista del Dirigente
         return View(viewModel);

@@ -12,4 +12,5 @@ public class HomeDirigenteViewModel
     public int TotalAlianzasActivas { get; set; }
     public int TotalSolicitudesPendientes { get; set; }
     public int TotalCandidatosAsignadosPuesto { get; set; }
+    public bool HayEleccionActiva { get; set; }
 }

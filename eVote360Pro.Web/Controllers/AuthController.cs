@@ -23,18 +23,16 @@ public class AuthController : Controller
     [HttpGet]
     public IActionResult Login()
     {
+        // Evitar caché para que el botón atrás no muestre páginas de sesiones anteriores
+        Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+        Response.Headers["Pragma"] = "no-cache";
+        Response.Headers["Expires"] = "0";
+
+        // Si ya hay sesión activa y el usuario llega al login manualmente (ej. botón atrás),
+        // se limpia la sesión para permitir iniciar con otra cuenta
         if (_sesionUsuario.TieneUsuario())
         {
-            var usuarioSesion = _sesionUsuario.ObtenerUsuarioSesion();
-            if (usuarioSesion != null)
-            {
-                return usuarioSesion.Rol switch
-                {
-                    RolUsuario.Administrador => RedirectToAction("Index", "HomeAdmin"),
-                    RolUsuario.DirigentePolitico => RedirectToAction("Index", "HomeDirigente"),
-                    _ => RedirectToAction("Login", "Auth")
-                };
-            }
+            HttpContext.Session.Clear();
         }
 
         return View(new LoginViewModel());
@@ -44,20 +42,6 @@ public class AuthController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel vm)
     {
-        if (_sesionUsuario.TieneUsuario())
-        {
-            var sesionActual = _sesionUsuario.ObtenerUsuarioSesion();
-            if (sesionActual != null)
-            {
-                return sesionActual.Rol switch
-                {
-                    RolUsuario.Administrador => RedirectToAction("Index", "HomeAdmin"),
-                    RolUsuario.DirigentePolitico => RedirectToAction("Index", "HomeDirigente"),
-                    _ => RedirectToAction("Login", "Auth")
-                };
-            }
-        }
-
         if (!ModelState.IsValid)
         {
             vm.Password = string.Empty;

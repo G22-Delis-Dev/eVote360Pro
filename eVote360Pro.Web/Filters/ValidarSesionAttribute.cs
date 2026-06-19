@@ -16,6 +16,12 @@ public class ValidarSesionAttribute : ActionFilterAttribute
 
     public override void OnActionExecuting(ActionExecutingContext context)
     {
+        // Evitar que el navegador cachee páginas autenticadas
+        var response = context.HttpContext.Response;
+        response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+        response.Headers["Pragma"] = "no-cache";
+        response.Headers["Expires"] = "0";
+
         var sesionUsuario = context.HttpContext.RequestServices.GetService<ISesionUsuario>();
 
         if (sesionUsuario == null || !sesionUsuario.TieneUsuario())

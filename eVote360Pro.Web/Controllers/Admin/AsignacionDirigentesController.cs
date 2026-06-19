@@ -12,18 +12,23 @@ namespace eVote360Pro.Web.Controllers.Admin;
 public class AsignacionDirigentesController : Controller
 {
     private readonly IAsignacionDirigenteService _asignacionService;
+    private readonly IEleccionService _eleccionService;
     private readonly IMapper _mapper;
 
     public AsignacionDirigentesController(
         IAsignacionDirigenteService asignacionService,
+        IEleccionService eleccionService,
         IMapper mapper)
     {
         _asignacionService = asignacionService;
+        _eleccionService = eleccionService;
         _mapper = mapper;
     }
 
     public async Task<IActionResult> Index(int? partidoFiltroId)
     {
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
         var dtos = await _asignacionService.ObtenerListaAsync();
 
         var partidosDisponibles = dtos
@@ -51,6 +56,12 @@ public class AsignacionDirigentesController : Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
+        if (await _eleccionService.ExisteEleccionActivaAsync())
+        {
+            TempData["Error"] = "No se pueden realizar asignaciones de dirigentes durante una elección activa.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var vm = new AsignacionDirigenteCreateViewModel();
         await CargarDropdownsAsync(vm);
         return View(vm);
@@ -60,6 +71,12 @@ public class AsignacionDirigentesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(AsignacionDirigenteCreateViewModel vm)
     {
+        if (await _eleccionService.ExisteEleccionActivaAsync())
+        {
+            TempData["Error"] = "No se pueden realizar asignaciones de dirigentes durante una elección activa.";
+            return RedirectToAction(nameof(Index));
+        }
+
         if (!ModelState.IsValid)
         {
             await CargarDropdownsAsync(vm);
@@ -90,6 +107,12 @@ public class AsignacionDirigentesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
+        if (await _eleccionService.ExisteEleccionActivaAsync())
+        {
+            TempData["Error"] = "No se pueden revocar asignaciones de dirigentes durante una elección activa.";
+            return RedirectToAction(nameof(Index));
+        }
+
         try
         {
             await _asignacionService.EliminarAsync(id);
