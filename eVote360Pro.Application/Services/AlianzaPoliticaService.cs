@@ -18,15 +18,22 @@ public class AlianzaPoliticaService : GenericService<AlianzaPolitica, AlianzaPol
 
     public override async Task<AlianzaPoliticaDto> CrearAsync(AlianzaPoliticaDto dto)
     {
-        EleccionRules.ValidarNoExisteEleccionActiva(await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
 
         // Un partido no puede aliarse consigo mismo
-        if (dto.PartidoSolicitanteId == dto.PartidoReceptorId)
-        {
-            throw new ValidacionException("Un partido político no puede solicitar una alianza consigo mismo.");
-        }
+        AlianzaRules.ValidarNoEsMismoPartido(dto.PartidoSolicitanteId, dto.PartidoReceptorId);
 
-        AlianzaRules.ValidarNoExisteSolicitudPendiente(await _unitOfWork.AlianzasPoliticas.ExisteSolicitudPendienteAsync(dto.PartidoSolicitanteId, dto.PartidoReceptorId));
+        // Validar que no haya solicitud pendiente entre estos partidos (en cualquier dirección)
+        var existePendiente = await _unitOfWork.AlianzasPoliticas
+            .ExisteSolicitudPendienteAsync(dto.PartidoSolicitanteId, dto.PartidoReceptorId);
+        AlianzaRules.ValidarNoExisteSolicitudPendiente(existePendiente);
+
+        // Validar que no haya ya una alianza vigente entre ellos
+        var existeVigente = await _unitOfWork.AlianzasPoliticas
+            .ExisteAlianzaVigenteAsync(dto.PartidoSolicitanteId, dto.PartidoReceptorId);
+        if (existeVigente)
+            throw new ValidacionException("Ya existe una alianza activa entre estos partidos.");
 
         var alianza = _mapper.Map<AlianzaPolitica>(dto);
 
@@ -42,50 +49,77 @@ public class AlianzaPoliticaService : GenericService<AlianzaPolitica, AlianzaPol
     // filtrar por partido
     public async Task<IEnumerable<AlianzaPoliticaDto>> ObtenerPorPartidoAsync(int partidoId)
     {
-        // Solo devuelve las alianzas donde el partido es solicitante o receptor
-        var alianzas = await _unitOfWork.AlianzasPoliticas
-            .FindAsync(a => a.PartidoSolicitanteId == partidoId || a.PartidoReceptorId == partidoId);
+        // Incluye los partidos para poder mostrar sus nombres en la vista
+        var alianzas = await _unitOfWork.AlianzasPoliticas.GetPorPartidoConNombresAsync(partidoId);
         return _mapper.Map<IEnumerable<AlianzaPoliticaDto>>(alianzas);
     }
 
     // Aceptar o rechazar una solicitud de alianza
     public async Task ResponderSolicitudAsync(int id, EstadoAlianza nuevoEstado)
     {
-        EleccionRules.ValidarNoExisteEleccionActiva(await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
 
         var alianzaExistente = await _repository.GetByIdAsync(id);
 
         if (alianzaExistente == null)
-        {
             throw new RegistroNoEncontradoException(nameof(AlianzaPolitica), id);
-        }
 
         alianzaExistente.Estado = nuevoEstado;
-        alianzaExistente.FechaRespuesta = DateTime.UtcNow; // Registramos cuándo se respondió
+        alianzaExistente.FechaRespuesta = DateTime.UtcNow;
 
         _repository.Update(alianzaExistente);
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<AlianzaPoliticaDto>> ObtenerAlianzasVigentesAsync(int partidoId)
+    // Cancelar una solicitud pendiente (solo el solicitante puede hacerlo)
+    public async Task CancelarSolicitudAsync(int id, int partidoSolicitanteId)
     {
-        var alianzas = await _unitOfWork.AlianzasPoliticas.GetAlianzasVigentesAsync(partidoId);
-        return _mapper.Map<IEnumerable<AlianzaPoliticaDto>>(alianzas);
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
+        var alianza = await _repository.GetByIdAsync(id);
+
+        if (alianza == null)
+            throw new RegistroNoEncontradoException(nameof(AlianzaPolitica), id);
+
+        if (alianza.PartidoSolicitanteId != partidoSolicitanteId)
+            throw new ValidacionException("Solo el partido solicitante puede cancelar esta solicitud.");
+
+        if (alianza.Estado != EstadoAlianza.Pendiente)
+            throw new ValidacionException("Solo se pueden cancelar solicitudes en estado Pendiente.");
+
+        // Eliminación física: la solicitud desaparece limpiamente
+        await _unitOfWork.AlianzasPoliticas.EliminarFisicoAsync(alianza);
+        await _unitOfWork.SaveChangesAsync();
     }
 
-    public override async Task EliminarAsync(int id)
+    // Romper una alianza vigente (cualquiera de los dos partidos puede iniciar)
+    public async Task RomperAlianzaAsync(int id, int partidoId)
     {
-        EleccionRules.ValidarNoExisteEleccionActiva(await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
 
-        var alianza = await _repository.GetByIdAsync(id) ?? throw new RegistroNoEncontradoException(nameof(AlianzaPolitica), id);
+        var alianza = await _repository.GetByIdAsync(id);
 
-        if (alianza.Estado == EstadoAlianza.Aceptada)
-        {
-            bool tieneAliados = await _unitOfWork.AsignacionesCandidatos.ExistenAsignacionesAliadasPorAlianzaAsync(alianza.PartidoSolicitanteId, alianza.PartidoReceptorId);
-            AlianzaRules.ValidarPuedeEliminarse(tieneAliados);
-        }
+        if (alianza == null)
+            throw new RegistroNoEncontradoException(nameof(AlianzaPolitica), id);
 
-        _repository.Remove(alianza);
+        // Solo los partidos que forman parte de la alianza pueden romperla
+        if (alianza.PartidoSolicitanteId != partidoId && alianza.PartidoReceptorId != partidoId)
+            throw new ValidacionException("No tienes permiso para romper esta alianza.");
+
+        if (alianza.Estado != EstadoAlianza.Aceptada)
+            throw new ValidacionException("Solo se pueden romper alianzas en estado Aceptada.");
+
+        // Validar que no haya candidatos aliados mezclados antes de romper
+        var tieneAsignacionesAliadas = await _unitOfWork.AsignacionesCandidatos
+            .ExistenAsignacionesAliadasPorAlianzaAsync(alianza.PartidoSolicitanteId, alianza.PartidoReceptorId);
+
+        AlianzaRules.ValidarPuedeEliminarse(tieneAsignacionesAliadas);
+
+        // Eliminación física: la alianza desaparece limpiamente
+        await _unitOfWork.AlianzasPoliticas.EliminarFisicoAsync(alianza);
         await _unitOfWork.SaveChangesAsync();
     }
 }

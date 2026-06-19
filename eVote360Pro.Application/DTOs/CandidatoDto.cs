@@ -11,4 +11,5 @@ public class CandidatoDto
     public int PartidoPoliticoId { get; set; }
     public string NombrePartido { get; set; } = string.Empty;
     public string LogoPartido { get; set; } = string.Empty;
+    public IEnumerable<string> PuestosAsignados { get; set; } = [];
 }

@@ -50,17 +50,29 @@ public class OcrService : IOcrService
 
         foreach (var linea in lineas)
         {
+            // Formato con guiones: 000-0000000-0
             var conGuiones = System.Text.RegularExpressions.Regex.Match(
-                linea, @"\b\d{3}-\d{7}-\d{1}\b");
+                linea, @"\b\d{3}[-\s.]\d{7}[-\s.]\d{1}\b");
 
             if (conGuiones.Success)
-                return conGuiones.Value.Replace("-", "");
+            {
+                // Normalizar: quitar guiones, espacios y puntos
+                return System.Text.RegularExpressions.Regex.Replace(conGuiones.Value, @"[-\s.]", "");
+            }
 
+            // Formato sin separadores: 11 dígitos consecutivos
             var sinGuiones = System.Text.RegularExpressions.Regex.Match(
                 linea, @"\b\d{11}\b");
 
             if (sinGuiones.Success)
                 return sinGuiones.Value;
+
+            // Formato permisivo: 3 dígitos, algo, 7 dígitos, algo, 1 dígito (OCR impreciso)
+            var permisivo = System.Text.RegularExpressions.Regex.Match(
+                linea, @"(\d{3})\D{0,2}(\d{7})\D{0,2}(\d{1})");
+
+            if (permisivo.Success)
+                return permisivo.Groups[1].Value + permisivo.Groups[2].Value + permisivo.Groups[3].Value;
         }
 
         return null;

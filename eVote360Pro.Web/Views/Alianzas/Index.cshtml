@@ -3,6 +3,7 @@
 @{
     Layout = "_LayoutDirigente";
     ViewData["Title"] = "Gestión de Alianzas";
+    int partidoActualId = ViewBag.PartidoActualId ?? 0;
 }
 
 <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -22,7 +23,7 @@
             </ol>
         </nav>
     </div>
-    
+
     <div>
         @if (ViewBag.HayEleccionActiva == true)
         {
@@ -38,6 +39,22 @@
         }
     </div>
 </div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="mb-4 flex items-center gap-3 p-4 bg-red-50 border-l-4 border-red-500 rounded text-sm text-red-700" role="alert">
+        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"/></svg>
+        <span>@TempData["Error"]</span>
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="mb-4 flex items-center gap-3 p-4 bg-green-50 border-l-4 border-green-500 rounded text-sm text-green-700" role="alert">
+        <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+        <span>@TempData["Success"]</span>
+    </div>
+}
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8 p-6">
     @if (!Model.Any())
@@ -62,6 +79,9 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
+                        bool esSolicitante = item.PartidoSolicitanteId == partidoActualId;
+                        bool esReceptor = item.PartidoReceptorId == partidoActualId;
+
                         <tr class="bg-white border-b">
                             <td class="px-6 py-4 font-medium text-gray-900">@item.PartidoSolicitanteNombre</td>
                             <td class="px-6 py-4 font-medium text-gray-900">@item.PartidoReceptorNombre</td>
@@ -82,47 +102,54 @@
                             <td class="px-6 py-4">
                                 @(item.FechaRespuesta?.ToString("dd/MM/yyyy") ?? "-")
                             </td>
-                            <td class="px-6 py-4 text-right flex justify-end gap-2">
-                                @if (ViewBag.HayEleccionActiva != true)
-                                {
-                                    @if (item.Estado == EstadoAlianza.Pendiente)
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex justify-end gap-2">
+                                    @if (item.Estado == EstadoAlianza.Pendiente && ViewBag.HayEleccionActiva != true)
                                     {
-                                        <!-- Si soy el receptor, puedo Aceptar o Rechazar -->
-                                        @if (item.PartidoReceptorNombre != null && item.PartidoSolicitanteId != ViewBag.PartidoId)
+                                        @if (esReceptor)
                                         {
+                                            <!-- El receptor puede aceptar o rechazar -->
                                             <form asp-action="Responder" method="post" class="inline">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@item.Id" />
                                                 <input type="hidden" name="nuevoEstado" value="@EstadoAlianza.Aceptada" />
-                                                <button type="submit" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Aceptar</button>
+                                                <button type="submit" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">✅ Aceptar</button>
                                             </form>
                                             <form asp-action="Responder" method="post" class="inline">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@item.Id" />
                                                 <input type="hidden" name="nuevoEstado" value="@EstadoAlianza.Rechazada" />
-                                                <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200">Rechazar</button>
+                                                <button type="submit" class="px-3 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200">❌ Rechazar</button>
                                             </form>
                                         }
-                                        <!-- Si soy el solicitante, puedo Cancelar -->
-                                        @if (item.PartidoSolicitanteId == ViewBag.PartidoId)
+                                        else if (esSolicitante)
                                         {
-                                            <form asp-action="Delete" method="post" class="inline" onsubmit="return confirm('¿Está seguro de cancelar esta solicitud?');">
+                                            <!-- El solicitante puede cancelar su propia solicitud -->
+                                            <form asp-action="Cancelar" method="post" class="inline">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@item.Id" />
-                                                <button type="submit" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Cancelar Solicitud</button>
+                                                <button type="submit" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">🗑 Cancelar Solicitud</button>
                                             </form>
                                         }
                                     }
-                                    else if (item.Estado == EstadoAlianza.Aceptada)
+                                    else if (item.Estado == EstadoAlianza.Aceptada && ViewBag.HayEleccionActiva != true)
                                     {
-                                        <!-- Cualquiera de los dos puede romper la alianza -->
-                                        <form asp-action="Delete" method="post" class="inline" onsubmit="return confirm('¿Está seguro de romper esta alianza? Se verificará que no existan candidatos aliados.');">
+                                        <!-- Cualquiera de los dos partidos puede romper la alianza -->
+                                        <form asp-action="Romper" method="post" class="inline">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@item.Id" />
-                                            <button type="submit" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Romper Alianza</button>
+                                            <button type="submit"
+                                                    onclick="return confirm('¿Estás seguro de que deseas romper esta alianza? Esta acción no se puede deshacer.')"
+                                                    class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                                                💔 Romper Alianza
+                                            </button>
                                         </form>
                                     }
-                                }
+                                    else if (item.Estado == EstadoAlianza.Rechazada)
+                                    {
+                                        <span class="text-xs text-gray-400 italic">Sin acciones disponibles</span>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }

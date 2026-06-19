@@ -28,7 +28,12 @@ public class PerfilGeneral : Profile
         //  MAPEOS SIMPLES (Entidad <-> DTO)
         // =========================================================
         CreateMap<PartidoPolitico, PartidoPoliticoDto>().ReverseMap();
-        CreateMap<AlianzaPolitica, AlianzaPoliticaDto>().ReverseMap();
+        CreateMap<AlianzaPolitica, AlianzaPoliticaDto>()
+            .ForMember(dest => dest.PartidoSolicitanteNombre, opt => opt.MapFrom(src => src.PartidoSolicitante.Nombre))
+            .ForMember(dest => dest.PartidoReceptorNombre, opt => opt.MapFrom(src => src.PartidoReceptor.Nombre));
+        CreateMap<AlianzaPoliticaDto, AlianzaPolitica>()
+            .ForMember(dest => dest.PartidoSolicitante, opt => opt.Ignore())
+            .ForMember(dest => dest.PartidoReceptor, opt => opt.Ignore());
         CreateMap<PuestoElectivo, PuestoElectivoDto>().ReverseMap();
         CreateMap<Ciudadano, CiudadanoDto>().ReverseMap();
         CreateMap<Eleccion, EleccionDto>().ReverseMap();
@@ -46,7 +51,11 @@ public class PerfilGeneral : Profile
         // =========================================================
         CreateMap<Candidato, CandidatoDto>()
             .ForMember(dest => dest.NombrePartido, opt => opt.MapFrom(src => src.PartidoPolitico.Nombre))
-            .ForMember(dest => dest.LogoPartido, opt => opt.MapFrom(src => src.PartidoPolitico.LogoRuta));
+            .ForMember(dest => dest.LogoPartido, opt => opt.MapFrom(src => src.PartidoPolitico.LogoRuta))
+            .ForMember(dest => dest.PuestosAsignados, opt => opt.MapFrom(src =>
+                src.AsignacionesPuestos
+                    .Where(a => a.Activo)
+                    .Select(a => a.PuestoElectivo.Nombre)));
 
         CreateMap<CandidatoDto, Candidato>()
             .ForMember(dest => dest.PartidoPolitico, opt => opt.Ignore())
@@ -67,13 +76,16 @@ public class PerfilGeneral : Profile
         // =========================================================
 
         // --- Módulo: Alianzas Políticas ---
-        CreateMap<AlianzaPoliticaDto, AlianzaListViewModel>();
+        CreateMap<AlianzaPoliticaDto, AlianzaListViewModel>()
+            .ForMember(dest => dest.PartidoSolicitanteId, opt => opt.MapFrom(src => src.PartidoSolicitanteId))
+            .ForMember(dest => dest.PartidoReceptorId, opt => opt.MapFrom(src => src.PartidoReceptorId));
         CreateMap<AlianzaCreateViewModel, AlianzaPoliticaDto>().ReverseMap();
 
         // --- Módulo: Candidatos ---
         CreateMap<CandidatoDto, CandidatoListViewModel>()
             .ForMember(dest => dest.NombreCompleto, opt => opt.MapFrom(src => $"{src.Nombre} {src.Apellido}"))
-            .ForMember(dest => dest.PartidoPoliticoNombre, opt => opt.MapFrom(src => src.NombrePartido));
+            .ForMember(dest => dest.PartidoPoliticoNombre, opt => opt.MapFrom(src => src.NombrePartido))
+            .ForMember(dest => dest.PuestosAsignados, opt => opt.MapFrom(src => src.PuestosAsignados));
         CreateMap<CandidatoCreateViewModel, CandidatoDto>().ReverseMap();
         CreateMap<CandidatoEditViewModel, CandidatoDto>().ReverseMap();
 
@@ -130,6 +142,18 @@ public class PerfilGeneral : Profile
 
         // --- Módulo: Elecciones (Admin) ---
         CreateMap<EleccionDto, EleccionItemViewModel>();
-        CreateMap<EleccionCreateViewModel, EleccionDto>().ReverseMap();
+        CreateMap<EleccionCreateViewModel, EleccionDto>()
+            .ForMember(dest => dest.FechaRealizacion, opt => opt.MapFrom(src => src.FechaEleccion))
+            .ReverseMap()
+            .ForMember(dest => dest.FechaEleccion, opt => opt.MapFrom(src => src.FechaRealizacion));
+
+        // --- Módulo: Resultados de Elecciones ---
+        CreateMap<ResultadoEleccionDto, EleccionResultadoViewModel>()
+            .ForMember(dest => dest.Puestos, opt => opt.MapFrom(src => src.Puestos));
+        CreateMap<ResultadoPuestoDto, ResultadoPuestoViewModel>()
+            .ForMember(dest => dest.Candidatos, opt => opt.MapFrom(src => src.Candidatos));
+        CreateMap<ResultadoCandidatoDto, ResultadoCandidatoViewModel>()
+            .ForMember(dest => dest.FotoCandidatoUrl, opt => opt.Ignore())
+            .ForMember(dest => dest.EsAlianza, opt => opt.Ignore());
     }
 }

@@ -18,6 +18,9 @@ public class PuestoElectivoService : GenericService<PuestoElectivo, PuestoElecti
 
     public override async Task<PuestoElectivoDto> CrearAsync(PuestoElectivoDto dto)
     {
+        eVote360Pro.Domain.Rules.EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         if (await _unitOfWork.PuestosElectivos.ExisteNombreAsync(dto.Nombre))
         {
             throw new Domain.Exceptions.ValidacionException($"Ya existe un puesto electivo con el nombre '{dto.Nombre}'.");
@@ -28,6 +31,9 @@ public class PuestoElectivoService : GenericService<PuestoElectivo, PuestoElecti
 
     public override async Task ActualizarAsync(int id, PuestoElectivoDto dto)
     {
+        eVote360Pro.Domain.Rules.EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         var puestoExistente = await _unitOfWork.PuestosElectivos.GetByIdAsync(id)
             ?? throw new Domain.Exceptions.RegistroNoEncontradoException(nameof(PuestoElectivo), id);
 

@@ -58,4 +58,21 @@ public class AlianzaPoliticaRepository : GenericRepository<AlianzaPolitica>, IAl
              (a.PartidoSolicitanteId == partidoBId && a.PartidoReceptorId == partidoAId)) &&
             a.Estado == EstadoAlianza.Aceptada);
     }
+
+    public Task EliminarFisicoAsync(AlianzaPolitica alianza)
+    {
+        // Elimina el registro físicamente de la base de datos (no soft-delete)
+        _dbSet.Remove(alianza);
+        return Task.CompletedTask;
+    }
+
+    public async Task<IEnumerable<AlianzaPolitica>> GetPorPartidoConNombresAsync(int partidoId)
+    {
+        // Trae todas las alianzas del partido (como solicitante o receptor) incluyendo los nombres de ambos partidos
+        return await _dbSet
+            .Include(a => a.PartidoSolicitante)
+            .Include(a => a.PartidoReceptor)
+            .Where(a => a.PartidoSolicitanteId == partidoId || a.PartidoReceptorId == partidoId)
+            .ToListAsync();
+    }
 }

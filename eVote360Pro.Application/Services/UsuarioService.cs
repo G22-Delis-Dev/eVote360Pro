@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using BCrypt.Net;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
@@ -22,6 +22,9 @@ public class UsuarioService : GenericService<Usuario, UsuarioDto>, IUsuarioServi
 
     public async Task CrearAsync(UsuarioDto dto, string password)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         UsuarioRules.ValidarNombreUsuarioUnico(
             await _unitOfWork.Usuarios.ExisteNombreUsuarioAsync(dto.NombreUsuario));
 
@@ -39,6 +42,9 @@ public class UsuarioService : GenericService<Usuario, UsuarioDto>, IUsuarioServi
 
     public async Task EditarAsync(UsuarioDto dto, string? nuevaPassword = null)
     {
+        EleccionRules.ValidarNoExisteEleccionActiva(
+            await _unitOfWork.Elecciones.ExisteEleccionActivaAsync());
+
         var usuario = await _unitOfWork.Usuarios.GetByIdAsync(dto.Id)
             ?? throw new Domain.Exceptions.RegistroNoEncontradoException(nameof(Usuario), dto.Id);
 

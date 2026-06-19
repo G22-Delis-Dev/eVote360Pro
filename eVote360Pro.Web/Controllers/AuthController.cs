@@ -84,6 +84,9 @@ public class AuthController : Controller
                 usuarioSesion.PartidoId = asignacion?.PartidoPoliticoId;
             }
 
+            // Limpiar cualquier sesión previa antes de guardar la nueva
+            HttpContext.Session.Clear();
+
             if (usuarioSesion.Rol == RolUsuario.Administrador)
             {
                 HttpContext.Session.Set("Usuario", usuarioSesion);
@@ -113,7 +116,7 @@ public class AuthController : Controller
 
     public IActionResult Logout()
     {
-        HttpContext.Session.Remove("Usuario");
+        HttpContext.Session.Clear();
         return RedirectToAction("Login", "Auth");
     }
 

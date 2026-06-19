@@ -129,6 +129,11 @@ public class PartidosController : Controller
             TempData["Error"] = ex.Message;
             return RedirectToAction(nameof(Index));
         }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
     }
 
 }

@@ -92,7 +92,94 @@ public class EleccionService : GenericService<Eleccion, EleccionDto>, IEleccionS
         var eleccion = await ObtenerEntidadOExcepcionAsync(id);
         EleccionRules.ValidarPuedeVerResultados(eleccion.Estado);
 
-        return new ResultadoEleccionDto();
+        // Total de ciudadanos que participaron en esta elección
+        var totalVotantes = await _unitOfWork.ParticipacionesElectorales
+            .ContarParticipantesPorEleccionAsync(id);
+
+        // Puestos configurados para esta elección
+        var puestosEleccion = await _unitOfWork.EleccionPuestos.GetByEleccionAsync(id);
+
+        var resultadosPorPuesto = new List<ResultadoPuestoDto>();
+
+        foreach (var ep in puestosEleccion)
+        {
+            // Candidatos asignados a este puesto (de cualquier partido, incluidos aliados)
+            var asignacionesPuesto = await _unitOfWork.AsignacionesCandidatos
+                .FindAsync(a => a.PuestoElectivoId == ep.PuestoElectivoId && a.Activo);
+
+            // Votos emitidos para este puesto en esta elección
+            var votosPuesto = await _unitOfWork.Votos
+                .GetByEleccionYPuestoAsync(id, ep.PuestoElectivoId);
+
+            int totalVotosPuesto = votosPuesto.Count();
+
+            var resultadosCandidatos = new List<ResultadoCandidatoDto>();
+
+            foreach (var asignacion in asignacionesPuesto)
+            {
+                // Traer datos del candidato con su partido
+                var candidato = await _unitOfWork.Candidatos.GetByIdAsync(asignacion.CandidatoId);
+                var partido = await _unitOfWork.PartidosPoliticos.GetByIdAsync(asignacion.PartidoPoliticoId);
+
+                int votosObtenidos = await _unitOfWork.Votos
+                    .ContarVotosPorCandidatoAsync(id, ep.PuestoElectivoId, asignacion.CandidatoId);
+
+                double porcentaje = totalVotosPuesto > 0
+                    ? Math.Round((double)votosObtenidos / totalVotosPuesto * 100, 2)
+                    : 0;
+
+                resultadosCandidatos.Add(new ResultadoCandidatoDto
+                {
+                    CandidatoId = asignacion.CandidatoId,
+                    NombreCandidato = candidato != null
+                        ? $"{candidato.Nombre} {candidato.Apellido}"
+                        : "Candidato desconocido",
+                    NombrePartido = partido?.Nombre ?? "Partido desconocido",
+                    LogoPartido = partido?.LogoRuta ?? string.Empty,
+                    TotalVotos = votosObtenidos,
+                    Porcentaje = porcentaje,
+                    EsGanador = false, // se calcula después
+                    EsEmpate = false
+                });
+            }
+
+            // Determinar ganador(es)
+            if (resultadosCandidatos.Any())
+            {
+                int maxVotos = resultadosCandidatos.Max(c => c.TotalVotos);
+                var ganadores = resultadosCandidatos.Where(c => c.TotalVotos == maxVotos).ToList();
+
+                if (ganadores.Count == 1)
+                {
+                    ganadores[0].EsGanador = true;
+                }
+                else
+                {
+                    // empate
+                    foreach (var g in ganadores)
+                    {
+                        g.EsEmpate = true;
+                        g.EsGanador = true;
+                    }
+                }
+            }
+
+            resultadosPorPuesto.Add(new ResultadoPuestoDto
+            {
+                PuestoId = ep.PuestoElectivoId,
+                NombrePuesto = ep.PuestoElectivo?.Nombre ?? "Puesto desconocido",
+                TotalVotos = totalVotosPuesto,
+                Candidatos = resultadosCandidatos.OrderByDescending(c => c.TotalVotos).ToList()
+            });
+        }
+
+        return new ResultadoEleccionDto
+        {
+            EleccionId = eleccion.Id,
+            NombreEleccion = eleccion.Nombre,
+            TotalVotantes = totalVotantes,
+            Puestos = resultadosPorPuesto
+        };
     }
 
     public async Task<IEnumerable<ResumenEleccionDto>> ObtenerResumenPorAnioAsync(int anio)

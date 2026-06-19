@@ -18,16 +18,16 @@ public class AsignacionDirigenteService : GenericService<AsignacionDirigente, As
         return _mapper.Map<IEnumerable<AsignacionDirigenteDto>>(asignaciones);
     }
 
-    public async Task<IEnumerable<object>> ObtenerDirigentesDisponiblesAsync()
+    public async Task<IEnumerable<DropdownItemDto>> ObtenerDirigentesDisponiblesAsync()
     {
         var dirigentes = await _unitOfWork.Usuarios.GetDirigentesDisponiblesParaAsignacionAsync();
-        return dirigentes.Select(u => new { Value = u.Id, Text = $"{u.Nombre} {u.Apellido}" });
+        return dirigentes.Select(u => new DropdownItemDto { Value = u.Id, Text = $"{u.Nombre} {u.Apellido}" });
     }
 
-    public async Task<IEnumerable<object>> ObtenerPartidosDisponiblesAsync()
+    public async Task<IEnumerable<DropdownItemDto>> ObtenerPartidosDisponiblesAsync()
     {
         var partidos = await _unitOfWork.PartidosPoliticos.GetActivosDisponiblesParaAsignacionAsync();
-        return partidos.Select(p => new { Value = p.Id, Text = $"{p.Nombre} ({p.Siglas})" });
+        return partidos.Select(p => new DropdownItemDto { Value = p.Id, Text = $"{p.Nombre} ({p.Siglas})" });
     }
 
     public override async Task<AsignacionDirigenteDto> CrearAsync(AsignacionDirigenteDto dto)
