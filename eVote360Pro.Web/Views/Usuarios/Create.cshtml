@@ -44,7 +44,7 @@
             <!-- Seleccion de Ciudadano -->
             <div class="form-group md:col-span-2">
                 <label asp-for="CiudadanoId" class="form-label">Ciudadano Asociado <span class="required">*</span></label>
-                <select asp-for="CiudadanoId" asp-items="@(new SelectList(Model.CiudadanosDisponibles, "Id", "NombreCompletoDocumento"))" class="form-input">
+                <select asp-for="CiudadanoId" asp-items="Model.CiudadanosDisponibles" class="form-input">
                     <option value="">Seleccione un ciudadano (Solo ciudadanos sin usuario asignado)</option>
                 </select>
                 <span class="form-hint text-gray-500">Los datos personales (nombre, correo) se tomarán del ciudadano.</span>
