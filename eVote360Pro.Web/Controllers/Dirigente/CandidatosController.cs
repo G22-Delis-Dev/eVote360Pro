@@ -57,7 +57,11 @@ public class CandidatosController : Controller
         var listaVms = _mapper.Map<IEnumerable<CandidatoListViewModel>>(dtos);
 
         if (!string.IsNullOrEmpty(filtro))
-            listaVms = listaVms.Where(c => c.NombreCompleto.Contains(filtro, StringComparison.OrdinalIgnoreCase));
+        {
+            var terminos = filtro.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            listaVms = listaVms.Where(c => terminos.All(t => 
+                c.NombreCompleto.Contains(t, StringComparison.OrdinalIgnoreCase)));
+        }
 
         ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
 

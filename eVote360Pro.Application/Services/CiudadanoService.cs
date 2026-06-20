@@ -17,8 +17,7 @@ public class CiudadanoService : GenericService<Ciudadano, CiudadanoDto>, ICiudad
         var ciudadanos = string.IsNullOrWhiteSpace(filtro)
             ? await _unitOfWork.Ciudadanos.GetAllAsync()
             : await _unitOfWork.Ciudadanos.FindAsync(c =>
-                c.Nombre.Contains(filtro) ||
-                c.Apellido.Contains(filtro) ||
+                (c.Nombre + " " + c.Apellido).Contains(filtro) ||
                 c.NumeroDocumento.Contains(filtro));
 
         return _mapper.Map<IEnumerable<CiudadanoDto>>(ciudadanos);

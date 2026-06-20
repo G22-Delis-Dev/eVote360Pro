@@ -35,9 +35,10 @@ public class PartidosController : Controller
 
         if (!string.IsNullOrEmpty(filtro))
         {
-            items = items.Where(p => 
-                (p.Nombre?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (p.Siglas?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false));
+            var terminos = filtro.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            items = items.Where(p => terminos.All(t => 
+                (p.Nombre?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (p.Siglas?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false)));
         }
 
         var vm = new PartidoListViewModel
