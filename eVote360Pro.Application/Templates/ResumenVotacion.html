@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Resumen de Votación</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f7f6;">
+    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f7f6; padding: 40px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <!-- Header verde con check -->
+                    <tr>
+                        <td align="center" style="background-color: #28a745; padding: 30px 30px 20px;">
+                            <div style="width: 60px; height: 60px; background-color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                                <span style="font-size: 32px; line-height: 1;">✓</span>
+                            </div>
+                            <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: bold;">¡Voto Registrado Exitosamente!</h1>
+                            <p style="color: #d4edda; margin: 8px 0 0; font-size: 14px;">Tu participación ha sido confirmada</p>
+                        </td>
+                    </tr>
+
+                    <!-- Cuerpo -->
+                    <tr>
+                        <td style="padding: 35px 35px 10px; color: #333333;">
+                            <h2 style="margin-top: 0; font-size: 20px;">Hola, {{Nombre}}</h2>
+                            <p style="font-size: 15px; line-height: 1.6; color: #555;">
+                                Tu voto en la elección <strong>{{NombreEleccion}}</strong> ha sido registrado correctamente el <strong>{{FechaVotacion}}</strong>.
+                                A continuación encontrarás el detalle de tus selecciones:
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Tabla de votos -->
+                    <tr>
+                        <td style="padding: 0 35px 30px;">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border-radius: 6px; overflow: hidden; border: 1px solid #e0e0e0;">
+                                <thead>
+                                    <tr style="background-color: #004a99;">
+                                        <th style="padding: 12px; text-align: left; color: #fff; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Puesto</th>
+                                        <th style="padding: 12px; text-align: left; color: #fff; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Candidato</th>
+                                        <th style="padding: 12px; text-align: left; color: #fff; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Partido</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{FilasVotos}}
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Nota de confidencialidad -->
+                    <tr>
+                        <td style="padding: 0 35px 30px;">
+                            <div style="background-color: #fff8e1; border-left: 4px solid #ffc107; padding: 14px 16px; border-radius: 4px;">
+                                <p style="margin: 0; font-size: 13px; color: #856404;">
+                                    🔒 <strong>Confidencialidad del voto:</strong> Este correo confirma tu participación en el proceso electoral, pero los votos son completamente anónimos en el sistema. No existe forma de vincular este resumen con el registro de votos.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="padding: 20px; background-color: #eeeeee; font-size: 12px; color: #888888;">
+                            &copy; 2026 eVote360 Pro &mdash; Sistema de Votación Electrónica
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

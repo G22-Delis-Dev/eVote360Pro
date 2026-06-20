@@ -1,4 +1,4 @@
-﻿namespace eVote360Pro.Domain.Entities;
+﻿using eVote360Pro.Domain.Entities;
 
 public class Candidato : BaseEntity
 {
@@ -7,8 +7,7 @@ public class Candidato : BaseEntity
     public string? FotoRuta { get; set; }
     public int PartidoPoliticoId { get; set; }
     public PartidoPolitico PartidoPolitico { get; set; } = null!;
-    public bool Activo { get; set; } = true;
+    // Eliminamos "public bool Activo { get; set; } = true;" porque ya viene de BaseEntity[cite: 1]
 
-    // Navegación
     public ICollection<AsignacionCandidatoPuesto> AsignacionesPuestos { get; set; } = [];
 }

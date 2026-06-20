@@ -1,6 +1,6 @@
-﻿using eVote360Pro.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using eVote360Pro.Domain.Entities;
 
 namespace eVote360Pro.Infrastructure.Data.Configurations;
 
@@ -8,9 +8,10 @@ public class AsignacionDirigenteConfiguration : IEntityTypeConfiguration<Asignac
 {
     public void Configure(EntityTypeBuilder<AsignacionDirigente> builder)
     {
+        builder.ToTable("AsignacionesDirigentes");
         builder.HasKey(a => a.Id);
 
-        // 1:1 — un dirigente un partido, un partido un dirigente
+        //  Un usuario solo puede estar asignado a un partido como dirigente a la vez
         builder.HasIndex(a => a.UsuarioId).IsUnique();
         builder.HasIndex(a => a.PartidoPoliticoId).IsUnique();
 

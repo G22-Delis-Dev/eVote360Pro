@@ -10,6 +10,5 @@ public class Usuario : BaseEntity
     public string NombreUsuario { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public RolUsuario Rol { get; set; }
-    public bool Activo { get; set; } = true;
     public AsignacionDirigente? AsignacionDirigente { get; set; }
 }

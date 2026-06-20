@@ -1,0 +1,92 @@
+@model eVote360Pro.Application.ViewModels.Candidatos.CandidatoEditViewModel
+@{
+    Layout = "_LayoutDirigente";
+    ViewData["Title"] = "Editar Candidato";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Editar Candidato</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeDirigente" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><a asp-action="Index">Candidatos</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Editar</span></li>
+        </ul>
+    </div>
+</div>
+
+<div class="card max-w-3xl">
+    <div class="card-header">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+            </svg>
+            Modificar Datos del Candidato
+        </h2>
+    </div>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="card-body">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="FotoActual" />
+        
+        <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Ciudadano (Solo lectura) -->
+            <div class="form-group md:col-span-2">
+                <label class="form-label">Ciudadano (Candidato)</label>
+                <div class="form-input bg-gray-50 text-gray-500 font-medium flex items-center justify-between" style="border-color: var(--gray-200); cursor: not-allowed;">
+                    <span>@Model.CiudadanoNombreCompleto</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-gray-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                </div>
+                <span class="form-hint">El ciudadano no puede modificarse tras registrar el candidato.</span>
+                <input type="hidden" asp-for="CiudadanoNombreCompleto" />
+            </div>
+
+            <!-- Foto -->
+            <div class="form-group md:col-span-2">
+                <label asp-for="FotoFile" class="form-label">Cambiar Foto del Candidato</label>
+                
+                @if (!string.IsNullOrEmpty(Model.FotoActual))
+                {
+                    <div class="mb-3">
+                        <p class="text-xs text-gray-500 mb-2">Foto Actual:</p>
+                        <div class="w-20 h-20 rounded-lg border border-gray-200 bg-white overflow-hidden">
+                            <img src="@Model.FotoActual" alt="Foto actual" class="w-full h-full object-cover" />
+                        </div>
+                    </div>
+                }
+                
+                <input type="file" asp-for="FotoFile" class="form-input" accept="image/*" />
+                <span class="form-hint">Dejar vacio para mantener la foto actual. Formatos soportados: JPG, PNG.</span>
+                <span asp-validation-for="FotoFile" class="form-error"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary-dir">
+                Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

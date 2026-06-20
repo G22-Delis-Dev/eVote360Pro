@@ -1,0 +1,245 @@
+@model eVote360Pro.Application.ViewModels.Votacion.BoletaElectoralViewModel
+@{
+    Layout = "_LayoutElector";
+    ViewData["Title"] = "Boleta Electoral";
+}
+
+<div class="page-header text-center mb-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="text-left">
+                <h1 class="page-title text-3xl font-bold">Boleta Electoral</h1>
+                <p class="text-gray-500">Seleccione un candidato por cada puesto electivo</p>
+            </div>
+            
+            <!-- Tarjeta de progreso y botón revisar -->
+            <div class="flex flex-col gap-3 md:min-w-[280px]">
+                <div class="bg-white rounded-lg border-2 border-gray-200 p-4 shadow-sm">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Progreso de la boleta:</p>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 bg-gray-200 rounded-full h-2.5">
+                            <div id="progreso-bar" class="bg-primary h-2.5 rounded-full transition-all" style="width: 0%"></div>
+                        </div>
+                        <span id="progreso-text" class="text-sm font-bold text-gray-600 min-w-[45px]">0/@Model.Puestos.Count</span>
+                    </div>
+                </div>
+                <button type="button" onclick="validarYEnviar()" class="btn btn-primary justify-center py-3 text-base font-semibold shadow-md hover:shadow-lg transition-shadow">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Revisar Votos
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form asp-action="Revisar" method="post" id="formVotacion" class="max-w-5xl mx-auto pb-8">
+    @Html.AntiForgeryToken()
+
+    @if (Model.Puestos == null || !Model.Puestos.Any())
+    {
+        <div class="card p-8 text-center">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-yellow-50 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-yellow-600">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Boleta No Disponible</h2>
+            <p class="text-gray-600 mb-6">No hay puestos electorales configurados para esta elección. Por favor contacte al administrador.</p>
+            <a asp-action="Index" class="btn btn-primary inline-flex">
+                Volver al Inicio
+            </a>
+        </div>
+    }
+    else
+    {
+        @for (int i = 0; i < Model.Puestos.Count; i++)
+        {
+            var puesto = Model.Puestos[i];
+        
+        <div class="card mb-8 boleta-section" id="puesto-section-@puesto.PuestoId">
+            <div class="card-header bg-gray-50 border-b border-gray-200 py-4 px-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">@puesto.PuestoNombre</h2>
+                </div>
+                <div class="badge badge-neutral hidden md:flex" id="badge-puesto-@puesto.PuestoId">
+                    Falta seleccionar
+                </div>
+            </div>
+            
+            <div class="card-body p-6">
+                <!-- Hidden fields para el puesto -->
+                <input type="hidden" name="Puestos[@i].PuestoId" value="@puesto.PuestoId" />
+                <input type="hidden" name="Puestos[@i].PuestoNombre" value="@puesto.PuestoNombre" />
+                <input type="hidden" name="Puestos[@i].CandidatoSeleccionadoId" value="" id="input-candidato-@puesto.PuestoId" />
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    @foreach (var candidato in puesto.Candidatos)
+                    {
+                        <div class="candidato-card relative border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary-300 transition-all bg-white"
+                             onclick="seleccionarCandidato(@puesto.PuestoId, @candidato.CandidatoId, this)">
+                            
+                            <div class="candidato-check absolute top-3 right-3 w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center opacity-0 transition-opacity">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-white">
+                                    <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+
+                            <div class="flex flex-col items-center text-center">
+                                @if (!string.IsNullOrEmpty(candidato.LogoPartido))
+                                {
+                                    <div class="w-12 h-12 rounded bg-white border border-gray-100 p-1 mb-3 shadow-sm flex items-center justify-center">
+                                        <img src="@candidato.LogoPartido" alt="Logo" class="max-w-full max-h-full object-contain" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="w-12 h-12 rounded bg-gray-50 border border-gray-100 flex items-center justify-center mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-gray-400">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+                                        </svg>
+                                    </div>
+                                }
+                                
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">@candidato.PartidoSiglas</span>
+                                
+                                @if (!string.IsNullOrEmpty(candidato.FotoCandidato))
+                                {
+                                    <div class="w-20 h-20 rounded-full border-2 border-gray-100 bg-white overflow-hidden mb-3">
+                                        <img src="@candidato.FotoCandidato" alt="Foto @candidato.NombreCompleto" class="w-full h-full object-cover" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="w-20 h-20 rounded-full border-2 border-gray-100 bg-gray-50 flex items-center justify-center text-gray-400 mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                        </svg>
+                                    </div>
+                                }
+                                
+                                <h3 class="font-bold text-gray-900 leading-tight">@candidato.NombreCompleto</h3>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Voto Nulo / Blanco explicito -->
+                    <div class="candidato-card relative border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-gray-400 transition-all bg-gray-50 flex flex-col items-center justify-center min-h-[220px]"
+                         onclick="seleccionarCandidato(@puesto.PuestoId, '', this)">
+                        
+                        <div class="candidato-check absolute top-3 right-3 w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center opacity-0 transition-opacity">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-white">
+                                <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+
+                        <div class="w-16 h-16 rounded-full bg-white border border-gray-200 flex items-center justify-center mb-4 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-600 text-center">Voto en Blanco</h3>
+                        <p class="text-xs text-gray-500 text-center mt-2">No votar por nadie en este nivel</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Botón cancelar al final del formulario -->
+    <div class="max-w-5xl mx-auto mt-8 text-center">
+        <a asp-action="Index" class="btn btn-secondary inline-flex">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mr-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Cancelar y Salir
+        </a>
+    </div>
+    }
+</form>
+
+<style>
+    .candidato-card.selected {
+        border-color: var(--primary);
+        background-color: var(--primary-50);
+    }
+    .candidato-card.selected .candidato-check {
+        opacity: 1;
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const totalPuestos = @Model.Puestos.Count;
+        let seleccionados = 0;
+
+        function seleccionarCandidato(puestoId, candidatoId, cardElement) {
+            // 1. Quitar seleccion previa en este puesto
+            const section = document.getElementById(`puesto-section-${puestoId}`);
+            const cards = section.querySelectorAll('.candidato-card');
+            
+            let habiaSeleccionPrev = false;
+            cards.forEach(card => {
+                if(card.classList.contains('selected')) {
+                    habiaSeleccionPrev = true;
+                }
+                card.classList.remove('selected');
+            });
+
+            // 2. Marcar la nueva
+            cardElement.classList.add('selected');
+
+            // 3. Actualizar input oculto
+            document.getElementById(`input-candidato-${puestoId}`).value = candidatoId;
+
+            // 4. Actualizar badge visual
+            const badge = document.getElementById(`badge-puesto-${puestoId}`);
+            if(badge) {
+                badge.className = 'badge badge-success hidden md:flex';
+                badge.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Seleccionado
+                `;
+            }
+
+            // 5. Actualizar progreso si es primera vez en este puesto
+            if (!habiaSeleccionPrev) {
+                seleccionados++;
+                actualizarProgreso();
+            }
+        }
+
+        function actualizarProgreso() {
+            const bar = document.getElementById('progreso-bar');
+            const text = document.getElementById('progreso-text');
+            
+            const porcentaje = (seleccionados / totalPuestos) * 100;
+            
+            if(bar) bar.style.width = `${porcentaje}%`;
+            if(text) text.textContent = `${seleccionados}/${totalPuestos}`;
+            
+            if (porcentaje === 100 && bar) {
+                bar.classList.remove('bg-primary');
+                bar.classList.add('bg-success');
+            }
+        }
+
+        function validarYEnviar() {
+            if (seleccionados < totalPuestos) {
+                showConfirmModal(
+                    'Boleta Incompleta', 
+                    `Has seleccionado ${seleccionados} de ${totalPuestos} puestos. Los puestos sin seleccion se contaran como Voto en Blanco. ¿Deseas continuar?`,
+                    'javascript:document.getElementById("formVotacion").submit()',
+                    'btn-primary'
+                );
+            } else {
+                document.getElementById('formVotacion').submit();
+            }
+        }
+    </script>
+}

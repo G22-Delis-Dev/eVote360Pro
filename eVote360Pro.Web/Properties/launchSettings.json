@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
@@ -22,7 +22,27 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7089;http://localhost:5071",
+      "applicationUrl": "https://localhost:7089;http://localhost:5071;http://0.0.0.0:5071",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "https + ngrok": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:7089;http://localhost:5071;http://0.0.0.0:5071",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "launchBrowserUrl": "http://localhost:4040"
+    },
+    "ngrok": {
+      "commandName": "Executable",
+      "executablePath": "ngrok",
+      "commandLineArgs": "start --all --config ngrok.yml --log=stdout",
+      "launchBrowser": false,
+      "workingDirectory": "$(SolutionDir)",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

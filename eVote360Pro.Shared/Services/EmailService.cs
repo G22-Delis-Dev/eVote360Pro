@@ -1,8 +1,9 @@
-﻿using eVote360Pro.Application.DTOs;
-using eVote360Pro.Application.Interfaces;
-using eVote360Pro.Shared.Services;
+using eVote360Pro.Domain.Settings;
+using eVote360Pro.Shared.Interfaces;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MimeKit;
 
 namespace eVote360Pro.Shared.Services;
@@ -10,27 +11,15 @@ namespace eVote360Pro.Shared.Services;
 public class EmailService : IEmailService
 {
     private readonly EmailSettings _settings;
+    private readonly ILogger<EmailService> _logger;
 
-    public EmailService(EmailSettings settings)
+    public EmailService(IOptions<EmailSettings> options, ILogger<EmailService> logger)
     {
-        _settings = settings;
+        _settings = options.Value;
+        _logger = logger;
     }
 
-    public async Task EnviarCodigoVerificacionAsync(string destinatario, string nombreCiudadano, string codigo)
-    {
-        var asunto = "Código de verificación - eVote360 Pro";
-        var cuerpo = $@"<p>Hola {nombreCiudadano}, tu código es: <strong>{codigo}</strong></p>";
-        await EnviarAsync(destinatario, asunto, cuerpo);
-    }
-
-    public async Task EnviarResumenVotacionAsync(string destinatario, string nombreCiudadano, ResumenVotacionDto resumen)
-    {
-        var asunto = $"Resumen de votación - {resumen.NombreEleccion}";
-        var cuerpo = $@"<p>Hola {nombreCiudadano}, tu votación fue exitosa.</p>";
-        await EnviarAsync(destinatario, asunto, cuerpo);
-    }
-
-    private async Task EnviarAsync(string destinatario, string asunto, string cuerpoHtml)
+    public async Task EnviarAsync(string destinatario, string asunto, string cuerpoHtml)
     {
         var mensaje = new MimeMessage();
         mensaje.From.Add(new MailboxAddress(_settings.NombreRemitente, _settings.CorreoRemitente));

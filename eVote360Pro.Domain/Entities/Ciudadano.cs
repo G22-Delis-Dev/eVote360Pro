@@ -6,7 +6,6 @@ public class Ciudadano : BaseEntity
     public string Apellido { get; set; } = string.Empty;
     public string CorreoElectronico { get; set; } = string.Empty;
     public string NumeroDocumento { get; set; } = string.Empty;
-    public bool Activo { get; set; } = true;
 
     // Navegación
     public ICollection<CodigoVerificacion> CodigosVerificacion { get; set; } = [];

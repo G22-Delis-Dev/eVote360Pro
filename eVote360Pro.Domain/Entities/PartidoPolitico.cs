@@ -7,8 +7,6 @@ public class PartidoPolitico : BaseEntity
     public string Siglas { get; set; } = string.Empty;
     public string LogoRuta { get; set; } = string.Empty;
 
-    public bool Activo { get; set; } = true;
-
     // Navegación
     public AsignacionDirigente? AsignacionDirigente { get; set; }
     public ICollection<Candidato> Candidatos { get; set; } = [];

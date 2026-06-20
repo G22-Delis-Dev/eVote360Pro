@@ -1,6 +1,6 @@
-﻿using eVote360Pro.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using eVote360Pro.Domain.Entities;
 
 namespace eVote360Pro.Infrastructure.Data.Configurations;
 
@@ -8,6 +8,7 @@ public class EleccionConfiguration : IEntityTypeConfiguration<Eleccion>
 {
     public void Configure(EntityTypeBuilder<Eleccion> builder)
     {
+        builder.ToTable("Elecciones");
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Nombre)

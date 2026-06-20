@@ -1,0 +1,88 @@
+@model eVote360Pro.Application.ViewModels.AsignacionCandidatos.AsignacionCandidatoCreateViewModel
+@{
+    Layout = "_LayoutDirigente";
+    ViewData["Title"] = "Asignar Candidato";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Asignar Candidato a Puesto</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeDirigente" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><a asp-action="Index">Asignaciones</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Nueva Asignacion</span></li>
+        </ul>
+    </div>
+</div>
+
+<div class="card max-w-2xl">
+    <div class="card-header">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+            Seleccionar Candidatura
+        </h2>
+    </div>
+
+    <form asp-action="Create" method="post" class="card-body">
+        @Html.AntiForgeryToken()
+        
+        <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <div class="form-group">
+                <label asp-for="PuestoId" class="form-label">Puesto Electivo <span class="required">*</span></label>
+                <select asp-for="PuestoId" asp-items="ViewBag.Puestos" class="form-input">
+                    <option value="">Seleccione el puesto a postular</option>
+                </select>
+                <span class="form-hint">No se muestran puestos donde su partido ya tenga un candidato asignado.</span>
+                <span asp-validation-for="PuestoId" class="form-error"></span>
+            </div>
+
+            <!-- Candidato -->
+            <div class="form-group">
+                <label asp-for="CandidatoId" class="form-label">Candidato <span class="required">*</span></label>
+                <select asp-for="CandidatoId" asp-items="ViewBag.Candidatos" class="form-input">
+                    <option value="">Seleccione un candidato de su partido</option>
+                </select>
+                <span class="form-hint">Un candidato solo puede ser postulado a un (1) unico puesto electivo.</span>
+                <span asp-validation-for="CandidatoId" class="form-error"></span>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-6">
+            <div class="alert-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+            </div>
+            <div class="alert-text">
+                Una vez asignado, el candidato aparecera en la boleta electoral de este puesto bajo el logo de su partido.
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary-dir">
+                Confirmar Asignacion
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

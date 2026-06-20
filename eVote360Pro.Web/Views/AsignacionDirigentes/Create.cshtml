@@ -1,0 +1,88 @@
+@model eVote360Pro.Application.ViewModels.AsignacionDirigentes.AsignacionDirigenteCreateViewModel
+@{
+    Layout = "_LayoutAdmin";
+    ViewData["Title"] = "Asignar Dirigente a Partido";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Asignar Dirigente</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeAdmin" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><a asp-action="Index">Asignaciones</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Nueva Asignación</span></li>
+        </ul>
+    </div>
+</div>
+
+<div class="card max-w-2xl">
+    <div class="card-header">
+        <h2>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+            </svg>
+            Vincular Usuario a Partido Politico
+        </h2>
+    </div>
+
+    <form asp-action="Create" method="post" class="card-body">
+        @Html.AntiForgeryToken()
+        
+        <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Dirigente -->
+            <div class="form-group">
+                <label asp-for="UsuarioId" class="form-label">Usuario Dirigente <span class="required">*</span></label>
+                <select asp-for="UsuarioId" asp-items="Model.UsuariosDisponibles" class="form-input">
+                    <option value="">Seleccione un usuario con rol Dirigente</option>
+                </select>
+                <span class="form-hint">Solo se muestran usuarios activos con rol Dirigente que no esten ya asignados.</span>
+                <span asp-validation-for="UsuarioId" class="form-error"></span>
+            </div>
+
+            <!-- Partido -->
+            <div class="form-group">
+                <label asp-for="PartidoId" class="form-label">Partido Politico <span class="required">*</span></label>
+                <select asp-for="PartidoId" asp-items="Model.PartidosDisponibles" class="form-input">
+                    <option value="">Seleccione un partido politico</option>
+                </select>
+                <span asp-validation-for="PartidoId" class="form-error"></span>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-6">
+            <div class="alert-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+            </div>
+            <div class="alert-text">
+                Al asignar un dirigente a un partido, este tendra acceso exclusivo a gestionar los candidatos y alianzas de dicho partido.
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Asignar Dirigente
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

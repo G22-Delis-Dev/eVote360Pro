@@ -1,0 +1,205 @@
+using AutoMapper;
+using eVote360Pro.Application.DTOs;
+using eVote360Pro.Application.Interfaces;
+using eVote360Pro.Application.ViewModels.Candidatos;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using eVote360Pro.Web.Helpers;
+using eVote360Pro.Domain.Exceptions;
+
+namespace eVote360Pro.Web.Controllers.Dirigente;
+
+[eVote360Pro.Web.Filters.ValidarSesion("DirigentePolitico")]
+public class CandidatosController : Controller
+{
+    private readonly ICandidatoService _candidatoService;
+    private readonly ICiudadanoService _ciudadanoService;
+    private readonly IEleccionService _eleccionService;
+    private readonly IMapper _mapper;
+    private readonly ISesionUsuario _sesionUsuario;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+
+    public CandidatosController(
+        ICandidatoService candidatoService,
+        ICiudadanoService ciudadanoService,
+        IEleccionService eleccionService,
+        IMapper mapper,
+        IWebHostEnvironment webHostEnvironment,
+        ISesionUsuario sesionUsuario)
+    {
+        _candidatoService = candidatoService;
+        _ciudadanoService = ciudadanoService;
+        _eleccionService = eleccionService;
+        _mapper = mapper;
+        _webHostEnvironment = webHostEnvironment;
+        _sesionUsuario = sesionUsuario;
+    }
+
+    private async Task CargarCiudadanosDisponibles(CandidatoCreateViewModel vm)
+    {
+        var ciudadanos = await _ciudadanoService.ObtenerListaAsync();
+        vm.CiudadanosDisponibles = ciudadanos
+            .Where(c => c.Activo)
+            .Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = $"{c.Nombre} {c.Apellido} - {c.NumeroDocumento}"
+            }).ToList();
+    }
+
+    private int ObtenerPartidoIdDirigente() => _sesionUsuario.ObtenerPartidoId() ?? 0;
+
+    public async Task<IActionResult> Index(string filtro = "")
+    {
+        int partidoId = ObtenerPartidoIdDirigente();
+
+        var dtos = await _candidatoService.ObtenerPorPartidoAsync(partidoId);
+        var listaVms = _mapper.Map<IEnumerable<CandidatoListViewModel>>(dtos);
+
+        if (!string.IsNullOrEmpty(filtro))
+        {
+            var terminos = filtro.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            listaVms = listaVms.Where(c => terminos.All(t => 
+                c.NombreCompleto.Contains(t, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
+        var viewModel = new CandidatoListViewModel
+        {
+            Candidatos = listaVms,
+            Filtro = filtro
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+        var vm = new CandidatoCreateViewModel();
+        await CargarCiudadanosDisponibles(vm);
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CandidatoCreateViewModel vm)
+    {
+        ModelState.Remove("Nombre");
+        ModelState.Remove("Apellido");
+
+        if (vm.CiudadanoId > 0)
+        {
+            var ciudadano = await _ciudadanoService.ObtenerPorIdAsync(vm.CiudadanoId);
+            if (ciudadano != null)
+            {
+                vm.Nombre = ciudadano.Nombre;
+                vm.Apellido = ciudadano.Apellido;
+                vm.NumeroDocumento = ciudadano.NumeroDocumento;
+            }
+            else
+            {
+                ModelState.AddModelError("CiudadanoId", "El ciudadano seleccionado no existe.");
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await CargarCiudadanosDisponibles(vm);
+            return View(vm);
+        }
+
+        try
+        {
+            var dto = _mapper.Map<CandidatoDto>(vm);
+            dto.PartidoPoliticoId = ObtenerPartidoIdDirigente();
+
+            if (vm.FotoArchivo != null)
+                dto.FotoUrl = SubidaArchivo.Subir(vm.FotoArchivo, "candidatos") ?? string.Empty;
+
+            await _candidatoService.CrearAsync(dto);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (ValidacionException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            await CargarCiudadanosDisponibles(vm);
+            return View(vm);
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var candidatoDto = await _candidatoService.ObtenerPorIdAsync(id);
+        if (candidatoDto == null) return NotFound();
+
+        if (candidatoDto.PartidoPoliticoId != ObtenerPartidoIdDirigente())
+            return Forbid();
+
+        ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+
+        var vm = _mapper.Map<CandidatoEditViewModel>(candidatoDto);
+        vm.FotoUrlExistente = candidatoDto.FotoUrl;
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, CandidatoEditViewModel vm)
+    {
+        if (!ModelState.IsValid)
+            return View(vm);
+
+        try
+        {
+            var dto = _mapper.Map<CandidatoDto>(vm);
+            dto.PartidoPoliticoId = ObtenerPartidoIdDirigente();
+
+            if (vm.FotoArchivo != null)
+                dto.FotoUrl = SubidaArchivo.Subir(vm.FotoArchivo, "candidatos", isEditMode: true, imagePath: vm.FotoUrlExistente) ?? vm.FotoUrlExistente ?? string.Empty;
+            else
+                dto.FotoUrl = vm.FotoUrlExistente ?? string.Empty;
+
+            await _candidatoService.ActualizarAsync(id, dto);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (ValidacionException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(vm);
+        }
+        catch (RegistroNoEncontradoException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CambiarEstado(int id)
+    {
+        var candidatoDto = await _candidatoService.ObtenerPorIdAsync(id);
+        if (candidatoDto == null) return NotFound();
+
+        if (candidatoDto.PartidoPoliticoId != ObtenerPartidoIdDirigente())
+            return Forbid();
+
+        try
+        {
+            await _candidatoService.CambiarEstadoAsync(id);
+        }
+        catch (ValidacionException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+}

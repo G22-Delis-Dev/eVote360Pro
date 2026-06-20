@@ -1,0 +1,157 @@
+@model eVote360Pro.Application.ViewModels.Candidatos.CandidatoListViewModel
+@{
+    Layout = "_LayoutDirigente";
+    ViewData["Title"] = "Gestión de Candidatos";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Mis Candidatos</h1>
+        <ul class="breadcrumb">
+            <li><a asp-controller="HomeDirigente" asp-action="Index">Inicio</a></li>
+            <li class="breadcrumb-separator">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </li>
+            <li><span>Candidatos</span></li>
+        </ul>
+    </div>
+    
+    <div class="flex items-center gap-3">
+        <!-- Buscador -->
+        <form method="get" asp-action="Index" class="search-wrapper">
+            <span class="search-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+            </span>
+            <input type="search" name="filtro" value="@Model.Filtro" class="search-input" placeholder="Buscar candidato..." oninput="if(this.value === '') this.form.submit();" onsearch="this.form.submit()">
+        </form>
+
+        @if (ViewBag.HayEleccionActiva == true)
+        {
+            <button disabled class="btn btn-secondary disabled" title="Accion bloqueada durante eleccion activa">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nuevo Candidato
+            </button>
+        }
+        else
+        {
+            <a asp-action="Create" class="btn btn-primary-dir">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nuevo Candidato
+            </a>
+        }
+    </div>
+</div>
+
+<div class="card">
+    @if (!Model.Candidatos.Any())
+    {
+        <partial name="_EmptyState" model="@(("<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='currentColor'><path stroke-linecap='round' stroke-linejoin='round' d='M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z' /></svg>", "No has registrado ningún candidato para tu partido aún.", "Nuevo Candidato", "Create", "Candidatos", (bool)(ViewBag.HayEleccionActiva ?? false)))" />
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Candidato (Ciudadano)</th>
+                        <th>Estado</th>
+                        <th class="cell-actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Candidatos)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.FotoCandidato))
+                                {
+                                    <div class="w-12 h-12 rounded-full border border-gray-200 bg-white overflow-hidden flex items-center justify-center">
+                                        <img src="@item.FotoCandidato" alt="Foto de @item.CiudadanoNombreCompleto" class="w-full h-full object-cover" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="w-12 h-12 rounded-full border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                        </svg>
+                                    </div>
+                                }
+                            </td>
+                            <td class="cell-primary">@item.CiudadanoNombreCompleto</td>
+                            <td>
+                                @if (item.Activo)
+                                {
+                                    <span class="badge badge-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-danger">Inactivo</span>
+                                }
+                            </td>
+                            <td class="cell-actions">
+                                @if (ViewBag.HayEleccionActiva == true)
+                                {
+                                    <button disabled class="btn-action btn-action-disabled" title="Bloqueado por eleccion activa">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                        </svg>
+                                        Editar
+                                    </button>
+                                }
+                                else
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn-action" style="color: var(--dir-600);">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                                        </svg>
+                                        Editar
+                                    </a>
+                                }
+
+                                @if (ViewBag.HayEleccionActiva == true)
+                                {
+                                    <button disabled class="btn-action btn-action-disabled" title="Bloqueado">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                        </svg>
+                                        @(item.Activo ? "Desactivar" : "Activar")
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" 
+                                            onclick="showConfirmModal('Cambiar Estado', '¿Estas seguro de que deseas @(item.Activo ? "desactivar" : "activar") el candidato @item.CiudadanoNombreCompleto?', '@Url.Action("CambiarEstado", "Candidatos", new { id = item.Id })', '@(item.Activo ? "btn-danger" : "btn-success")')"
+                                            class="btn-action @(item.Activo ? "btn-action-danger" : "btn-action-success")">
+                                        @if(item.Activo) {
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            @:Desactivar
+                                        } else {
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            @:Activar
+                                        }
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <partial name="_Paginacion" />
+    }
+</div>

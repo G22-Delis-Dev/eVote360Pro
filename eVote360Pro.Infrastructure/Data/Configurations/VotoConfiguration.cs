@@ -8,6 +8,7 @@ public class VotoConfiguration : IEntityTypeConfiguration<Voto>
 {
     public void Configure(EntityTypeBuilder<Voto> builder)
     {
+        builder.ToTable("Votos");
         builder.HasKey(v => v.Id);
 
         builder.HasOne(v => v.Eleccion)
