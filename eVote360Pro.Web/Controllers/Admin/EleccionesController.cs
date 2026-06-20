@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using eVote360Pro.Application.DTOs;
 using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Elecciones;
@@ -26,17 +26,29 @@ public class EleccionesController : Controller
         _mapper = mapper;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? anio, string? estadoFiltro)
     {
         var dtos = await _eleccionService.ObtenerTodosAsync();
         var items = _mapper.Map<IEnumerable<EleccionItemViewModel>>(dtos);
 
-        var hayActiva = items.Any(e => e.Estado == EstadoEleccion.Activa);
+        if (!string.IsNullOrEmpty(anio) && int.TryParse(anio, out int anioInt))
+        {
+            items = items.Where(e => e.FechaRealizacion.Year == anioInt);
+        }
+
+        if (!string.IsNullOrEmpty(estadoFiltro) && Enum.TryParse<EstadoEleccion>(estadoFiltro, out var estadoEnum))
+        {
+            items = items.Where(e => e.Estado == estadoEnum);
+        }
+
+        var hayActiva = dtos.Any(e => e.Estado == EstadoEleccion.Activa);
 
         var vm = new EleccionListViewModel
         {
             Elecciones = items,
-            HayEleccionActiva = hayActiva
+            HayEleccionActiva = hayActiva,
+            AnioFiltro = anio,
+            EstadoFiltro = estadoFiltro
         };
 
         ViewBag.HayEleccionActiva = hayActiva;

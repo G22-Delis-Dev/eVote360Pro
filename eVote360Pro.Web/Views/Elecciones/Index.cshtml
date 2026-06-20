@@ -45,7 +45,7 @@
         <form method="get" asp-action="Index" class="flex flex-col sm:flex-row gap-4 items-end">
             <div class="flex-1 w-full">
                 <label class="form-label text-xs">Ano Electoral</label>
-                <select name="anio" class="form-input py-2">
+                <select name="anio" class="form-input py-2" onchange="this.form.submit()">
                     <option value="">Todos los anos</option>
                     @for (int i = DateTime.Now.Year + 1; i >= DateTime.Now.Year - 10; i--)
                     {
@@ -62,7 +62,7 @@
             </div>
             <div class="flex-1 w-full">
                 <label class="form-label text-xs">Estado</label>
-                <select name="estadoFiltro" class="form-input py-2">
+                <select name="estadoFiltro" class="form-input py-2" onchange="this.form.submit()">
                     <option value="">Todos los estados</option>
                     @if (Model.EstadoFiltro == "Pendiente") { <option value="Pendiente" selected>Pendiente</option> } else { <option value="Pendiente">Pendiente</option> }
                     @if (Model.EstadoFiltro == "Activa") { <option value="Activa" selected>Activa</option> } else { <option value="Activa">Activa</option> }

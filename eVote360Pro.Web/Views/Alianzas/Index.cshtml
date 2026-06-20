@@ -44,20 +44,13 @@
     <div class="card-body p-4 bg-gray-50 border-b border-gray-200">
         <form method="get" asp-action="Index" class="flex flex-col sm:flex-row gap-4 items-end">
             <div class="flex-1 w-full">
-                <label class="form-label text-xs">Puesto Electivo</label>
-                <select name="puestoIdFiltro" class="form-input py-2">
-                    <option value="">Todos los puestos</option>
-                    @foreach (var puesto in ViewBag.PuestosDisponibles as IEnumerable<SelectListItem> ?? [])
-                    {
-                        if (ViewBag.PuestoIdFiltro == int.Parse(puesto.Value))
-                        {
-                            <option value="@puesto.Value" selected>@puesto.Text</option>
-                        }
-                        else
-                        {
-                            <option value="@puesto.Value">@puesto.Text</option>
-                        }
-                    }
+                <label class="form-label text-xs">Estado</label>
+                <select name="estadoFiltro" class="form-input py-2" onchange="this.form.submit()">
+                    <option value="">Todos los estados</option>
+                    @if (ViewBag.EstadoFiltro == "Pendiente") { <option value="Pendiente" selected>Pendiente</option> } else { <option value="Pendiente">Pendiente</option> }
+                    @if (ViewBag.EstadoFiltro == "Aprobada") { <option value="Aprobada" selected>Aprobada</option> } else { <option value="Aprobada">Aprobada</option> }
+                    @if (ViewBag.EstadoFiltro == "Rechazada") { <option value="Rechazada" selected>Rechazada</option> } else { <option value="Rechazada">Rechazada</option> }
+                    @if (ViewBag.EstadoFiltro == "Rota") { <option value="Rota" selected>Rota</option> } else { <option value="Rota">Rota</option> }
                 </select>
             </div>
             <div>

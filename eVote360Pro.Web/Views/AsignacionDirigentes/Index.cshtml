@@ -45,7 +45,7 @@
         <form method="get" asp-action="Index" class="flex flex-col sm:flex-row gap-4 items-end">
             <div class="flex-1 w-full">
                 <label class="form-label text-xs">Partido Político</label>
-                <select name="partidoFiltroId" class="form-input py-2">
+                <select name="partidoFiltroId" class="form-input py-2" onchange="this.form.submit()">
                     <option value="">Todos los partidos</option>
                     @foreach (var partido in Model.PartidosDisponibles ?? Enumerable.Empty<SelectListItem>())
                     {

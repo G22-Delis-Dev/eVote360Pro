@@ -24,14 +24,22 @@ public class PuestosElectivosController : Controller
         _eleccionService = eleccionService;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? filtro)
     {
         var dtos = await _puestoService.ObtenerTodosAsync();
         var items = _mapper.Map<IEnumerable<PuestoElectivoItemViewModel>>(dtos);
 
+        if (!string.IsNullOrEmpty(filtro))
+        {
+            items = items.Where(p => 
+                (p.Nombre?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (p.Descripcion?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
         var vm = new PuestoElectivoListViewModel
         {
-            Puestos = items
+            Puestos = items,
+            Filtro = filtro
         };
 
         ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();

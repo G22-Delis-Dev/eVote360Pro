@@ -37,6 +37,10 @@ public class EleccionService : GenericService<Eleccion, EleccionDto>, IEleccionS
 
     public async Task CrearConPuestosAsync(EleccionDto dto, List<int> puestosIds)
     {
+        var partidos = await _unitOfWork.PartidosPoliticos.GetAllAsync();
+        if (partidos.Count() < 2)
+            throw new ValidacionException("No se puede crear una elección sin al menos 2 partidos políticos registrados.");
+
         if (puestosIds == null || !puestosIds.Any())
             throw new InvalidOperationException("Debe seleccionar al menos un puesto electivo.");
 

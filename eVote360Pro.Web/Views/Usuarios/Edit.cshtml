@@ -68,7 +68,8 @@
             <!-- Rol -->
             <div class="form-group">
                 <label asp-for="Rol" class="form-label">Rol del Sistema <span class="required">*</span></label>
-                <select asp-for="Rol" asp-items="Model.RolesDisponibles" class="form-input">
+                <select asp-for="Rol" asp-items="@Model.RolesDisponibles" class="form-input">
+                    <option value="">Seleccione un rol</option>
                 </select>
                 <span asp-validation-for="Rol" class="form-error"></span>
             </div>
