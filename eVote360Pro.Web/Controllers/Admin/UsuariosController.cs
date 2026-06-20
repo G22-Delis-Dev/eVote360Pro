@@ -43,10 +43,11 @@ public class UsuariosController : Controller
 
         if (!string.IsNullOrEmpty(filtro))
         {
-            items = items.Where(u => 
-                (u.NombreUsuario?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (u.CiudadanoNombreCompleto?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (u.Rol?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false));
+            var terminos = filtro.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            items = items.Where(u => terminos.All(t => 
+                (u.NombreUsuario?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (u.CiudadanoNombreCompleto?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (u.Rol?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false)));
         }
 
         var vm = new UsuarioListViewModel

@@ -31,9 +31,10 @@ public class PuestosElectivosController : Controller
 
         if (!string.IsNullOrEmpty(filtro))
         {
-            items = items.Where(p => 
-                (p.Nombre?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (p.Descripcion?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false));
+            var terminos = filtro.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            items = items.Where(p => terminos.All(t => 
+                (p.Nombre?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (p.Descripcion?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false)));
         }
 
         var vm = new PuestoElectivoListViewModel

@@ -88,6 +88,11 @@ public class VotacionService : IVotacionService
         // 3. Generar un código nuevo
         string nuevoCodigo = new Random().Next(100000, 1000000).ToString();
 
+        // LOG PARA DESARROLLO LOCAL
+        Console.WriteLine($"\n=========================================================");
+        Console.WriteLine($"CÓDIGO DE VERIFICACIÓN PARA {ciudadano.Nombre}: {nuevoCodigo}");
+        Console.WriteLine($"=========================================================\n");
+
         var codigoEntidad = new CodigoVerificacion
         {
             CiudadanoId = ciudadanoId,
@@ -107,9 +112,10 @@ public class VotacionService : IVotacionService
             var cuerpoHtml = _templateService.GenerarCodigoVerificacionHtml($"{ciudadano.Nombre} {ciudadano.Apellido}", nuevoCodigo);
             await _emailService.EnviarAsync(ciudadano.CorreoElectronico, "Código de verificación para votar - eVote360 Pro", cuerpoHtml);
         }
-        catch
+        catch (Exception ex)
         {
-            throw new ValidacionException("No fue posible enviar el código de verificación. Intente nuevamente más tarde.");
+            Console.WriteLine($"Error enviando correo SMTP: {ex.Message}");
+            // throw new ValidacionException("No fue posible enviar el código de verificación. Intente nuevamente más tarde.");
         }
     }
 

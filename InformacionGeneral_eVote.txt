@@ -1,0 +1,13 @@
+# Integrantes #
+
+Delis Manuel De La Cruz Castillo 2025-1074
+Sky Luisahanie Andujar Victorino 2025 - 1063
+
+# Datos del usuario Super Admin #
+Usuario: admin
+Contraseña: Admin123*
+
+# Datos del correo para verificar código y resumen elecciones #
+
+Correo: evotepro360@gmail.com
+Contraseña: evotePro***
