@@ -1,4 +1,4 @@
-﻿using eVote360Pro.Domain.Enums;
+using eVote360Pro.Domain.Enums;
 using eVote360Pro.Domain.Exceptions;
 
 namespace eVote360Pro.Domain.Rules;
@@ -23,7 +23,7 @@ public static class EleccionRules
             throw new InvalidOperationException("Solo se puede activar una elección en estado Pendiente.");
 
         if (existeOtraActiva)
-            throw new InvalidOperationException("Ya existe una elección activa. Solo puede haber una a la vez.");
+            throw new ValidacionException("Ya existe una elección activa. Solo puede haber una a la vez.");
     }
 
     public static void ValidarPuedeFinalizarse(EstadoEleccion estado)

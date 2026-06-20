@@ -13,15 +13,18 @@ public class AsignacionDirigentesController : Controller
 {
     private readonly IAsignacionDirigenteService _asignacionService;
     private readonly IEleccionService _eleccionService;
+    private readonly IPartidoPoliticoService _partidoService;
     private readonly IMapper _mapper;
 
     public AsignacionDirigentesController(
         IAsignacionDirigenteService asignacionService,
         IEleccionService eleccionService,
+        IPartidoPoliticoService partidoService,
         IMapper mapper)
     {
         _asignacionService = asignacionService;
         _eleccionService = eleccionService;
+        _partidoService = partidoService;
         _mapper = mapper;
     }
 
@@ -31,9 +34,9 @@ public class AsignacionDirigentesController : Controller
 
         var dtos = await _asignacionService.ObtenerListaAsync();
 
-        var partidosDisponibles = dtos
-            .Select(d => new SelectListItem { Value = d.PartidoPoliticoId.ToString(), Text = d.NombrePartido })
-            .DistinctBy(p => p.Value)
+        var todosLosPartidos = await _partidoService.ObtenerTodosAsync();
+        var partidosDisponibles = todosLosPartidos
+            .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Nombre })
             .ToList();
 
         if (partidoFiltroId.HasValue)

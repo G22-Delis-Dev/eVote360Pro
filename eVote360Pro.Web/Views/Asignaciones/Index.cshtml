@@ -45,7 +45,7 @@
         <form method="get" asp-action="Index" class="flex flex-col sm:flex-row gap-4 items-end">
             <div class="flex-1 w-full">
                 <label class="form-label text-xs">Puesto Electivo</label>
-                <select name="puestoIdFiltro" class="form-input py-2">
+                <select name="puestoIdFiltro" class="form-input py-2" onchange="this.form.submit()">
                     <option value="">Todos los puestos</option>
                     @foreach (var puesto in ViewBag.PuestosDisponibles as IEnumerable<SelectListItem> ?? [])
                     {

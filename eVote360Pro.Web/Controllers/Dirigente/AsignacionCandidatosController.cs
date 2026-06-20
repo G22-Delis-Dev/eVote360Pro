@@ -36,12 +36,25 @@ public class AsignacionesController : Controller
 
     private int ObtenerPartidoIdDirigente() => _sesionUsuario.ObtenerPartidoId() ?? 0;
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? puestoIdFiltro)
     {
         int partidoId = ObtenerPartidoIdDirigente();
         var dtos = await _asignacionService.ObtenerPorPartidoAsync(partidoId);
+        
+        var puestosActivos = await _puestoService.ObtenerTodosAsync();
+        var puestosFromAsignaciones = puestosActivos.Where(p => p.Activo).Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Nombre }).ToList();
+        
+        if (puestoIdFiltro.HasValue)
+        {
+            dtos = dtos.Where(a => a.PuestoElectivoId == puestoIdFiltro.Value);
+        }
+        
         var listaVms = _mapper.Map<IEnumerable<AsignacionCandidatoListViewModel>>(dtos);
+
         ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+        ViewBag.PuestosDisponibles = puestosFromAsignaciones;
+        ViewBag.PuestoIdFiltro = puestoIdFiltro;
+
         return View(listaVms);
     }
 

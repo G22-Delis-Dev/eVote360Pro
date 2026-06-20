@@ -33,14 +33,23 @@ public class UsuariosController : Controller
     // cuando se implemente el sistema de autenticación (Claims/Session).
     private int ObtenerUsuarioIdActual() => _sesionUsuario.ObtenerUsuarioSesion()?.Id ?? 0;
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? filtro)
     {
         var dtos = await _usuarioService.ObtenerListaAsync();
         var items = _mapper.Map<IEnumerable<UsuarioItemViewModel>>(dtos);
 
+        if (!string.IsNullOrEmpty(filtro))
+        {
+            items = items.Where(u => 
+                (u.NombreUsuario?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (u.CiudadanoNombreCompleto?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (u.Rol?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
         var vm = new UsuarioListViewModel
         {
-            Usuarios = items
+            Usuarios = items,
+            Filtro = filtro
         };
 
         ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
