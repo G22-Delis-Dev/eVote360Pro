@@ -429,10 +429,5 @@ FodyWeavers.xsd
 *.msp
 
 
-# Documentos locales del proyecto
-Evaluacion mini proyecto_ Evote360 Pro.pdf
-Mini proyecto_ eVote360 Pro.pdf
-*.pdf
-
 # ngrok (contiene authtoken sensible)
 ngrok.yml

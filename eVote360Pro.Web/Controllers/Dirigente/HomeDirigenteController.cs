@@ -1,4 +1,4 @@
-﻿using eVote360Pro.Application.Interfaces;
+using eVote360Pro.Application.Interfaces;
 using eVote360Pro.Application.ViewModels.Home;
 using eVote360Pro.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -13,28 +13,47 @@ public class HomeDirigenteController : Controller
     private readonly IAlianzaPoliticaService _alianzaService;
     private readonly IAsignacionCandidatoPuestoService _asignacionService;
     private readonly IEleccionService _eleccionService;
+    private readonly ISesionUsuario _sesionUsuario;
 
     public HomeDirigenteController(
         IPartidoPoliticoService partidoService,
         ICandidatoService candidatoService,
         IAlianzaPoliticaService alianzaService,
         IAsignacionCandidatoPuestoService asignacionService,
-        IEleccionService eleccionService) 
+        IEleccionService eleccionService,
+        ISesionUsuario sesionUsuario) 
     {
         _partidoService = partidoService;
         _candidatoService = candidatoService;
         _alianzaService = alianzaService;
         _asignacionService = asignacionService;
         _eleccionService = eleccionService;
+        _sesionUsuario = sesionUsuario;
     }
 
     public async Task<IActionResult> Index()
     {
-        // Buscamos las listas de datos desde los servicios de aplicación
+        var partidoId = _sesionUsuario.ObtenerPartidoId();
+
+        // Si por alguna razon no tiene partido asignado, los contadores se quedaran en 0
+        int totalCandidatos = 0;
+        int totalAlianzasPendientes = 0;
+        int totalAsignaciones = 0;
+
+        if (partidoId.HasValue)
+        {
+            var candidatos = await _candidatoService.ObtenerTodosAsync();
+            totalCandidatos = candidatos.Count(c => c.PartidoPoliticoId == partidoId.Value);
+
+            var alianzas = await _alianzaService.ObtenerTodosAsync();
+            totalAlianzasPendientes = alianzas.Count(a => a.Estado == EstadoAlianza.Pendiente && 
+                                                        (a.PartidoReceptorId == partidoId.Value || a.PartidoSolicitanteId == partidoId.Value));
+
+            var asignaciones = await _asignacionService.ObtenerTodosAsync();
+            totalAsignaciones = asignaciones.Count(a => a.PartidoPoliticoId == partidoId.Value);
+        }
+
         var partidos = await _partidoService.ObtenerTodosAsync();
-        var candidatos = await _candidatoService.ObtenerTodosAsync();
-        var alianzas = await _alianzaService.ObtenerTodosAsync();
-        var asignaciones = await _asignacionService.ObtenerTodosAsync();
         var elecciones = await _eleccionService.ObtenerTodosAsync();
 
         var hayEleccionActiva = elecciones.Any(e => e.Estado == EstadoEleccion.Activa);
@@ -43,10 +62,9 @@ public class HomeDirigenteController : Controller
         var viewModel = new HomeDirigenteViewModel
         {
             TotalPartidosPoliticos = partidos.Count(p => p.Activo),
-            TotalCandidatos = candidatos.Count(),
-            // Contamos solo las alianzas que están esperando respuesta (Estado = Pendiente)
-            TotalAlianzasPendientes = alianzas.Count(a => a.Estado == EstadoAlianza.Pendiente),
-            TotalAsignaciones = asignaciones.Count(),
+            TotalCandidatos = totalCandidatos,
+            TotalAlianzasPendientes = totalAlianzasPendientes,
+            TotalAsignaciones = totalAsignaciones,
             // Contamos solo las elecciones que están en estado Activa
             TotalEleccionesActivas = elecciones.Count(e => e.Estado == EstadoEleccion.Activa),
             HayEleccionActiva = hayEleccionActiva
