@@ -28,14 +28,22 @@ public class PartidosController : Controller
         _eleccionService = eleccionService;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? filtro)
     {
         var dtos = await _partidoService.ObtenerTodosAsync();
         var items = _mapper.Map<IEnumerable<PartidoItemViewModel>>(dtos);
 
+        if (!string.IsNullOrEmpty(filtro))
+        {
+            items = items.Where(p => 
+                (p.Nombre?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (p.Siglas?.Contains(filtro, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
         var vm = new PartidoListViewModel
         {
-            Partidos = items
+            Partidos = items,
+            Filtro = filtro
         };
 
         ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();

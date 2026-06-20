@@ -34,15 +34,25 @@ public class AlianzasController : Controller
 
     private int ObtenerPartidoIdDirigente() => _sesionUsuario.ObtenerPartidoId() ?? 0;
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? estadoFiltro)
     {
         int partidoId = ObtenerPartidoIdDirigente();
         ViewBag.PartidoId = partidoId;
 
         var dtos = await _alianzaService.ObtenerPorPartidoAsync(partidoId);
+        
+        if (!string.IsNullOrEmpty(estadoFiltro) && Enum.TryParse<EstadoAlianza>(estadoFiltro, out var estadoEnum))
+        {
+            dtos = dtos.Where(a => a.Estado == estadoEnum);
+        }
+
         var listaVms = _mapper.Map<IEnumerable<AlianzaListViewModel>>(dtos);
+        
         ViewBag.PartidoActualId = partidoId;
         ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
+        
+        ViewBag.EstadoFiltro = estadoFiltro;
+
         return View(listaVms);
     }
 

@@ -41,14 +41,25 @@
         <div asp-validation-summary="ModelOnly" class="form-validation-summary"></div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Seleccion de Ciudadano -->
+            <!-- Nombre -->
+            <div class="form-group">
+                <label asp-for="Nombre" class="form-label">Nombre <span class="required">*</span></label>
+                <input asp-for="Nombre" class="form-input" />
+                <span asp-validation-for="Nombre" class="form-error"></span>
+            </div>
+
+            <!-- Apellido -->
+            <div class="form-group">
+                <label asp-for="Apellido" class="form-label">Apellido <span class="required">*</span></label>
+                <input asp-for="Apellido" class="form-input" />
+                <span asp-validation-for="Apellido" class="form-error"></span>
+            </div>
+
+            <!-- Correo -->
             <div class="form-group md:col-span-2">
-                <label asp-for="CiudadanoId" class="form-label">Ciudadano Asociado <span class="required">*</span></label>
-                <select asp-for="CiudadanoId" asp-items="@(new SelectList(Model.CiudadanosDisponibles, "Id", "NombreCompletoDocumento"))" class="form-input">
-                    <option value="">Seleccione un ciudadano (Solo ciudadanos sin usuario asignado)</option>
-                </select>
-                <span class="form-hint text-gray-500">Los datos personales (nombre, correo) se tomarán del ciudadano.</span>
-                <span asp-validation-for="CiudadanoId" class="form-error"></span>
+                <label asp-for="CorreoElectronico" class="form-label">Correo Electrónico <span class="required">*</span></label>
+                <input asp-for="CorreoElectronico" type="email" class="form-input" />
+                <span asp-validation-for="CorreoElectronico" class="form-error"></span>
             </div>
 
             <!-- Nombre de Usuario -->
@@ -86,11 +97,8 @@
             <!-- Rol -->
             <div class="form-group">
                 <label asp-for="Rol" class="form-label">Rol del Sistema <span class="required">*</span></label>
-                <select asp-for="Rol" class="form-input">
+                <select asp-for="Rol" asp-items="@Model.RolesDisponibles" class="form-input">
                     <option value="">Seleccione un rol</option>
-                    <option value="Administrador">Administrador (Acceso Total)</option>
-                    <option value="Dirigente">Dirigente (Gestion de Partidos/Candidatos)</option>
-                    <!-- Elector se asigna automaticamente al crear ciudadano, no desde aqui por defecto -->
                 </select>
                 <span asp-validation-for="Rol" class="form-error"></span>
             </div>
