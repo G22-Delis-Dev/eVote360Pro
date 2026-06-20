@@ -44,7 +44,7 @@
             <!-- Ciudadano -->
             <div class="form-group md:col-span-2">
                 <label asp-for="CiudadanoId" class="form-label">Ciudadano (Candidato) <span class="required">*</span></label>
-                <select asp-for="CiudadanoId" asp-items="@(new SelectList(Model.CiudadanosDisponibles, "Id", "NombreCompletoDocumento"))" class="form-input">
+                <select asp-for="CiudadanoId" asp-items="Model.CiudadanosDisponibles" class="form-input">
                     <option value="">Seleccione un ciudadano de la lista</option>
                 </select>
                 <span class="form-hint">Solo se muestran ciudadanos activos que no esten ya registrados como candidatos por su partido.</span>

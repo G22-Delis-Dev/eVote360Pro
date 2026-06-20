@@ -30,6 +30,13 @@ public class CandidatoService : GenericService<Candidato, CandidatoDto>, ICandid
             throw new ValidacionException("Debe asignar un partido político válido al candidato.");
         }
 
+        var candidatosDelPartido = await _unitOfWork.Candidatos.GetByPartidoConPuestosAsync(dto.PartidoPoliticoId);
+        if (candidatosDelPartido.Any(c => c.Nombre.Equals(dto.Nombre, StringComparison.OrdinalIgnoreCase) && 
+                                          c.Apellido.Equals(dto.Apellido, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new ValidacionException($"Ya existe un candidato registrado con el nombre '{dto.Nombre} {dto.Apellido}' en su partido.");
+        }
+
         var candidato = _mapper.Map<Candidato>(dto);
 
         // Por defecto, cuando creamos un candidato nuevo, nace activo

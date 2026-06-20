@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Votacion | eVote360 Pro</title>
+    <title>@ViewData["Title"] - Votación | eVote360 Pro</title>
     <!-- Tailwind CSS (Solo utilidades) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -70,7 +70,7 @@
                     bool isActive = i == paso;
                     string dotClass = isCompleted ? "completed" : isActive ? "active" : "";
                     string labelClass = isActive || isCompleted ? "active" : "";
-                    string label = i == 1 ? "Inicio" : i == 2 ? "Identidad" : i == 3 ? "Verificacion" : i == 4 ? "Voto" : "Confirmacion";
+                    string label = i == 1 ? "Inicio" : i == 2 ? "Identidad" : i == 3 ? "Verificación" : i == 4 ? "Voto" : "Confirmación";
                     
                     <div class="progress-step">
                         <div class="progress-step-dot @dotClass">
@@ -105,7 +105,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                 </svg>
             </span>
-            Conexion Segura y Cifrada
+            Conexión Segura y Cifrada
         </div>
     </footer>
 

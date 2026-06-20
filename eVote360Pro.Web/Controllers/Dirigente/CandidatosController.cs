@@ -13,6 +13,7 @@ namespace eVote360Pro.Web.Controllers.Dirigente;
 public class CandidatosController : Controller
 {
     private readonly ICandidatoService _candidatoService;
+    private readonly ICiudadanoService _ciudadanoService;
     private readonly IEleccionService _eleccionService;
     private readonly IMapper _mapper;
     private readonly ISesionUsuario _sesionUsuario;
@@ -20,16 +21,30 @@ public class CandidatosController : Controller
 
     public CandidatosController(
         ICandidatoService candidatoService,
+        ICiudadanoService ciudadanoService,
         IEleccionService eleccionService,
         IMapper mapper,
         IWebHostEnvironment webHostEnvironment,
         ISesionUsuario sesionUsuario)
     {
         _candidatoService = candidatoService;
+        _ciudadanoService = ciudadanoService;
         _eleccionService = eleccionService;
         _mapper = mapper;
         _webHostEnvironment = webHostEnvironment;
         _sesionUsuario = sesionUsuario;
+    }
+
+    private async Task CargarCiudadanosDisponibles(CandidatoCreateViewModel vm)
+    {
+        var ciudadanos = await _ciudadanoService.ObtenerListaAsync();
+        vm.CiudadanosDisponibles = ciudadanos
+            .Where(c => c.Activo)
+            .Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = $"{c.Nombre} {c.Apellido} - {c.NumeroDocumento}"
+            }).ToList();
     }
 
     private int ObtenerPartidoIdDirigente() => _sesionUsuario.ObtenerPartidoId() ?? 0;
@@ -59,15 +74,38 @@ public class CandidatosController : Controller
     public async Task<IActionResult> Create()
     {
         ViewBag.HayEleccionActiva = await _eleccionService.ExisteEleccionActivaAsync();
-        return View(new CandidatoCreateViewModel());
+        var vm = new CandidatoCreateViewModel();
+        await CargarCiudadanosDisponibles(vm);
+        return View(vm);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CandidatoCreateViewModel vm)
     {
+        ModelState.Remove("Nombre");
+        ModelState.Remove("Apellido");
+
+        if (vm.CiudadanoId > 0)
+        {
+            var ciudadano = await _ciudadanoService.ObtenerPorIdAsync(vm.CiudadanoId);
+            if (ciudadano != null)
+            {
+                vm.Nombre = ciudadano.Nombre;
+                vm.Apellido = ciudadano.Apellido;
+                vm.NumeroDocumento = ciudadano.NumeroDocumento;
+            }
+            else
+            {
+                ModelState.AddModelError("CiudadanoId", "El ciudadano seleccionado no existe.");
+            }
+        }
+
         if (!ModelState.IsValid)
+        {
+            await CargarCiudadanosDisponibles(vm);
             return View(vm);
+        }
 
         try
         {
@@ -83,6 +121,7 @@ public class CandidatosController : Controller
         catch (ValidacionException ex)
         {
             ModelState.AddModelError(string.Empty, ex.Message);
+            await CargarCiudadanosDisponibles(vm);
             return View(vm);
         }
     }
