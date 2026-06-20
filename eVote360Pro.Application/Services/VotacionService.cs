@@ -115,7 +115,7 @@ public class VotacionService : IVotacionService
         catch (Exception ex)
         {
             Console.WriteLine($"Error enviando correo SMTP: {ex.Message}");
-            // throw new ValidacionException("No fue posible enviar el código de verificación. Intente nuevamente más tarde.");
+            throw new ValidacionException($"No fue posible enviar el código de verificación. Detalle del error: {ex.Message}");
         }
     }
 
